@@ -3336,12 +3336,34 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
 .pf-chip{border:1px solid #e5e1d6;background:#faf7f1;color:#5f5f5a;border-radius:6px;padding:2px 8px;font-size:11px}
 .pf-ico{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5e1d6;border-radius:8px;background:#fff;color:#e0554f;font-size:15px;cursor:pointer}
 .pf-none td{text-align:center;color:#888780}
+.pf-table tbody tr[data-conv]{cursor:pointer}.pf-table tbody tr.pf-sel td{background:#eaf3ff}
 </style>
 <app-procedures-financieres>
 <div class="pf-page" data-pf-root>
-  <h1 class="pf-h1">Procédures financières</h1>
-  <p class="pf-lead">Associer à une convention sa procédure financière (IDA, FIDA, FED, FM) et les modèles d'états correspondants.</p>
+  <div class="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-sm">
+    <div class="mr-3" title="Association d'une procédure financière et de ses modèles d'états à une convention">
+      <h2 class="text-base font-bold text-slate-900">Procédures financières</h2>
+      <p class="text-xs text-slate-500">Projet <b>COMPTA HASINA</b></p>
+    </div>
+    <button type="button" data-pf-act="ajouter" class="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"><i class="ti ti-plus"></i> Ajouter</button>
+    <button type="button" data-pf-act="modifier" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"><i class="ti ti-pencil"></i> Modifier</button>
+    <button type="button" data-pf-act="supprimer" class="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"><i class="ti ti-trash"></i> Supprimer</button>
+    <button type="button" data-pf-act="enregistrer" class="inline-flex items-center gap-2 rounded-lg border-0 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"><i class="ti ti-device-floppy"></i> Enregistrer</button>
+    <button type="button" data-pf-act="annuler" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"><i class="ti ti-x"></i> Annuler</button>
+    <span class="flex-1"></span>
+    <span class="w-fit rounded-full px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-600" data-pf-mode>Consultation</span>
+  </div>
+  <p class="pf-lead" style="margin-top:12px">Associer à une convention sa procédure financière (IDA, FIDA, FED, FM) et les modèles d'états correspondants.</p>
 
+  <div class="flex items-center gap-1 border-b border-[#edf1f5] mb-4">
+    <button type="button" data-pf-tab="saisie" data-on="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold border-b-2 -mb-px transition-colors cursor-pointer border-[#3e97ff] text-[#3e97ff]" data-off="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold border-b-2 -mb-px transition-colors cursor-pointer border-transparent text-[#888780]" class="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold border-b-2 -mb-px transition-colors cursor-pointer border-[#3e97ff] text-[#3e97ff]"><i class="text-base ti ti-edit"></i> Saisie</button>
+    <button type="button" data-pf-tab="liste" data-on="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold border-b-2 -mb-px transition-colors cursor-pointer border-[#3e97ff] text-[#3e97ff]" data-off="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold border-b-2 -mb-px transition-colors cursor-pointer border-transparent text-[#888780]" class="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold border-b-2 -mb-px transition-colors cursor-pointer border-transparent text-[#888780]"><i class="text-base ti ti-list-details"></i> Liste des procédures <span class="rounded-full bg-slate-100 px-2 text-xs text-slate-600" data-pf-count>1</span></button>
+    <span class="flex-1"></span>
+    <h3 class="text-sm font-bold text-slate-900" data-pf-formtitle>Procédure financière</h3>
+    <span class="ml-3 text-xs text-slate-500"><span class="text-red-500">*</span> obligatoire</span>
+  </div>
+
+  <div data-pf-pane="saisie">
   <div class="pf-card">
     <div class="pf-field">
       <label class="pf-label">Sélection de la convention <span class="pf-req">*</span></label>
@@ -3365,18 +3387,22 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       <div class="pf-models" data-pf-models><div class="pf-empty">Sélectionnez d'abord une procédure financière.</div></div>
       <p class="pf-hint">La liste des modèles dépend de la procédure financière choisie.</p>
     </div>
-    <div class="pf-actions">
+    <div class="pf-actions" style="display:none">
       <span class="pf-msg" data-pf-msg></span>
       <button type="button" class="pf-btn" data-pf-reset>Annuler</button>
       <button type="button" class="pf-btn pf-pri" data-pf-save>Enregistrer</button>
     </div>
   </div>
 
-  <h2 class="pf-h2">Procédures paramétrées</h2>
+  </div>
+
+  <div data-pf-pane="liste" style="display:none">
   <div class="pf-tablewrap"><table class="pf-table">
     <thead><tr><th>Convention</th><th>Procédure</th><th>Modèles d'états</th><th style="text-align:right">Actions</th></tr></thead>
     <tbody data-pf-rows><tr data-conv="CONV-001 — Projet Résilience Rurale"><td class="pf-b">CONV-001 — Projet Résilience Rurale</td><td><span class="pf-pill">IDA</span></td><td><div class="pf-chips"><span class="pf-chip">Formulaire 2F</span><span class="pf-chip">Formulaire 3F</span><span class="pf-chip">Formulaire 4F</span><span class="pf-chip">EJCD</span><span class="pf-chip">État récapitulatif par catégorie</span></div></td><td><div style="display:flex;justify-content:flex-end"><button type="button" class="pf-ico" data-pf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td></tr></tbody>
   </table></div>
+  <footer class="border-t border-slate-200 bg-slate-50/50 px-5 py-3 text-xs text-slate-500" style="margin-top:12px">Double-cliquez sur une ligne pour la modifier dans l'onglet Saisie.</footer>
+  </div>
 </div>
 <script>
 (function () {
@@ -3413,6 +3439,48 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     });
     window.dispatchEvent(new Event('pf-change'));
   }
+  var panes = { saisie: q('[data-pf-pane="saisie"]'), liste: q('[data-pf-pane="liste"]') };
+  function showTab(t) {
+    panes.saisie.style.display = t === 'saisie' ? '' : 'none'; panes.liste.style.display = t === 'liste' ? '' : 'none';
+    Array.prototype.forEach.call(root.querySelectorAll('[data-pf-tab]'), function (b) { b.className = b.dataset[b.dataset.pfTab === t ? 'on' : 'off']; });
+    q('[data-pf-formtitle]').textContent = t === 'saisie' ? 'Procédure financière' : 'Procédures paramétrées';
+  }
+  Array.prototype.forEach.call(root.querySelectorAll('[data-pf-tab]'), function (b) { b.addEventListener('click', function () { showTab(b.dataset.pfTab); }); });
+  var mode = 'consult', selRow = null;
+  var act = function (k) { return q('[data-pf-act="' + k + '"]'); };
+  function setMode(m) {
+    mode = m; var ed = m !== 'consult';
+    conv.disabled = !ed; proc.disabled = !ed; box.style.pointerEvents = ed ? '' : 'none'; box.style.opacity = ed ? '' : '.65';
+    var b = q('[data-pf-mode]'); b.textContent = { consult: 'Consultation', creation: 'Création', modif: 'Modification' }[m];
+    b.className = 'w-fit rounded-full px-3 py-1 text-xs font-semibold ' + (ed ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600');
+    refreshBtns();
+  }
+  function refreshBtns() {
+    var ed = mode !== 'consult';
+    act('ajouter').disabled = ed; act('modifier').disabled = ed || !selRow; act('supprimer').disabled = ed || !selRow;
+    act('enregistrer').disabled = !ed; act('annuler').disabled = !ed;
+  }
+  function select(tr) {
+    Array.prototype.forEach.call(q('[data-pf-rows]').querySelectorAll('tr'), function (r) { r.classList.remove('pf-sel'); });
+    selRow = tr || null; if (tr) tr.classList.add('pf-sel'); refreshBtns();
+  }
+  function loadRow(tr) {
+    var cv = tr.dataset.conv; var opt = Array.prototype.filter.call(conv.options, function (o) { return o.value === cv || o.text === cv; })[0];
+    conv.value = opt ? opt.value : ''; proc.value = tr.querySelector('.pf-pill').textContent; renderModels();
+    var have = Array.prototype.map.call(tr.querySelectorAll('.pf-chip'), function (c) { return c.textContent; });
+    checks().forEach(function (x) { x.checked = have.indexOf(x.value) >= 0; });
+  }
+  q('[data-pf-rows]').addEventListener('click', function (e) { var tr = e.target.closest('tr[data-conv]'); if (tr && !e.target.closest('[data-pf-del]')) select(tr); });
+  act('ajouter').addEventListener('click', function () { reset(); setMode('creation'); showTab('saisie'); say(''); });
+  act('modifier').addEventListener('click', function () { if (!selRow) return; loadRow(selRow); setMode('modif'); showTab('saisie'); say(''); });
+  act('supprimer').addEventListener('click', function () { if (!selRow) return; var tr = selRow; select(null); tr.remove(); var rows = q('[data-pf-rows]'); if (!rows.querySelector('tr')) rows.innerHTML = '<tr class="pf-none" data-pf-none><td colspan="4">Aucune procédure paramétrée.</td></tr>'; publish(); count(); });
+  act('enregistrer').addEventListener('click', function () { q('[data-pf-save]').click(); });
+  act('annuler').addEventListener('click', function () { reset(); setMode('consult'); say(''); });
+  function count() { q('[data-pf-count]').textContent = q('[data-pf-rows]').querySelectorAll('tr[data-conv]').length; }
+  q('[data-pf-rows]').addEventListener('dblclick', function (e) {
+    var tr = e.target.closest('tr[data-conv]'); if (!tr || e.target.closest('[data-pf-del]') || mode !== 'consult') return;
+    select(tr); loadRow(tr); setMode('modif'); showTab('saisie');
+  });
   function reset() { conv.value = ''; proc.value = ''; renderModels(); [conv, proc, box].forEach(function (f) { f.classList.remove('pf-bad'); }); say(''); }
   q('[data-pf-reset]').addEventListener('click', reset);
   q('[data-pf-save]').addEventListener('click', function () {
@@ -3428,15 +3496,16 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       '<td><div class="pf-chips">' + sel.map(function (m) { return '<span class="pf-chip">' + esc(m) + '</span>'; }).join('') + '</div></td>' +
       '<td><div style="display:flex;justify-content:flex-end"><button type="button" class="pf-ico" data-pf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td>';
     rows.appendChild(tr);
-    reset(); say('Procédure financière enregistrée.', 'ok'); publish();
+    reset(); say('Procédure financière enregistrée.', 'ok'); publish(); count(); select(null); setMode('consult'); showTab('liste');
   });
   publish();
   q('[data-pf-rows]').addEventListener('click', function (e) {
     var b = e.target.closest('[data-pf-del]'); if (!b) return;
     var rows = q('[data-pf-rows]'); b.closest('tr').remove();
     if (!rows.querySelector('tr')) rows.innerHTML = '<tr class="pf-none" data-pf-none><td colspan="4">Aucune procédure paramétrée.</td></tr>';
-    publish();
+    select(null); publish(); count();
   });
+  count(); setMode('consult');
 })();
 </script>
 </app-procedures-financieres>
