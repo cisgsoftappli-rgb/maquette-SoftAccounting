@@ -1997,7 +1997,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
 .ed-r{text-align:right!important;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:600;color:#2c2c2a!important}
 .ed-c{text-align:center!important}
 .ed-table input[type=checkbox]{width:18px;height:18px;accent-color:#17a673;cursor:pointer}
-.ed-foot{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ed-dg{background:#fff!important;color:#d1416c!important;border:1px solid #f0b4c5!important}.ed-dg:hover{background:#fdecf1!important}.ed-ok5{padding:40px;text-align:center}.ed-ok5i{display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:#e8fff3;color:#17a673;font-size:28px;font-weight:700;margin-bottom:16px}.ed-ok5 h2{margin:0;font-size:18px;font-weight:700;color:#2c2c2a}.ed-ok5 p{margin:8px 0 0;font-size:13px;color:#78829d}.ed-cfm{max-width:520px}.ed-cfb{display:flex;gap:16px;padding:24px 28px}.ed-cfi{flex:0 0 40px;height:40px;border-radius:50%;background:#fff3d6;color:#b7791f;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center}.ed-cfi.d{background:#fdecf1;color:#d1416c}.ed-cfb h2{margin:0 0 8px;font-size:16px;font-weight:700;color:#2c2c2a}.ed-cfw{background:#fff8eb;border:1px solid #f0d9a8;border-radius:8px;padding:10px 12px;font-size:13px;color:#8a5a12}.ed-cfw ul{margin:6px 0 0 18px;padding:0}.ed-cfb p{margin:10px 0 0;font-size:13px;color:#4b5675}.ed-cff{display:flex;justify-content:flex-end;gap:8px;padding:14px 28px;border-top:1px solid #edf1f5;background:#f8fafc}.ed-cff .ed-btn.d{background:#d1416c}.ed-foot{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .ed-total{font-size:13px;color:#4b5675}
 .ed-btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border:0;border-radius:8px;background:#3e97ff;color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .ed-btn:hover{background:#0c447c}
@@ -2115,7 +2115,9 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       <div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:#fff5f8"><span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#f1416c">Total montant non facturable</span><b data-ed-c-nf style="font-size:14px;color:#f1416c">0 MGA</b></div>
     </div>
     <p style="font-size:12px;color:#78829d;margin:0 0 12px;line-height:1.5">Cette action est irréversible pour les mouvements facturables : ils seront définitivement rattachés à cette DRF et ne pourront plus être repris dans une future sélection. Les mouvements non facturables redeviendront éligibles à une future sélection.</p>
-    <div class="ed-foot"><button type="button" class="ed-btn sec" data-ed-go="3">← Précédent</button><button type="button" class="ed-btn" data-ed-valider>Valider &amp; confirmer l’état de dépense</button></div></div>
+    <div class="ed-foot"><button type="button" class="ed-btn sec" data-ed-go="3">← Précédent</button><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="ed-btn ed-dg" data-ed-askc>✕ Annuler la confection de la DRF</button><button type="button" class="ed-btn" data-ed-valider>Valider &amp; confirmer l’état de dépense</button></div></div></div>
+  <div data-ed-view="5" style="display:none"><div class="ed-card ed-ok5"><div class="ed-ok5i">✓</div><h2>DRF confectionnée avec succès</h2><p data-ed-ok5t></p></div><div style="display:flex;justify-content:center"><button type="button" class="ed-btn sec" data-ed-new>Démarrer une nouvelle confection</button></div></div>
+  <div class="ed-ov" data-ed-cf style="display:none"><div class="ed-md ed-cfm" role="alertdialog" aria-modal="true"><div class="ed-cfb"><div class="ed-cfi" data-ed-cfi>!</div><div><h2 data-ed-cft></h2><div class="ed-cfw" data-ed-cfw></div><p data-ed-cfp></p></div></div><div class="ed-cff"><button type="button" class="ed-btn sec" data-ed-cfno>Annuler</button><button type="button" class="ed-btn" data-ed-cfok>Valider</button></div></div></div>
 
   <div class="ed-ov" data-ed-m2 style="display:none">
     <div class="ed-md ed-wide" role="dialog" aria-modal="true">
@@ -2382,6 +2384,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   }
   var TT = { 4: ['Étape 4 — Confirmation', 'Vérifiez le récapitulatif ci-dessous puis validez la confection de la DRF.'], 1: ["Confection guidée d'une DRF", 'Assistant guidé : sélection des mouvements, vérification et modification, puis validation finale de la DRF'],
     3: ['Étape 3 — Édition', "Choisissez le type d'état (Récapitulatif ou SOE) puis le modèle paramétré à utiliser pour éditer la DRF."],
+    5: ["Confection guidée d'une DRF", 'Assistant guidé : sélection des mouvements, vérification et modification, puis validation finale de la DRF'],
     2: ['Étape 2 — Vérification & modification', 'Sélectionnez une ligne (clic) puis cliquez sur « Modifier » pour ajuster ses informations. Un double-clic bascule le statut facturable.'] };
   function go(n) {
     if (n === 4) recap();
@@ -2392,7 +2395,31 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   qa('[data-ed-step]').forEach(function (b) { b.addEventListener('click', function () { go(+b.dataset.edStep); }); });
   qa('[data-ed-go]').forEach(function (b) { b.addEventListener('click', function () { go(+b.dataset.edGo); }); });
   q('[data-ed-next]').addEventListener('click', function () { go(2); });
-  q('[data-ed-valider]').addEventListener('click', function () { say("État de dépense confirmé : DRF créée (maquette)."); });
+  var cfM = '', cf = q('[data-ed-cf]');
+  function askCf(m) {
+    cfM = m; var ic = q('[data-ed-cfi]'), ok = q('[data-ed-cfok]');
+    if (m === 'cancel') {
+      q('[data-ed-cft]').textContent = 'Annuler la confection de la DRF ?';
+      q('[data-ed-cfw]').innerHTML = '<strong>Attention : action irréversible.</strong> L\'annulation remet la confection à zéro :<ul><li>suppression de la sélection des écritures et de ses critères ;</li><li>suppression des modifications saisies sur les mouvements (marché, bénéficiaire, règlement…) ;</li><li>suppression du modèle et de l\'état édité ;</li><li>retour à l\'étape 1, sans verrouillage des mouvements.</li></ul>';
+      q('[data-ed-cfp]').textContent = 'Les mouvements restent éligibles aux sélections ultérieures. Confirmez-vous l\'annulation ?';
+      ic.className = 'ed-cfi d'; ic.textContent = '✕'; ok.className = 'ed-btn d'; ok.textContent = 'Valider l\'annulation';
+    } else {
+      q('[data-ed-cft]').textContent = 'Valider la confection de la DRF ?';
+      q('[data-ed-cfw]').innerHTML = '<strong>Attention :</strong> les mouvements facturables seront définitivement rattachés à cette DRF et ne pourront plus être repris dans une future sélection. Les mouvements non facturables redeviendront éligibles.';
+      q('[data-ed-cfp]').textContent = 'Seule l\'annulation de la DRF permettra ensuite de revenir en arrière. Confirmez-vous la validation ?';
+      ic.className = 'ed-cfi'; ic.textContent = '!'; ok.className = 'ed-btn'; ok.textContent = 'Valider';
+    }
+    cf.style.display = '';
+  }
+  q('[data-ed-valider]').addEventListener('click', function () { askCf('lock'); });
+  q('[data-ed-askc]').addEventListener('click', function () { askCf('cancel'); });
+  q('[data-ed-cfno]').addEventListener('click', function () { cf.style.display = 'none'; });
+  q('[data-ed-cfok]').addEventListener('click', function () {
+    cf.style.display = 'none';
+    if (cfM === 'cancel') { go(1); say('Confection de la DRF annulée : retour à l\'étape 1.'); }
+    else { var nf = D2.filter(function (r) { return r.fact; }).length; q('[data-ed-ok5t]').textContent = nf + ' mouvement(s) facturable(s) verrouillé(s) pour la DRF 001.'; go(5); }
+  });
+  q('[data-ed-new]').addEventListener('click', function () { go(1); });
   var modal = q('[data-ed-modal]');
   q('[data-ed-open]').addEventListener('click', function () { modal.style.display = ''; });
   qa('[data-ed-close]').forEach(function (b) { b.addEventListener('click', function () { modal.style.display = 'none'; }); });
