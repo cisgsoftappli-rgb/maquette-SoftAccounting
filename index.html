@@ -3215,7 +3215,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
 .tr-crit{display:flex;align-items:center;gap:8px;border:1px solid #dbdfe9;background:#fff;border-radius:8px;padding:10px 16px;font:inherit;font-size:13px;cursor:pointer}.tr-crit:hover{background:#f9f8f5}.tr-crit b{color:#232320}.tr-crit span{color:#8a8a85}
 .tr-empty{padding:32px 0;text-align:center;font-size:13px;color:#8a8a85}
 .tr-ft{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid #ece9e1}
-.tr-nx{min-height:40px;padding:0 16px;border-radius:8px;border:0;font:inherit;font-size:12px;font-weight:600;color:#fff;background:#12332c;cursor:pointer}.tr-nx:disabled{opacity:.45;cursor:not-allowed}
+.tr-cfm{max-width:520px}.tr-cfb{display:flex;gap:16px;padding:24px 28px}.tr-cfi{flex:0 0 40px;height:40px;border-radius:50%;background:#fff3d6;color:#b7791f;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center}.tr-cfi.d{background:#fdecf1;color:#d1416c}.tr-cfb h2{margin:0 0 8px;font-size:16px;font-weight:700;color:#232320}.tr-cfw{background:#fff8eb;border:1px solid #f0d9a8;border-radius:8px;padding:10px 12px;font-size:13px;color:#8a5a12}.tr-cfw ul{margin:6px 0 0 18px;padding:0}.tr-cfb p{margin:10px 0 0;font-size:13px;color:#4b5675}.tr-mf button.d{background:#d1416c;border-color:#d1416c;color:#fff}.tr-bd{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid #f0b4c5;background:#fff;color:#d1416c;font:inherit;font-size:12px;font-weight:600;cursor:pointer}.tr-bd:hover{background:#fdecf1}.tr-done{display:flex;flex-direction:column;align-items:center;text-align:center;padding:64px 0}.tr-dk{width:64px;height:64px;border-radius:50%;background:#dcf3e8;color:#12805c;font-size:28px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}.tr-done h2{margin:0;font-size:16px;font-weight:700;color:#232320}.tr-done p{margin:4px 0 0;font-size:13px;color:#3f7cc9}.tr-done .tr-bk{margin-top:20px}.tr-warn{background:#fff8eb;border:1px solid #f0d9a8;border-radius:12px;padding:12px 16px;font-size:13px;color:#8a5a12}.tr-sm4{display:block;max-width:512px}.tr-sr{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #f4f6fa;font-size:13px}.tr-sr.last{border-bottom:0}.tr-sr span:first-child{color:#78776f}.tr-nx{min-height:40px;padding:0 16px;border-radius:8px;border:0;font:inherit;font-size:12px;font-weight:600;color:#fff;background:#12332c;cursor:pointer}.tr-nx:disabled{opacity:.45;cursor:not-allowed}
 .tr-bk{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid #dbdfe9;background:#fff;color:#4b5675;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 .tr-t{width:100%;border-collapse:collapse;font-size:13px}.tr-t th{background:#f5f4f0;text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:#6b6b66}.tr-t td{padding:8px 10px;border-top:1px solid #f1efe9}.tr-t td.n,.tr-t th.n{text-align:right;font-variant-numeric:tabular-nums}
 .tr-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}.tr-sum div{background:#f9f8f5;border:1px solid #ece9e1;border-radius:8px;padding:12px 14px}.tr-sum small{display:block;font-size:11px;text-transform:uppercase;color:#8a8a85}.tr-sum b{font-size:18px}
@@ -3278,13 +3278,14 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     <section class="tr-sc"><h3><i>👤</i>Tiers</h3><div class="tr-g2"><label class="tr-f"><span>Fournisseur</span><input class="tr-in" data-tr-e="fourn"></label><label class="tr-f"><span>N° Facture</span><input class="tr-in" data-tr-e="fact"></label><label class="tr-f"><span>NIF titulaire</span><input class="tr-in" data-tr-e="nif" inputmode="numeric" placeholder="Chiffres uniquement"><small class="tr-hint" data-tr-nifh></small></label><label class="tr-f"><span>Statut titulaire</span><select class="tr-in" data-tr-e="statut"><option value="">—</option><option>Personne physique</option><option>Personne morale</option><option>Non résident</option></select></label></div></section>
     <section class="tr-sc"><h3><i>₪</i>Règlement</h3><div class="tr-g2"><label class="tr-f"><span>Montant payé</span><div class="tr-sfx"><input class="tr-in tr-num" type="number" min="0" step="1" data-tr-e="paye"><em>MGA</em></div></label><label class="tr-f"><span>Date paiement</span><input class="tr-in" type="date" data-tr-e="dpay"></label><label class="tr-f"><span>Mode règlement</span><select class="tr-in" data-tr-e="mode"><option value="">—</option><option>Virement</option><option>Chèque</option><option>Espèces</option><option>Mobile money</option></select></label><div class="tr-f"><span>Reste à payer</span><div class="tr-rest" data-tr-rest>—</div></div></div></section>
   </div><div class="tr-mf"><button type="button" data-tr-ecancel>Annuler</button><button type="button" class="p" data-tr-esave>Enregistrer</button></div></div></div>
+  <div class="tr-ov" data-tr-cf><div class="tr-md tr-cfm" role="alertdialog" aria-label="Confirmation"><div class="tr-cfb"><div class="tr-cfi" data-tr-cfi>!</div><div><h2 data-tr-cft></h2><div class="tr-cfw" data-tr-cfw></div><p data-tr-cfp></p></div></div><div class="tr-mf"><button type="button" data-tr-cfno>Annuler</button><button type="button" class="p" data-tr-cfok>Valider</button></div></div></div>
 </div>
 <script>
 (function () {
   var root = document.currentScript.parentElement.querySelector('[data-tr-root]');
   var q = function (s) { return root.querySelector(s); }, qa = function (s) { return Array.prototype.slice.call(root.querySelectorAll(s)); };
   var STEPS = ['Sélection des mouvements', 'Mouvements', 'Déclaration', 'Confirmation'];
-  var model = '', step = 0, crit = null, rows = [], done = false, locked = false;
+  var model = '', step = 0, crit = null, rows = [], done = false, locked = false, lotId = '';
   function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
   function nf(v) { return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' MGA'; }
   var JN = { 'OD': ['ACHMGA', 'ACHUSD', 'AUDIT', 'OD', 'RMBT'], 'Trésorerie': ['BQ1', 'BQ2', 'CAISSE'] };
@@ -3374,8 +3375,8 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   function total() { return rows.filter(function (r) { return r.on; }).reduce(function (a, r) { return a + r.mt; }, 0); }
   function draw() {
     q('[data-tr-steps]').innerHTML = STEPS.map(function (s, i) {
-      var cls = i === step ? 'on' : (i < step ? 'ok' : ''), dis = i > step && !(i <= 2 && rows.length);
-      return '<li><button type="button" class="tr-st ' + cls + '" data-tr-go="' + i + '"' + (dis ? ' disabled' : '') + '><i>' + (i < step ? '✓' : i + 1) + '</i><span>' + s + '</span></button>' + (i < 3 ? '<span class="tr-line' + (i < step ? ' g' : '') + '"></span>' : '') + '</li>';
+      var cls = locked ? 'ok' : i === step ? 'on' : (i < step ? 'ok' : ''), dis = locked || (i > step && !(i <= 2 && rows.length));
+      return '<li><button type="button" class="tr-st ' + cls + '" data-tr-go="' + i + '"' + (dis ? ' disabled' : '') + '><i>' + (locked || i < step ? '✓' : i + 1) + '</i><span>' + s + '</span></button>' + (i < 3 ? '<span class="tr-line' + (locked || i < step ? ' g' : '') + '"></span>' : '') + '</li>';
     }).join('');
     var b = '';
     if (step === 0) {
@@ -3402,12 +3403,34 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
         '<div class="tr-card"><h2 style="font-size:14px;margin-bottom:12px">🖨 Édition des états</h2><label class="tr-f" style="max-width:384px;margin-bottom:16px"><span>Modèle d\'édition</span><select class="tr-in" data-tr-model>' + MD.map(function (m) { return '<option' + (m.nom === model ? ' selected' : '') + '>' + esc(m.nom) + '</option>'; }).join('') + '</select></label>' +
         '<div style="display:flex;flex-wrap:wrap;gap:8px"><button type="button" class="tr-bk" data-tr-print>🖨 Imprimer</button><button type="button" class="tr-bk" data-tr-xls>▤ Imprimer (XLSX)</button><button type="button" class="tr-bk" data-tr-annex' + (isAnn ? '' : ' disabled style="opacity:.5;cursor:not-allowed"') + '>▦ Éditer les annexes</button></div></div>';
     } else {
-      b = '<div class="tr-card"><h2>Étape 4 — Confirmation</h2><p>Confirmez pour verrouiller la déclaration : les mouvements ne pourront plus être modifiés (annulation via « Annulation »).</p>' +
-        (locked ? '<div class="tr-ok">✔ Déclaration ' + esc(crit.type) + ' n° ' + esc(crit.sel) + ' confirmée et verrouillée — ' + nf(total()) + '.</div>' : '<button type="button" class="tr-nx" data-tr-lock>Confirmer et verrouiller</button>') + '</div>';
+      var on4 = rows.filter(function (r) { return r.on; }), ds = new Date(), ymd = ds.getFullYear() + ('0' + (ds.getMonth() + 1)).slice(-2) + ('0' + ds.getDate()).slice(-2), lot = 'LOT-DF-' + (crit.type || 'TAXE') + '-' + ymd + '-001';
+      var f2c = function (v) { var p = Math.abs(v).toFixed(2).split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' '); return p.join(',') + ' MGA'; };
+      var li = function (l, v, bold, last) { return '<div class="tr-sr' + (last ? ' last' : '') + '"><span>' + l + '</span><span' + (bold ? ' style="font-weight:700"' : '') + '>' + v + '</span></div>'; };
+      b = '<div class="tr-card"><h2>◉ Étape 4 — Confirmation</h2><p style="margin:0">Vérifiez le récapitulatif puis validez. La confirmation acte la déclaration et inscrit les mouvements dans le registre d\'exclusion de ce type de taxe.</p></div>' +
+        '<div class="tr-warn"><strong>Verrouillage :</strong> après validation, les mouvements déclarés ne seront plus éligibles aux sélections ultérieures sur le même type de taxe. Les sélections sur un autre type de taxe restent indépendantes.</div>' +
+        '<div class="tr-card tr-sm4">' + li('Sélection appliquée', '— Exercice ' + esc(crit.ex) + ' · ' + esc(crit.type)) + li('Nombre de mouvements imposables', on4.length) + li('Montant total', f2c(total())) + li('Numéro de lot (généré automatiquement)', lot, true, true) + '</div>' +
+        '';
+      if (locked) b = '<div class="tr-done"><div class="tr-dk">✓</div><h2>Déclaration traitée avec succès</h2><p>Lot ' + esc(lotId) + ' finalisé — mouvements exclus des prochaines sélections sur cette taxe.</p><button type="button" class="tr-bk" data-tr-new>↻ Démarrer un nouveau traitement</button></div>';
     }
     q('[data-tr-body]').innerHTML = b;
     q('[data-tr-prev]').innerHTML = step > 0 && !locked ? '<button type="button" class="tr-bk" data-tr-back>← Précédent</button>' : '';
-    q('[data-tr-next]').innerHTML = step < 3 ? '<button type="button" class="tr-nx" data-tr-fwd' + (!rows.length ? ' disabled' : '') + '>Suivant : ' + STEPS[step + 1] + ' →</button>' : '';
+    q('[data-tr-next]').innerHTML = step === 3 ? (locked ? '' : '<div style="display:flex;gap:8px"><button type="button" class="tr-bd" data-tr-askcancel>✕ Annuler le traitement de la déclaration</button><button type="button" class="tr-nx" data-tr-asklock>✔ Valider le traitement de la déclaration</button></div>') : step < 3 ? '<button type="button" class="tr-nx" data-tr-fwd' + (!rows.length ? ' disabled' : '') + '>Suivant : ' + STEPS[step + 1] + ' →</button>' : '';
+  }
+  var cfMode = '';
+  function askCf(m) {
+    cfMode = m; var ic = q('[data-tr-cfi]'), ok = q('[data-tr-cfok]');
+    if (m === 'cancel') {
+      q('[data-tr-cft]').textContent = 'Annuler le traitement de la déclaration ?';
+      q('[data-tr-cfw]').innerHTML = '<strong>Attention : action irréversible.</strong> L\'annulation remet le traitement à zéro :<ul><li>suppression de la sélection et du lot en cours ;</li><li>suppression des enrichissements saisis sur les mouvements (marché, tiers, règlement) ;</li><li>retrait des mouvements du registre d\'exclusion de cette taxe ;</li><li>retour à l\'étape 1, sans critères.</li></ul>';
+      q('[data-tr-cfp]').textContent = 'Les mouvements redeviendront éligibles aux sélections ultérieures. Confirmez-vous l\'annulation ?';
+      ic.className = 'tr-cfi d'; ic.textContent = '✕'; ok.className = 'd'; ok.textContent = 'Valider l\'annulation';
+    } else {
+      q('[data-tr-cft]').textContent = 'Valider le traitement de la déclaration ?';
+      q('[data-tr-cfw]').innerHTML = '<strong>Attention :</strong> après validation, les mouvements déclarés sont verrouillés et inscrits dans le registre d\'exclusion de ce type de taxe. Ils ne seront plus éligibles aux sélections ultérieures.';
+      q('[data-tr-cfp]').textContent = 'Un numéro de lot est généré. Seule l\'annulation de la déclaration permet ensuite de revenir en arrière. Confirmez-vous la validation ?';
+      ic.className = 'tr-cfi'; ic.textContent = '!'; ok.className = 'p'; ok.textContent = 'Valider';
+    }
+    q('[data-tr-cf]').style.display = 'flex';
   }
   root.addEventListener('click', function (e) {
     var t = e.target;
@@ -3418,7 +3441,16 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     else if (t.closest('[data-tr-fwd]')) { step++; draw(); }
     else if (t.closest('[data-tr-back]')) { step--; draw(); }
     else if (t.closest('[data-tr-go]')) { var i = +t.closest('[data-tr-go]').dataset.trGo; if (i <= step || (rows.length && i <= 2)) { step = i; draw(); } }
-    else if (t.closest('[data-tr-lock]')) { locked = true; draw(); }
+    else if (t.closest('[data-tr-asklock]')) askCf('lock');
+    else if (t.closest('[data-tr-askcancel]')) askCf('cancel');
+    else if (t.closest('[data-tr-cfno]')) q('[data-tr-cf]').style.display = 'none';
+    else if (t.closest('[data-tr-cfok]')) {
+      q('[data-tr-cf]').style.display = 'none';
+      if (cfMode === 'cancel') { model = ''; step = 0; crit = null; rows = []; locked = false; lotId = ''; draw(); }
+      else { var dl = new Date(); lotId = 'LOT-DF-' + (crit.type || 'TAXE') + '-' + dl.getFullYear() + ('0' + (dl.getMonth() + 1)).slice(-2) + ('0' + dl.getDate()).slice(-2) + '-001'; locked = true; draw(); }
+    }
+    else if (false) { var dl = new Date(); lotId = 'LOT-DF-' + (crit.type || 'TAXE') + '-' + dl.getFullYear() + ('0' + (dl.getMonth() + 1)).slice(-2) + ('0' + dl.getDate()).slice(-2) + '-001'; locked = true; draw(); }
+    else if (t.closest('[data-tr-new]')) { model = ''; step = 0; crit = null; rows = []; locked = false; lotId = ''; draw(); }
     else if (t.closest('[data-tr-print]')) doPrint();
     else if (t.closest('[data-tr-xls]')) doXls();
     else if (t.closest('[data-tr-annex]') && !t.closest('[data-tr-annex]').disabled) { location.hash = 'modfisc'; }
