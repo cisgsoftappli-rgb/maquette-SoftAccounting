@@ -745,7 +745,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   <div class="dd-bar">
     <div class="dd-left">
       <button type="button" class="dd-back" data-dd-back><i class="ti ti-arrow-left"></i> Retour</button>
-      <span class="dd-title" data-dd-title>DECLARATION — Déclaration</span><button type="button" class="dd-back" data-dd-params title="Paramètres du modèle d'état"><i class="ti ti-settings"></i> Paramètres</button><span data-dd-sum style="font-size:11px;color:#64748b;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+      <span class="dd-title" data-dd-title>DECLARATION — Déclaration</span><button type="button" class="dd-back" data-dd-params title="Paramètres du modèle d'état"><i class="ti ti-settings"></i> Paramètres</button><button type="button" class="dd-back" data-dd-dup title="Dupliquer le modèle"><i class="ti ti-copy"></i> Dupliquer</button><span data-dd-sum style="font-size:11px;color:#64748b;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     </div>
     <div class="dd-tabs">
       <button type="button" class="dd-tab" data-dd-tab="designer">Designer</button>
@@ -926,6 +926,14 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   q('[data-dd-save]').addEventListener('click', function () { var b = q('[data-dd-save]'); b.innerHTML = '✔ Sauvegardé'; setTimeout(function () { b.innerHTML = '<i class="ti ti-device-floppy"></i> Sauvegarder'; }, 1800); });
   q('[data-dd-back]').addEventListener('click', function () { history.back(); });
   function sum() { var e = q('[data-dd-sum]'); if (e && window.__mfSummary) { e.textContent = window.__mfSummary(); e.title = e.textContent; } }
+  q('[data-dd-dup]').addEventListener('click', function () {
+    var src = window.__mfDesigner || model;
+    window.__dupModele({ source: { code: src.code, nom: src.nom }, onOk: function (c, n, fl) {
+      var nm = {}; Object.keys(src).forEach(function (k) { nm[k] = src[k]; }); nm.code = c; nm.nom = n; nm.def = false; nm.file = fl;
+      window.__mfDesigner = nm; model = nm; q('[data-dd-title]').textContent = n; sum();
+      window.dispatchEvent(new CustomEvent('mf-model-dup', { detail: { from: window.__designerFrom, src: src.code, srcNom: src.nom, code: c, nom: n, file: nm.file, type: nm.type } }));
+    } });
+  });
   q('[data-dd-params]').addEventListener('click', function () { window.__mfParams(function (m) { model = m; q('[data-dd-title]').textContent = m.nom || '—'; sum(); }); });
   window.addEventListener('hashchange', function () {
     if (location.hash !== '#designer2') return;
@@ -1382,6 +1390,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
         <p class="df-sub" style="white-space:normal">Designer de reporting bailleur</p>
       </div>
       <button type="button" class="df-ico" title="Paramètres du modèle d'état" data-df-info><i class="ti ti-pencil"></i></button>
+      <button type="button" class="df-ico" title="Dupliquer le modèle" data-df-dupm><i class="ti ti-copy"></i></button>
     </div>
     <div class="df-tools">
       <div class="df-grp" data-df-toolbar>
@@ -1902,6 +1911,15 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   q('[data-df-save]').addEventListener('click', function () { var b = q('[data-df-save]'); b.textContent = '✔ Sauvegardé'; setTimeout(function () { b.textContent = '💾 Sauvegarder'; }, 1800); });
   q('[data-df-info]').addEventListener('click', function () { window.__mfParams(function (m) { model = m; head(); }); });
   q('[data-df-back]').addEventListener('click', function () { history.back(); });
+  q('[data-df-dupm]').addEventListener('click', function () {
+    var src = model;
+    window.__dupModele({ source: { code: src.code, nom: src.nom }, onOk: function (c, n, fl) {
+      var nm = {}; Object.keys(src).forEach(function (k) { nm[k] = src[k]; }); nm.code = c; nm.nom = n; nm.def = false; nm.file = fl;
+      window.__mfDesigner = nm; model = nm; head();
+      window.dispatchEvent(new CustomEvent('mf-model-dup', { detail: { from: window.__designerFrom, src: src.code, srcNom: src.nom, code: c, nom: n, file: nm.file, type: nm.type } }));
+      var b = q('[data-df-dupm]'); b.title = 'Modèle dupliqué : ' + c; setTimeout(function () { b.title = 'Dupliquer le modèle'; }, 2500);
+    } });
+  });
   function load() {
     var m = window.__mfDesigner; if (!m) return;
     var want = /4F/.test(m.nom) ? '4F' : /IRSA/.test(m.code + m.nom) ? 'IRSA' : /TVA/.test(m.code + m.nom) ? 'TVA' : null;
@@ -1956,6 +1974,36 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       Array.prototype.forEach.call(document.querySelectorAll('[data-screen="modfisc"] [data-mf-item]'), function (it) { if (it.querySelector('.mf-meta').textContent.indexOf(oldCode) >= 0 && it.querySelector('[data-mf-title]').textContent === oldNom) it.querySelector('[data-mf-title]').textContent = nom; });
       ov.remove(); if (onChange) onChange(m);
     };
+  };
+})();
+/* Duplication de modèle (partagée par les listes et les concepteurs) : window.__dupModele({ source:{code,nom}, exists:function(code), onOk:function(code,nom) }) */
+(function () {
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+  window.__dupModele = function (o) {
+    var old = document.getElementById('dup-ov'); if (old) old.remove();
+    var s = o.source || {}, ov = document.createElement('div'); ov.id = 'dup-ov'; ov.style.cssText = 'position:fixed;inset:0;z-index:3200;background:#0f172a99;display:flex;align-items:center;justify-content:center;padding:16px';
+    var fs = 'width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:9px 11px;font:inherit;font-size:13px;background:#fff;box-sizing:border-box', lb = 'display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:5px';
+    ov.innerHTML = '<div role="dialog" aria-modal="true" aria-label="Dupliquer le modèle" style="background:#fff;border-radius:14px;width:100%;max-width:480px;box-shadow:0 25px 50px -12px #0f172a40;font-family:inherit">' +
+      '<div style="padding:18px 22px;border-bottom:1px solid #e2e8f0"><h2 style="margin:0;font-size:16px;color:#0c4a6e">Dupliquer le modèle</h2><p style="margin:4px 0 0;font-size:12px;color:#64748b">Copie de « ' + esc((s.code ? s.code + ' — ' : '') + (s.nom || '')) + ' » : la conception est reprise telle quelle.</p></div>' +
+      '<div style="padding:18px 22px;display:grid;gap:14px">' +
+      '<label><span style="' + lb + '">Code (numéro) du nouveau modèle *</span><input id="dup-code" style="' + fs + '" maxlength="30" autocomplete="off"></label>' +
+      '<label><span style="' + lb + '">Nom du nouveau modèle *</span><input id="dup-nom" style="' + fs + '" autocomplete="off"></label>' +
+      '<label><span style="' + lb + '">Nom du fichier RepX créé après enregistrement *</span><input id="dup-file" style="' + fs + '" autocomplete="off" placeholder="Ex. modele_copie_01"><span style="display:block;font-size:11px;color:#64748b;margin-top:4px">L’extension .repx sera ajoutée automatiquement.</span></label>' +
+      '<div id="dup-err" style="display:none;color:#dc2626;font-size:12px"></div></div>' +
+      '<div style="display:flex;justify-content:flex-end;gap:10px;padding:14px 22px;background:#f8fafc;border-top:1px solid #f1f5f9;border-radius:0 0 14px 14px"><button type="button" id="dup-c" style="border:1px solid #cbd5e1;background:#fff;border-radius:8px;padding:8px 16px;font:inherit;font-size:13px;font-weight:600;cursor:pointer">Annuler</button><button type="button" id="dup-ok" style="border:0;background:#0c4a6e;color:#fff;border-radius:8px;padding:8px 16px;font:inherit;font-size:13px;font-weight:600;cursor:pointer">Dupliquer</button></div></div>';
+    document.body.appendChild(ov);
+    var $ = function (id) { return document.getElementById(id); }, close = function () { ov.remove(); };
+    function ok() {
+      var c = $('dup-code').value.trim(), n = $('dup-nom').value.trim(), fl = $('dup-file').value.trim().replace(/.repx$/i, '').replace(/[^A-Za-z0-9_.-]+/g, '_'), er = $('dup-err');
+      if (!c || !n || !fl) { er.textContent = 'Le code, le nom et le nom du fichier RepX sont obligatoires.'; er.style.display = 'block'; return; }
+      if (o.exists && o.exists(c)) { er.textContent = 'Ce code existe déjà : saisissez un autre code.'; er.style.display = 'block'; return; }
+      close(); o.onOk(c, n, fl);
+    }
+    $('dup-c').addEventListener('click', close); $('dup-ok').addEventListener('click', ok);
+    ov.addEventListener('keydown', function (e) { if (e.key === 'Enter') ok(); else if (e.key === 'Escape') close(); });
+    var touched = false; $('dup-file').addEventListener('input', function () { touched = true; });
+    $('dup-code').addEventListener('input', function () { if (!touched) $('dup-file').value = $('dup-code').value.trim().replace(/[^A-Za-z0-9_-]+/g, '_').toLowerCase(); });
+    $('dup-code').focus();
   };
 })();
 </script>
@@ -2815,7 +2863,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     q('[data-so-empty]').innerHTML = ALL.length ? '<b>Aucun modèle trouvé</b><span>Modifiez votre recherche.</span>' : '<b>Aucun modèle trouvé</b><span>Créez un modèle pour commencer la personnalisation.</span>';
     q('[data-so-tw]').style.display = l.length ? '' : 'none';
     q('[data-so-rows]').innerHTML = l.map(function (m) {
-      return '<tr><td><b>' + esc(m.nom) + '</b></td><td><span class="so-pill">' + esc(m.src) + '</span></td><td>' + esc(m.bai) + '</td><td class="a">' + (/4F/.test(m.nom) ? '<button type="button" class="so-ico" data-so-prev="' + esc(m.nom) + '">Aperçu</button>' : '') + '<button type="button" class="so-ico" data-so-open="' + m.id + '">Concepteur</button>' + (m.proc ? '' : '<button type="button" class="so-ico d" data-so-del="' + m.id + '">Supprimer</button>') + '</td></tr>';
+      return '<tr><td><b>' + esc(m.nom) + '</b></td><td><span class="so-pill">' + esc(m.src) + '</span></td><td>' + esc(m.bai) + '</td><td class="a">' + (/4F/.test(m.nom) ? '<button type="button" class="so-ico" data-so-prev="' + esc(m.nom) + '">Aperçu</button>' : '') + '<button type="button" class="so-ico" data-so-open="' + m.id + '">Concepteur</button><button type="button" class="so-ico" data-so-dup="' + m.id + '">Dupliquer</button>' + (m.proc ? '' : '<button type="button" class="so-ico d" data-so-del="' + m.id + '">Supprimer</button>') + '</td></tr>';
     }).join('');
   }
   q('[data-so-q]').addEventListener('input', draw);
@@ -2829,6 +2877,14 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   });
   q('[data-so-rows]').addEventListener('click', function (e) {
     var pv = e.target.closest('[data-so-prev]'); if (pv && window.__open4F) { window.__open4F(pv.dataset.soPrev); return; }
+    var du = e.target.closest('[data-so-dup]');
+    if (du) {
+      var sm = procModels().concat(MODELS).filter(function (x) { return x.id === du.dataset.soDup; })[0];
+      window.__dupModele({ source: { code: sm.code || '', nom: sm.nom }, exists: function (c) { return MODELS.some(function (m) { return String(m.code || '').toLowerCase() === c.toLowerCase(); }); }, onOk: function (c, n) {
+        MODELS.push({ id: Date.now() + '' + MODELS.length, code: c, nom: n, src: sm.proc ? 'DRF' : sm.src, bai: sm.bai }); draw();
+      } });
+      return;
+    }
     var o = e.target.closest('[data-so-open]'), d = e.target.closest('[data-so-del]');
     if (d) { MODELS = MODELS.filter(function (m) { return m.id !== d.dataset.soDel; }); draw(); return; }
     if (o) {
@@ -2836,6 +2892,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       window.__mfDesigner = { code: 'SOE', nom: m.nom, def: false, type: 'SOE', src: 'DRF', proc: m.proc ? m.src.replace(/^Procédure /, '') : '', bai: m.bai }; window.__designerFrom = 'soemodel'; location.hash = 'designer';
     }
   });
+  window.addEventListener('mf-model-dup', function (e) { var d = e.detail || {}; if (d.from !== 'soemodel') return; MODELS.push({ id: Date.now() + '' + MODELS.length, code: d.code, nom: d.nom, src: 'DRF', bai: '' }); draw(); });
   window.addEventListener('pf-change', draw); draw();
 })();
 </script>
@@ -2997,6 +3054,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     document.body.appendChild(ov);
   }
   window.__open4F = open4F;
+  var EXTRA = [];
   function build() {
     var map = {}, order = [];
     (window.__pfProcs || []).forEach(function (p) {
@@ -3010,8 +3068,8 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       var r = map[k];
       return '<tr><td><b>' + esc(r.model) + '</b></td><td><span class="md-pill">' + esc(r.proc) + '</span></td>' +
         '<td>' + r.convs.map(function (c) { return '<span class="md-conv">' + esc(c) + '</span>'; }).join('') + '</td>' +
-        '<td><div style="display:flex;justify-content:flex-end">' + (/4F/.test(r.model) ? '<button type="button" class="md-btn" data-md-prev data-md-name="' + esc(r.model) + '" style="margin-right:6px">Aperçu</button>' : '') + '<button type="button" class="md-btn" data-md-open data-md-name="' + esc(r.model) + '">Ouvrir le designer</button></div></td></tr>';
-    }).join('');
+        '<td><div style="display:flex;justify-content:flex-end;gap:6px">' + (/4F/.test(r.model) ? '<button type="button" class="md-btn" data-md-prev data-md-name="' + esc(r.model) + '" style="margin-right:6px">Aperçu</button>' : '') + '<button type="button" class="md-btn" data-md-dup>Dupliquer</button><button type="button" class="md-btn" data-md-open data-md-name="' + esc(r.model) + '">Ouvrir le designer</button></div></td></tr>';
+    }).join('') + EXTRA.map(function (x) { return x.html; }).join('');
     refresh();
   }
   function refresh() {
@@ -3023,11 +3081,24 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     q('[data-md-list]').style.display = shown ? '' : 'none';
   }
   search.addEventListener('input', refresh);
+  function rinfo(tr) { var td = tr.querySelectorAll('td'); return { nom: td[0].textContent.trim(), proc: td[1].textContent.trim(), convs: td[2].innerHTML, base: tr.dataset.mdBase || td[0].textContent.trim(), code: tr.dataset.mdCode || '' }; }
+  function addDupRow(src, code, nom) {
+    var h = '<tr data-md-extra data-md-code="' + esc(code) + '" data-md-base="' + esc(src.base) + '"><td><b>' + esc(nom) + '</b></td><td><span class="md-pill">' + esc(src.proc) + '</span></td><td>' + src.convs + '</td>' +
+      '<td><div style="display:flex;justify-content:flex-end;gap:6px"><button type="button" class="md-btn" data-md-dup>Dupliquer</button><button type="button" class="md-btn" data-md-open data-md-name="' + esc(nom) + '" data-md-code="' + esc(code) + '" data-md-base="' + esc(src.base) + '">Ouvrir le designer</button></div></td></tr>';
+    EXTRA.push({ html: h }); rows.insertAdjacentHTML('beforeend', h); refresh();
+  }
+  window.addEventListener('mf-model-dup', function (e) {
+    var d = e.detail || {}; if (d.from !== 'modfisc2') return;
+    var tr = Array.prototype.filter.call(rows.querySelectorAll('tr'), function (t) { return t.querySelector('b') && t.querySelector('b').textContent.trim() === d.srcNom; })[0];
+    if (tr) addDupRow(rinfo(tr), d.code, d.nom);
+  });
   rows.addEventListener('click', function (e) {
+    var du = e.target.closest('[data-md-dup]');
+    if (du) { var src = rinfo(du.closest('tr')); window.__dupModele({ source: { code: src.code, nom: src.nom }, exists: function (c) { return EXTRA.some(function (x) { return x.html.indexOf('data-md-code="' + esc(c) + '"') >= 0; }); }, onOk: function (c, n) { addDupRow(src, c, n); } }); return; }
     var pb = e.target.closest('[data-md-prev]'); if (pb) { open4F(pb.dataset.mdName); return; }
     var ob = e.target.closest('[data-md-open]'); if (!ob) return;
-    var nom = ob.dataset.mdName, ejcd = /EJCD/i.test(nom), decl = ejcd || /déclaration/i.test(nom);
-    window.__mfDesigner = { code: ejcd ? 'EJCD' : decl ? 'DECLARATION' : 'SOE', nom: nom, def: false };
+    var nom = ob.dataset.mdName, base = ob.dataset.mdBase || nom, ejcd = /EJCD/i.test(base), decl = ejcd || /déclaration/i.test(base);
+    window.__mfDesigner = { code: ob.dataset.mdCode || (ejcd ? 'EJCD' : decl ? 'DECLARATION' : 'SOE'), nom: nom, def: false };
     window.__designerFrom = 'modfisc2';
     location.hash = decl ? 'designer2' : 'designer';
   });
@@ -3600,7 +3671,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     q('[data-ml-list]').innerHTML = l.length ? l.map(function (m) {
       var i = models.indexOf(m);
       return '<div class="ml-row"><div><div class="ml-name"><b>' + esc(m.nom) + '</b><span class="ml-badge">listing-canevas</span></div><p class="ml-meta">N° ' + esc(m.code) + ' · Fichier : ' + esc(m.file) + '</p></div>' +
-        '<div class="ml-act"><button type="button" class="ml-b mod" data-ml-mod="' + i + '">Modifier</button><button type="button" class="ml-b des" data-ml-des="' + i + '">' + ICON_EDIT + ' Ouvrir le designer</button><button type="button" class="ml-b del" aria-label="Supprimer" data-ml-del="' + i + '">' + ICON_DEL + '</button></div></div>';
+        '<div class="ml-act"><button type="button" class="ml-b mod" data-ml-mod="' + i + '">Modifier</button><button type="button" class="ml-b des" data-ml-des="' + i + '">' + ICON_EDIT + ' Ouvrir le designer</button><button type="button" class="ml-b mod" data-ml-dup="' + i + '">⧉ Dupliquer</button><button type="button" class="ml-b del" aria-label="Supprimer" data-ml-del="' + i + '">' + ICON_DEL + '</button></div></div>';
     }).join('') : '<div class="ml-empty">Aucun modèle trouvé.</div>';
   }
   function open(i) {
@@ -3625,10 +3696,19 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       q('[data-ml-modal]').style.display = 'none'; draw();
     }
     else if (t.closest('[data-ml-del]')) { pendingDel = +t.closest('[data-ml-del]').dataset.mlDel; q('[data-ml-ct]').textContent = 'Supprimer définitivement le modèle « ' + models[pendingDel].nom + ' » ?'; q('[data-ml-confirm]').style.display = 'flex'; }
+    else if (t.closest('[data-ml-dup]')) {
+      var src = models[+t.closest('[data-ml-dup]').dataset.mlDup];
+      window.__dupModele({ source: { code: src.code, nom: src.nom }, exists: function (c) { return models.some(function (m) { return String(m.code).toLowerCase() === c.toLowerCase(); }); }, onOk: function (c, n, fl) {
+        models.push({ code: c, nom: n, file: fl + '.repx' });
+        var sv = window.__listingSaved; if (sv && sv[src.code]) sv[c] = JSON.parse(JSON.stringify(sv[src.code]));
+        draw();
+      } });
+    }
     else if (t.closest('[data-ml-ccancel]')) q('[data-ml-confirm]').style.display = 'none';
     else if (t.closest('[data-ml-cok]')) { models.splice(pendingDel, 1); q('[data-ml-confirm]').style.display = 'none'; draw(); }
     else if (t.closest('[data-ml-des]')) { var m = models[+t.closest('[data-ml-des]').dataset.mlDes]; window.__listingDesigner = m; window.__listingFrom = 'listing'; location.hash = 'listingdes'; }
   });
+  window.addEventListener('hashchange', draw);
   draw();
 })();
 </script>
@@ -3709,7 +3789,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     q('[data-ml-list]').innerHTML = l.length ? l.map(function (m) {
       var i = models.indexOf(m);
       return '<div class="ml-row"><div><div class="ml-name"><b>' + esc(m.nom) + '</b><span class="ml-badge">État récapitulatif</span></div><p class="ml-meta">N° ' + esc(m.code) + ' · Fichier : ' + esc(m.file) + '</p></div>' +
-        '<div class="ml-act"><button type="button" class="ml-b mod" data-ml-mod="' + i + '">Modifier</button><button type="button" class="ml-b run" data-ml-run="' + i + '">→ Exécuter</button><button type="button" class="ml-b des" data-ml-des="' + i + '">' + ICON_EDIT + ' Ouvrir le designer</button><button type="button" class="ml-b del" aria-label="Supprimer" data-ml-del="' + i + '">' + ICON_DEL + '</button></div></div>';
+        '<div class="ml-act"><button type="button" class="ml-b mod" data-ml-mod="' + i + '">Modifier</button><button type="button" class="ml-b run" data-ml-run="' + i + '">→ Exécuter</button><button type="button" class="ml-b des" data-ml-des="' + i + '">' + ICON_EDIT + ' Ouvrir le designer</button><button type="button" class="ml-b mod" data-ml-dup="' + i + '">⧉ Dupliquer</button><button type="button" class="ml-b del" aria-label="Supprimer" data-ml-del="' + i + '">' + ICON_DEL + '</button></div></div>';
     }).join('') : '<div class="ml-empty">Aucun modèle trouvé.</div>';
   }
   function open(i) {
@@ -3734,6 +3814,12 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       q('[data-ml-modal]').style.display = 'none'; draw();
     }
     else if (t.closest('[data-ml-del]')) { pendingDel = +t.closest('[data-ml-del]').dataset.mlDel; q('[data-ml-ct]').textContent = 'Supprimer définitivement le modèle « ' + models[pendingDel].nom + ' » ?'; q('[data-ml-confirm]').style.display = 'flex'; }
+    else if (t.closest('[data-ml-dup]')) {
+      var src = models[+t.closest('[data-ml-dup]').dataset.mlDup];
+      window.__dupModele({ source: { code: src.code, nom: src.nom }, exists: function (c) { return models.some(function (m) { return String(m.code).toLowerCase() === c.toLowerCase(); }); }, onOk: function (c, n, fl) {
+        models.push({ code: c, nom: n, file: fl + '.repx' }); draw();
+      } });
+    }
     else if (t.closest('[data-ml-ccancel]')) q('[data-ml-confirm]').style.display = 'none';
     else if (t.closest('[data-ml-cok]')) { models.splice(pendingDel, 1); q('[data-ml-confirm]').style.display = 'none'; draw(); }
     else if (t.closest('[data-ml-des]')) { var m = models[+t.closest('[data-ml-des]').dataset.mlDes]; window.__mfDesigner = { code: m.code, nom: m.nom, def: false, type: 'Récapitulatif', file: m.file.replace(/.repx$/i, ''), src: 'Comptabilité générale' }; window.__designerFrom = 'listing2'; location.hash = 'designer2'; }
@@ -4571,6 +4657,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   <header class="dl-top">
     <div style="display:flex;align-items:center;gap:12px;min-width:0">
       <button type="button" class="dl-back" data-dl-back>Retour</button>
+      <button type="button" class="dl-back" data-dl-dupm title="Dupliquer le modèle">⧉ Dupliquer</button>
       <div style="min-width:0"><h1 class="dl-h1" data-dl-title>SOE — SOE</h1><p class="dl-sub">Designer de reporting bailleur</p></div>
       <button type="button" class="dl-ibtn" title="Modifier les informations" data-dl-info><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
     </div>
@@ -4728,6 +4815,16 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     else if (t.closest('[data-dl-rm]') && sel != null) { S.els = S.els.filter(function (x) { return x.id !== sel; }); select(null); }
     else if (t.closest('[data-dl-doc]')) { sel = null; drawPage(); drawProps(true); }
     else if (t.closest('[data-dl-back]')) history.back();
+    else if (t.closest('[data-dl-dupm]')) {
+      var sm = window.__listingDesigner || { code: 'SOE', nom: 'SOE' };
+      window.__dupModele({ source: { code: sm.code, nom: sm.nom }, exists: function (c) { return (window.__listingModelsList || []).some(function (m) { return String(m.code).toLowerCase() === c.toLowerCase(); }); }, onOk: function (c, n, fl) {
+        var nm = { code: c, nom: n, file: fl + '.repx' };
+        (window.__listingModelsList = window.__listingModelsList || []).push(nm);
+        (window.__listingSaved = window.__listingSaved || {})[c] = JSON.parse(JSON.stringify(S));
+        window.__listingDesigner = nm; q('[data-dl-title]').textContent = c + ' — ' + n;
+        var ms = q('[data-dl-msg]'); if (ms) { ms.textContent = 'Modèle dupliqué : ' + c + ' — ' + n + '.'; }
+      } });
+    }
     else if (t.closest('[data-dl-info]')) alert('Numéro et nom de fichier : ' + (window.__listingDesigner ? window.__listingDesigner.code + ' · ' + window.__listingDesigner.file : ''));
     else if (t.closest('[data-dl-save]')) { var m = window.__listingDesigner || { code: 'SOE' }; (window.__listingSaved = window.__listingSaved || {})[m.code] = JSON.parse(JSON.stringify(S)); var s = q('[data-dl-msg]'); s.textContent = 'Modèle sauvegardé.'; setTimeout(function () { s.textContent = ''; }, 2500); }
     else if (t.closest('[data-dl-japply]')) { var jm = q('[data-dl-jmsg]'); try { var o = JSON.parse(q('[data-dl-json]').value); if (!o.doc || !Array.isArray(o.els)) throw 0; S = o; uid = S.els.reduce(function (a, x) { return Math.max(a, x.id || 0); }, 0); sel = null; jm.style.color = '#047857'; jm.textContent = 'JSON appliqué.'; } catch (x) { jm.style.color = '#b91c1c'; jm.textContent = 'JSON invalide.'; } }
@@ -4915,10 +5012,27 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       '<p class="mf-meta">N° ' + esc(f('code').value.trim()) + ' · Fichier : ' + esc(f('file').value.trim()) + '</p></div>' +
       '<div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button>' +
       '<button type="button" class="mf-trash mf-on" data-mf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>';
-    q('[data-mf-sec="' + f('type').value + '"] [data-mf-list]').appendChild(row); close(); refresh();
+    q('[data-mf-sec="' + f('type').value + '"] [data-mf-list]').appendChild(row); close(); addDup(); refresh();
   });
+  function addDup(root0) { qa('.mf-acts').forEach(function (a) { if (!a.querySelector('[data-mf-dup]')) { var b = document.createElement('button'); b.type = 'button'; b.className = 'mf-a'; b.setAttribute('data-mf-dup', ''); b.textContent = '⧉ Dupliquer'; var t = a.querySelector('.mf-trash'); a.insertBefore(b, t || null); } }); }
+  function dupItem(item, code, nom, file) {
+    var c = item.cloneNode(true); c.removeAttribute('data-def'); c.removeAttribute('data-code');
+    var df = c.querySelector('.mf-tag.def'); if (df) df.remove();
+    c.querySelector('[data-mf-title]').textContent = nom;
+    c.querySelector('.mf-meta').textContent = 'N° ' + code + ' · Fichier : ' + file;
+    var tr = c.querySelector('.mf-trash'); if (tr) { tr.disabled = false; tr.classList.add('mf-on'); tr.setAttribute('data-mf-del', ''); }
+    item.parentNode.insertBefore(c, item.nextSibling); addDup(); refresh(); say('Modèle dupliqué : ' + code + ' — ' + nom + '.');
+  }
+  function codeOf(item) { var m = item.querySelector('.mf-meta').textContent; return item.dataset.code || m.split('·')[0].replace('N°', '').trim(); }
+  function codes() { return qa('[data-mf-item]').map(function (i) { return codeOf(i).toLowerCase(); }); }
+  window.addEventListener('mf-model-dup', function (e) {
+    var d = e.detail || {}; if (d.from !== 'modfisc') return;
+    var it = qa('[data-mf-item]').filter(function (i) { return codeOf(i) === d.src; })[0]; if (it) dupItem(it, d.code, d.nom, d.file);
+  });
+  addDup();
   root.addEventListener('click', function (e) {
     var item = e.target.closest('[data-mf-item]'); if (!item) return;
+    if (e.target.closest('[data-mf-dup]')) { window.__dupModele({ source: { code: codeOf(item), nom: item.querySelector('[data-mf-title]').textContent }, exists: function (c) { return codes().indexOf(c.toLowerCase()) >= 0; }, onOk: function (c, n, fl) { dupItem(item, c, n, fl); } }); return; }
     if (e.target.closest('[data-mf-edit]')) open(item);
     else if (e.target.closest('[data-mf-design]')) {
       var meta = item.querySelector('.mf-meta').textContent;
@@ -5024,14 +5138,29 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     if (ko) { msg.textContent = 'Renseignez les champs obligatoires.'; return; }
     var tr = document.createElement('tr');
     tr.innerHTML = '<td><b>' + esc(f('nom').value.trim()) + '</b></td><td>' + esc(f('src').value) + '</td><td>' + esc(f('bail').value) + '</td>' +
-      '<td><div style="display:flex;justify-content:flex-end"><button type="button" class="rc-del" data-rc-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td>';
+      '<td><div style="display:flex;justify-content:flex-end;gap:6px"><button type="button" class="rc-btn rc-sec" data-rc-dup>Dupliquer</button><button type="button" class="rc-del" data-rc-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td>';
     rows.appendChild(tr); close(); refresh();
   });
+  function rowInfo(tr) { var td = tr.querySelectorAll('td'); return { nom: td[0].textContent.trim(), src: td[1].textContent.trim(), bail: td[2].textContent.trim(), code: tr.dataset.rcCode || '', base: tr.dataset.rcBase || td[0].textContent.trim() }; }
+  function codes() { return Array.prototype.map.call(rows.querySelectorAll('tr[data-rc-code]'), function (t) { return t.dataset.rcCode.toLowerCase(); }); }
+  function addDup(src, code, nom) {
+    var tr = document.createElement('tr'); tr.setAttribute('data-rc-code', code); tr.setAttribute('data-rc-base', src.base);
+    tr.innerHTML = '<td><b>' + esc(nom) + '</b></td><td>' + esc(src.src) + '</td><td>' + esc(src.bail) + '</td>' +
+      '<td><div style="display:flex;justify-content:flex-end;gap:6px"><button type="button" class="rc-btn rc-sec" data-rc-dup>Dupliquer</button><button type="button" class="rc-btn rc-sec" data-rc-open data-rc-name="' + esc(nom) + '" data-rc-code="' + esc(code) + '" data-rc-base="' + esc(src.base) + '">Ouvrir le designer</button><button type="button" class="rc-del" data-rc-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td>';
+    rows.appendChild(tr); refresh();
+  }
+  window.addEventListener('mf-model-dup', function (e) {
+    var d = e.detail || {}; if (d.from !== 'recap') return;
+    var tr = Array.prototype.filter.call(rows.querySelectorAll('tr'), function (t) { return t.querySelector('b') && t.querySelector('b').textContent.trim() === d.srcNom; })[0];
+    if (tr) addDup(rowInfo(tr), d.code, d.nom);
+  });
   rows.addEventListener('click', function (e) {
+    var du = e.target.closest('[data-rc-dup]');
+    if (du) { var src = rowInfo(du.closest('tr')); window.__dupModele({ source: { code: src.code, nom: src.nom }, exists: function (c) { return codes().indexOf(c.toLowerCase()) >= 0; }, onOk: function (c, n) { addDup(src, c, n); } }); return; }
     var b = e.target.closest('[data-rc-del]'); if (b) { b.closest('tr').remove(); refresh(); return; }
     var o = e.target.closest('[data-rc-open]'); if (!o) return;
-    var nom = o.dataset.rcName, ejcd = /EJCD/i.test(nom), decl = ejcd || /déclaration/i.test(nom);
-    window.__mfDesigner = { code: ejcd ? 'EJCD' : decl ? 'DECLARATION' : 'SOE', nom: nom, def: false };
+    var nom = o.dataset.rcName, base = o.dataset.rcBase || nom, ejcd = /EJCD/i.test(base), decl = ejcd || /déclaration/i.test(base);
+    window.__mfDesigner = { code: o.dataset.rcCode || (ejcd ? 'EJCD' : decl ? 'DECLARATION' : 'SOE'), nom: nom, def: false };
     window.__designerFrom = 'recap'; location.hash = decl ? 'designer2' : 'designer';
   });
   var RECAP = /EJCD|récapitulatif|déclaration/i;
@@ -5044,7 +5173,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     }); });
     var html = order.map(function (k) { var r = map[k];
       return '<tr data-rc-proc><td><b>' + esc(r.model) + '</b></td><td>Procédure ' + esc(r.proc) + '</td><td>' + esc(r.convs.join(', ')) + '</td>' +
-        '<td><div style="display:flex;justify-content:flex-end"><button type="button" class="rc-btn rc-sec" data-rc-open data-rc-name="' + esc(r.model) + '">Ouvrir le designer</button></div></td></tr>'; }).join('');
+        '<td><div style="display:flex;justify-content:flex-end;gap:6px"><button type="button" class="rc-btn rc-sec" data-rc-dup>Dupliquer</button><button type="button" class="rc-btn rc-sec" data-rc-open data-rc-name="' + esc(r.model) + '">Ouvrir le designer</button></div></td></tr>'; }).join('');
     rows.insertAdjacentHTML('afterbegin', html); refresh();
   }
   window.addEventListener('pf-change', buildProc); buildProc();
