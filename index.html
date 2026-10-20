@@ -2088,6 +2088,8 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
 .ed-btn:disabled:hover{background:#3e97ff}
 .ed-tf td{background:#f8fafc;font-weight:700;color:#4b5675;border-top:1px solid #edf1f5;border-bottom:0}
 .ed-ro{background:#f4f6fa;color:#4b5675}.ed-imp{display:flex;flex-wrap:wrap;gap:4px 16px;height:auto;min-height:38px;align-items:center}.ed-imp span{font-size:11px}.ed-imp b{display:block;font-size:9.5px;letter-spacing:.04em;color:#0c4a6e;text-transform:uppercase}
+.ed-circ{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 16px;padding:10px 14px;list-style:none;background:#fff;border:1px solid #edf1f5;border-radius:12px;font-size:11px}.ed-circ li{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;background:#f4f6fa;color:#78829d;font-weight:600}.ed-circ li.ext{background:#fff;border:1px dashed #b9c3d6}.ed-circ li.on{background:#3e97ff;border-color:#3e97ff;color:#fff}.ed-circ li.done{background:#e8fff3;color:#17a673}.ed-circ li+li:before{content:"›";margin-right:8px;margin-left:-4px;color:#b9c3d6}
+.ed-sv{display:flex;flex-direction:column;gap:10px;margin:12px 0 0;padding:12px 14px;background:#f8fafc;border:1px solid #edf1f5;border-radius:8px}.ed-sv label{display:flex;align-items:center;gap:8px;font-weight:600;color:#334155}.ed-sv label.off{opacity:.5}.ed-warn{margin:0 0 12px;padding:10px 12px;background:#fff8eb;border:1px solid #f0d9a8;border-radius:8px;font-size:12px;color:#8a5a12}
 .ed-hint{margin:6px 0 0;font-size:12px;color:#78829d}
 .ed-toast{position:fixed;right:24px;bottom:24px;z-index:2100;background:#0f172a;color:#fff;border-radius:10px;padding:10px 16px;font-size:13px}
 .edv{border:1px solid #3a3d40;border-radius:8px;overflow:hidden;background:#525659}
@@ -2109,6 +2111,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     <div><span class="k">Période d'édition</span><span class="v" data-ed-ped>01/01/2026 → 31/01/2026</span></div>
   </div>
 
+  <ol class="ed-circ" aria-label="Circuit de la DRF"><li data-ed-ci="0">Saisie + rapprochement</li><li data-ed-ci="1">Sélection</li><li data-ed-ci="2">Vérification</li><li data-ed-ci="3">Édition SOE</li><li class="ext" data-ed-ci="4">Envoi à la Banque mondiale</li><li class="ext" data-ed-ci="5">Retour du bailleur</li><li data-ed-ci="6">Confirmation</li><li data-ed-ci="7">Régularisation</li></ol>
   <ol class="ed-steps" aria-label="Étapes de confection">
     <li><button type="button" class="ed-st on" data-ed-step="1"><span class="ed-n">1</span><span class="ed-l">Sélection des écritures</span></button><div class="ed-line"></div></li>
     <li><button type="button" class="ed-st" data-ed-step="2"><span class="ed-n">2</span><span class="ed-l">Vérification &amp; modification</span></button><div class="ed-line"></div></li>
@@ -2140,7 +2143,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
         <tfoot><tr class="ed-tf"><td colspan="10" data-ed-tot2></td><td class="ed-r" data-ed-tm></td><td class="ed-r" data-ed-td></td><td colspan="2" style="text-align:right" data-ed-fn></td></tr></tfoot>
       </table></div>
     </div>
-    <div class="ed-foot"><button type="button" class="ed-btn sec" data-ed-go="1">← Précédent</button><button type="button" class="ed-btn" data-ed-go="3">Suivant : Édition <span aria-hidden="true">→</span></button></div>
+    <div class="ed-foot"><button type="button" class="ed-btn sec" data-ed-go="1">← Précédent</button><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="ed-btn ed-dg" data-ed-err>⚠ Signaler une erreur d’imputation</button><button type="button" class="ed-btn" data-ed-go="3">Suivant : Édition <span aria-hidden="true">→</span></button></div></div>
   </div>
   <div data-ed-view="3" style="display:none">
     <div class="ed-card" style="padding:16px">
@@ -2155,16 +2158,18 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
         </div>
       </div>
     </div>
-    <div class="ed-card" data-ed-prev style="border-style:dashed;padding:32px;text-align:center;color:#78829d">Cliquez sur « Choisir le type et le modèle » pour afficher l'aperçu dynamique de l'état.</div>
+    <div class="ed-card" style="padding:16px"><div class="ed-head2" style="padding:0;border:0"><h3>Envoi et retour du bailleur</h3></div><p class="ed-hint" style="margin:4px 0 0">Les SOE sont envoyés à la Banque mondiale hors système. Il est recommandé d’attendre son retour avant de confirmer.</p><div class="ed-sv"><label><input type="checkbox" data-ed-sent> SOE envoyés à la Banque mondiale</label><label class="off" data-ed-retl><input type="checkbox" data-ed-ret disabled> Retour de la Banque mondiale reçu, sans remarque bloquante</label></div></div>
+    <div class="ed-card" data-ed-prevstyle="border-style:dashed;padding:32px;text-align:center;color:#78829d">Cliquez sur « Choisir le type et le modèle » pour afficher l'aperçu dynamique de l'état.</div>
     <div class="ed-foot"><button type="button" class="ed-btn sec" data-ed-go="2">← Précédent</button><button type="button" class="ed-btn" data-ed-go="4" data-ed-to4 disabled>Suivant : Confirmation <span aria-hidden="true">→</span></button></div></div>
   <div data-ed-view="4" style="display:none"><div class="ed-card" style="padding:0;overflow:hidden">
       <div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #edf1f5"><span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#78829d">Nombre de mouvements</span><b data-ed-c-n style="font-size:14px;color:#2c2c2a">0</b></div>
       <div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #edf1f5;background:#e8fff3"><span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#17a673">Total montant facturable</span><b data-ed-c-f style="font-size:14px;color:#17a673">0 MGA</b></div>
       <div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:#fff5f8"><span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#f1416c">Total montant non facturable</span><b data-ed-c-nf style="font-size:14px;color:#f1416c">0 MGA</b></div>
     </div>
+    <div class="ed-warn" data-ed-prem hidden>Le retour de la Banque mondiale n’a pas encore été enregistré (étape 3). Une confirmation prématurée oblige à passer par la régularisation pour toute correction.</div>
     <p style="font-size:12px;color:#78829d;margin:0 0 12px;line-height:1.5">Cette action est irréversible pour les mouvements facturables : ils seront définitivement rattachés à cette DRF et ne pourront plus être repris dans une future sélection. Les mouvements non facturables redeviendront éligibles à une future sélection.</p>
     <div class="ed-foot"><button type="button" class="ed-btn sec" data-ed-go="3">← Précédent</button><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="ed-btn ed-dg" data-ed-askc>✕ Annuler la confection de la DRF</button><button type="button" class="ed-btn" data-ed-valider>Valider &amp; confirmer l’état de dépense</button></div></div></div>
-  <div data-ed-view="5" style="display:none"><div class="ed-card ed-ok5"><div class="ed-ok5i">✓</div><h2>DRF confectionnée avec succès</h2><p data-ed-ok5t></p></div><div style="display:flex;justify-content:center"><button type="button" class="ed-btn sec" data-ed-new>Démarrer une nouvelle confection</button></div></div>
+  <div data-ed-view="5" style="display:none"><div class="ed-card ed-ok5"><div class="ed-ok5i">✓</div><h2>DRF confectionnée avec succès</h2><p data-ed-ok5t></p><p>Étape suivante : enregistrer la réponse du bailleur (payé, rejeté, litige, apuré). Les lignes en litige levé seront reprises à la sélection suivante.</p></div><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap"><button type="button" class="ed-btn" data-ed-regul>Régulariser la DRF →</button><button type="button" class="ed-btn sec" data-ed-new>Démarrer une nouvelle confection</button></div></div>
   <div class="ed-ov" data-ed-cf style="display:none"><div class="ed-md ed-cfm" role="alertdialog" aria-modal="true"><div class="ed-cfb"><div class="ed-cfi" data-ed-cfi>!</div><div><h2 data-ed-cft></h2><div class="ed-cfw" data-ed-cfw></div><p data-ed-cfp></p></div></div><div class="ed-cff"><button type="button" class="ed-btn sec" data-ed-cfno>Annuler</button><button type="button" class="ed-btn" data-ed-cfok>Valider</button></div></div></div>
 
   <div class="ed-ov" data-ed-m2 style="display:none">
@@ -2434,8 +2439,17 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     3: ['Étape 3 — Édition', "Choisissez le type d'état (Récapitulatif ou SOE) puis le modèle paramétré à utiliser pour éditer la DRF."],
     5: ["Confection guidée d'une DRF", 'Assistant guidé : sélection des mouvements, vérification et modification, puis validation finale de la DRF'],
     2: ['Étape 2 — Vérification & modification', 'Sélectionnez une ligne (clic) puis cliquez sur « Modifier » pour ajuster ses informations. Un double-clic bascule le statut facturable.'] };
+  var sent = q('[data-ed-sent]'), ret = q('[data-ed-ret]');
+  function circ(n) {
+    var cur = { 1: 1, 2: 2, 3: ret.checked ? 5 : (sent.checked ? 4 : 3), 4: 6, 5: 7 }[n] || 1;
+    qa('[data-ed-ci]').forEach(function (li) { var k = +li.dataset.edCi; li.classList.toggle('on', k === cur); li.classList.toggle('done', k < cur); });
+  }
+  sent.addEventListener('change', function () { ret.disabled = !sent.checked; if (!sent.checked) ret.checked = false; q('[data-ed-retl]').classList.toggle('off', !sent.checked); circ(3); });
+  ret.addEventListener('change', function () { circ(3); });
+  function resetSv() { sent.checked = false; ret.checked = false; ret.disabled = true; q('[data-ed-retl]').classList.add('off'); }
   function go(n) {
-    if (n === 4) recap();
+    if (n === 4) { recap(); q('[data-ed-prem]').hidden = ret.checked; }
+    circ(n);
     var tt = TT[n] || TT[1]; q('[data-ed-h1]').textContent = tt[0]; q('[data-ed-sub]').textContent = tt[1];
     qa('[data-ed-view]').forEach(function (v) { v.style.display = v.dataset.edView == n ? '' : 'none'; });
     qa('[data-ed-step]').forEach(function (b) { var k = +b.dataset.edStep; b.classList.toggle('on', k === n); b.classList.toggle('done', k < n); b.querySelector('.ed-n').textContent = k < n ? '✓' : k; });
@@ -2446,7 +2460,12 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   var cfM = '', cf = q('[data-ed-cf]');
   function askCf(m) {
     cfM = m; var ic = q('[data-ed-cfi]'), ok = q('[data-ed-cfok]');
-    if (m === 'cancel') {
+    if (m === 'err') {
+      q('[data-ed-cft]').textContent = 'Erreur d’imputation détectée ?';
+      q('[data-ed-cfw]').innerHTML = '<strong>Ne corrigez pas dans l’assistant.</strong> Corrigez l’écriture en Comptabilité Générale (mauvais financement, mauvaise catégorie), puis relancez la sélection :<ul><li>retour à l’étape 1 ;</li><li>la nouvelle sélection remplace l’ancienne tant que la DRF n’est pas confirmée.</li></ul>';
+      q('[data-ed-cfp]').textContent = 'Les lignes non facturables (N) seront reprises à la sélection suivante.';
+      ic.className = 'ed-cfi'; ic.textContent = '!'; ok.className = 'ed-btn'; ok.textContent = 'Retourner à la sélection';
+    } else if (m === 'cancel') {
       q('[data-ed-cft]').textContent = 'Annuler la confection de la DRF ?';
       q('[data-ed-cfw]').innerHTML = '<strong>Attention : action irréversible.</strong> L\'annulation remet la confection à zéro :<ul><li>suppression de la sélection des écritures et de ses critères ;</li><li>suppression des modifications saisies sur les mouvements (marché, bénéficiaire, règlement…) ;</li><li>suppression du modèle et de l\'état édité ;</li><li>retour à l\'étape 1, sans verrouillage des mouvements.</li></ul>';
       q('[data-ed-cfp]').textContent = 'Les mouvements restent éligibles aux sélections ultérieures. Confirmez-vous l\'annulation ?';
@@ -2454,7 +2473,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     } else {
       q('[data-ed-cft]').textContent = 'Valider la confection de la DRF ?';
       q('[data-ed-cfw]').innerHTML = '<strong>Attention :</strong> les mouvements facturables seront définitivement rattachés à cette DRF et ne pourront plus être repris dans une future sélection. Les mouvements non facturables redeviendront éligibles.';
-      q('[data-ed-cfp]').textContent = 'Seule l\'annulation de la DRF permettra ensuite de revenir en arrière. Confirmez-vous la validation ?';
+      q('[data-ed-cfp]').textContent = 'Seule l\'annulation de la DRF permettra ensuite de revenir en arrière. Confirmez-vous la validation ?' + (ret.checked ? '' : ' Attention : le retour du bailleur n’est pas encore enregistré.');
       ic.className = 'ed-cfi'; ic.textContent = '!'; ok.className = 'ed-btn'; ok.textContent = 'Valider';
     }
     cf.style.display = '';
@@ -2464,12 +2483,29 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   q('[data-ed-cfno]').addEventListener('click', function () { cf.style.display = 'none'; });
   q('[data-ed-cfok]').addEventListener('click', function () {
     cf.style.display = 'none';
-    if (cfM === 'cancel') { go(1); say('Confection de la DRF annulée : retour à l\'étape 1.'); }
+    if (cfM === 'err') { resetSv(); go(1); say('Corrigez l’écriture en Comptabilité Générale, puis relancez la sélection.'); }
+    else if (cfM === 'cancel') { resetSv(); go(1); say('Confection de la DRF annulée : retour à l\'étape 1.'); }
     else { saveSel('Confectionnée'); var nf = D2.filter(function (r) { return r.fact; }).length; q('[data-ed-ok5t]').textContent = nf + ' mouvement(s) facturable(s) verrouillé(s) pour la DRF 001.'; go(5); }
   });
-  q('[data-ed-new]').addEventListener('click', function () { go(1); });
+  q('[data-ed-new]').addEventListener('click', function () { resetSv(); go(1); });
+  q('[data-ed-regul]').addEventListener('click', function () { location.hash = '#regul'; });
+  q('[data-ed-err]').addEventListener('click', function () { askCf('err'); });
+  circ(1);
   var modal = q('[data-ed-modal]');
-  q('[data-ed-open]').addEventListener('click', function () { modal.style.display = ''; });
+  var DEV_ALL = null;
+  function devises() {
+    var sd = q('[data-ed-f="dev"]'); if (!sd) return;
+    if (!DEV_ALL) DEV_ALL = Array.prototype.map.call(sd.options, function (o) { return [o.value, o.textContent]; });
+    var code = 'IDA01'.replace(/\d+$/, ''), em = [];
+    (window.__pfProcs || []).forEach(function (p) { if (p.proc === code && p.mon && em.indexOf(p.mon) < 0) em.push(p.mon); });
+    var cur = sd.value, ok = em.length ? DEV_ALL.filter(function (d) { return d[0] === 'MGA' || em.indexOf(d[0]) >= 0; }) : DEV_ALL;
+    sd.innerHTML = ok.map(function (d) { return '<option value="' + d[0] + '">' + d[1] + '</option>'; }).join('');
+    sd.value = ok.some(function (d) { return d[0] === cur; }) ? cur : 'MGA';
+    var n = sd.parentElement.querySelector('.ed-note') || sd.parentElement.appendChild(Object.assign(document.createElement('p'), { className: 'ed-note' }));
+    n.textContent = em.length ? 'Monnaie locale (MGA) et monnaie d’émission de la procédure ' + code + ' (' + em.join(', ') + ').' : '';
+  }
+  window.addEventListener('pf-change', devises);
+  q('[data-ed-open]').addEventListener('click', function () { devises(); modal.style.display = ''; });
   qa('[data-ed-close]').forEach(function (b) { b.addEventListener('click', function () { modal.style.display = 'none'; }); });
   q('[data-ed-show]').addEventListener('click', function () { modal.style.display = 'none'; say(DATA.length + ' mouvements affichés.'); });
   var f = function (k) { return q('[data-ed-f="' + k + '"]'); };
@@ -5668,6 +5704,14 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       </select>
     </div>
     <div class="pf-field">
+      <label class="pf-label">Monnaie d’émission <span class="pf-req">*</span></label>
+      <select class="pf-ctl" data-pf-mon>
+        <option value="">— Sélectionner une monnaie —</option>
+        <option value="CNY">CNY — Yuan</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Livre Sterling</option><option value="MGA">MGA — Ariary</option><option value="MUR">MUR — Roupie</option><option value="USD">USD — Dollar Américain</option><option value="XOF">XOF — Franc CFA</option>
+      </select>
+      <p class="pf-hint">Monnaie dans laquelle la DRF est émise. À la confection d’une DRF, seules cette monnaie et la monnaie locale (MGA) sont proposées.</p>
+    </div>
+    <div class="pf-field">
       <label class="pf-label">Sélection des modèles d'états <span class="pf-req">*</span></label>
       <div class="pf-models" data-pf-models><div class="pf-empty">Sélectionnez d'abord une procédure financière.</div></div>
       <p class="pf-hint">La liste des modèles dépend de la procédure financière choisie.</p>
@@ -5683,8 +5727,8 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
 
   <div data-pf-pane="liste" style="display:none">
   <div class="pf-tablewrap"><table class="pf-table">
-    <thead><tr><th>Convention</th><th>Procédure</th><th>Modèles d'états</th><th style="text-align:right">Actions</th></tr></thead>
-    <tbody data-pf-rows><tr data-conv="CONV-001 — Projet Résilience Rurale"><td class="pf-b">CONV-001 — Projet Résilience Rurale</td><td><span class="pf-pill">IDA</span></td><td><div class="pf-chips"><span class="pf-chip">Formulaire 2F</span><span class="pf-chip">Formulaire 3F</span><span class="pf-chip">Formulaire 4F</span><span class="pf-chip">EJCD</span><span class="pf-chip">État récapitulatif par catégorie</span></div></td><td><div style="display:flex;justify-content:flex-end"><button type="button" class="pf-ico" data-pf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td></tr></tbody>
+    <thead><tr><th>Convention</th><th>Procédure</th><th>Monnaie d’émission</th><th>Modèles d'états</th><th style="text-align:right">Actions</th></tr></thead>
+    <tbody data-pf-rows><tr data-conv="CONV-001 — Projet Résilience Rurale" data-mon="USD"><td class="pf-b">CONV-001 — Projet Résilience Rurale</td><td><span class="pf-pill">IDA</span></td><td data-pf-monc>USD</td><td><div class="pf-chips"><span class="pf-chip">Formulaire 2F</span><span class="pf-chip">Formulaire 3F</span><span class="pf-chip">Formulaire 4F</span><span class="pf-chip">EJCD</span><span class="pf-chip">État récapitulatif par catégorie</span></div></td><td><div style="display:flex;justify-content:flex-end"><button type="button" class="pf-ico" data-pf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td></tr></tbody>
   </table></div>
   <footer class="border-t border-slate-200 bg-slate-50/50 px-5 py-3 text-xs text-slate-500" style="margin-top:12px">Double-cliquez sur une ligne pour la modifier dans l'onglet Saisie.</footer>
   </div>
@@ -5699,6 +5743,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     FED: ['Rapport financier', 'Demande de paiement', 'État des dépenses', 'Prévisions de trésorerie'],
     FM: ['PU/DR (rapport d\'avancement et demande de décaissement)', 'Budget détaillé', 'État des dépenses par module']
   };
+  var mon = q('[data-pf-mon]');
   var conv = q('[data-pf-conv]'), proc = q('[data-pf-proc]'), box = q('[data-pf-models]'), msg = q('[data-pf-msg]');
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function say(t, c) { msg.textContent = t; msg.className = 'pf-msg ' + (c || ''); }
@@ -5709,6 +5754,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     box.innerHTML = '<div class="pf-all"><span>' + l.length + ' modèles disponibles pour ' + esc(proc.value) + '</span><button type="button" class="pf-link" data-pf-all>Tout sélectionner</button></div>' +
       l.map(function (m) { return '<label class="pf-model"><input type="checkbox" value="' + esc(m) + '"><span>' + esc(m) + '</span></label>'; }).join('');
   }
+  mon.addEventListener('change', function () { mon.classList.remove('pf-bad'); say(''); });
   proc.addEventListener('change', function () { proc.classList.remove('pf-bad'); box.classList.remove('pf-bad'); say(''); renderModels(); });
   conv.addEventListener('change', function () { conv.classList.remove('pf-bad'); say(''); });
   box.addEventListener('change', function () { box.classList.remove('pf-bad'); say(''); });
@@ -5720,7 +5766,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   });
   function publish() {
     window.__pfProcs = Array.prototype.slice.call(q('[data-pf-rows]').querySelectorAll('tr[data-conv]')).map(function (r) {
-      return { conv: r.dataset.conv, proc: r.querySelector('.pf-pill').textContent, models: Array.prototype.slice.call(r.querySelectorAll('.pf-chip')).map(function (c) { return c.textContent; }) };
+      return { conv: r.dataset.conv, proc: r.querySelector('.pf-pill').textContent, mon: r.dataset.mon || '', models: Array.prototype.slice.call(r.querySelectorAll('.pf-chip')).map(function (c) { return c.textContent; }) };
     });
     window.dispatchEvent(new Event('pf-change'));
   }
@@ -5735,7 +5781,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   var act = function (k) { return q('[data-pf-act="' + k + '"]'); };
   function setMode(m) {
     mode = m; var ed = m !== 'consult';
-    conv.disabled = !ed; proc.disabled = !ed; box.style.pointerEvents = ed ? '' : 'none'; box.style.opacity = ed ? '' : '.65';
+    conv.disabled = !ed; proc.disabled = !ed; mon.disabled = !ed; box.style.pointerEvents = ed ? '' : 'none'; box.style.opacity = ed ? '' : '.65';
     var b = q('[data-pf-mode]'); b.textContent = { consult: 'Consultation', creation: 'Création', modif: 'Modification' }[m];
     b.className = 'w-fit rounded-full px-3 py-1 text-xs font-semibold ' + (ed ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600');
     refreshBtns();
@@ -5751,14 +5797,14 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   }
   function loadRow(tr) {
     var cv = tr.dataset.conv; var opt = Array.prototype.filter.call(conv.options, function (o) { return o.value === cv || o.text === cv; })[0];
-    conv.value = opt ? opt.value : ''; proc.value = tr.querySelector('.pf-pill').textContent; renderModels();
+    conv.value = opt ? opt.value : ''; proc.value = tr.querySelector('.pf-pill').textContent; mon.value = tr.dataset.mon || ''; renderModels();
     var have = Array.prototype.map.call(tr.querySelectorAll('.pf-chip'), function (c) { return c.textContent; });
     checks().forEach(function (x) { x.checked = have.indexOf(x.value) >= 0; });
   }
   q('[data-pf-rows]').addEventListener('click', function (e) { var tr = e.target.closest('tr[data-conv]'); if (tr && !e.target.closest('[data-pf-del]')) select(tr); });
   act('ajouter').addEventListener('click', function () { reset(); setMode('creation'); showTab('saisie'); say(''); });
   act('modifier').addEventListener('click', function () { if (!selRow) return; loadRow(selRow); setMode('modif'); showTab('saisie'); say(''); });
-  act('supprimer').addEventListener('click', function () { if (!selRow) return; var tr = selRow; select(null); tr.remove(); var rows = q('[data-pf-rows]'); if (!rows.querySelector('tr')) rows.innerHTML = '<tr class="pf-none" data-pf-none><td colspan="4">Aucune procédure paramétrée.</td></tr>'; publish(); count(); });
+  act('supprimer').addEventListener('click', function () { if (!selRow) return; var tr = selRow; select(null); tr.remove(); var rows = q('[data-pf-rows]'); if (!rows.querySelector('tr')) rows.innerHTML = '<tr class="pf-none" data-pf-none><td colspan="5">Aucune procédure paramétrée.</td></tr>'; publish(); count(); });
   act('enregistrer').addEventListener('click', function () { q('[data-pf-save]').click(); });
   act('annuler').addEventListener('click', function () { reset(); setMode('consult'); say(''); });
   function count() { q('[data-pf-count]').textContent = q('[data-pf-rows]').querySelectorAll('tr[data-conv]').length; }
@@ -5766,18 +5812,18 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     var tr = e.target.closest('tr[data-conv]'); if (!tr || e.target.closest('[data-pf-del]') || mode !== 'consult') return;
     select(tr); loadRow(tr); setMode('modif'); showTab('saisie');
   });
-  function reset() { conv.value = ''; proc.value = ''; renderModels(); [conv, proc, box].forEach(function (f) { f.classList.remove('pf-bad'); }); say(''); }
+  function reset() { conv.value = ''; proc.value = ''; mon.value = ''; renderModels(); [conv, proc, mon, box].forEach(function (f) { f.classList.remove('pf-bad'); }); say(''); }
   q('[data-pf-reset]').addEventListener('click', reset);
   q('[data-pf-save]').addEventListener('click', function () {
     var sel = checks().filter(function (x) { return x.checked; }).map(function (x) { return x.value; });
-    var bc = !conv.value, bp = !proc.value, bm = !bp && !sel.length;
-    conv.classList.toggle('pf-bad', bc); proc.classList.toggle('pf-bad', bp); box.classList.toggle('pf-bad', bp || bm);
-    if (bc || bp || bm) { say(bm ? 'Sélectionnez au moins un modèle d\'état.' : 'Renseignez les champs obligatoires.', 'ko'); return; }
+    var bc = !conv.value, bp = !proc.value, bm = !bp && !sel.length, bo = !mon.value;
+    conv.classList.toggle('pf-bad', bc); proc.classList.toggle('pf-bad', bp); mon.classList.toggle('pf-bad', bo); box.classList.toggle('pf-bad', bp || bm);
+    if (bc || bp || bo || bm) { say(bm ? 'Sélectionnez au moins un modèle d\'état.' : 'Renseignez les champs obligatoires.', 'ko'); return; }
     var rows = q('[data-pf-rows]'), none = q('[data-pf-none]');
     if (none) none.remove();
     Array.prototype.slice.call(rows.querySelectorAll('tr')).forEach(function (r) { if (r.dataset.conv === conv.value) r.remove(); });
-    var tr = document.createElement('tr'); tr.dataset.conv = conv.value;
-    tr.innerHTML = '<td class="pf-b">' + esc(conv.value) + '</td><td><span class="pf-pill">' + esc(proc.value) + '</span></td>' +
+    var tr = document.createElement('tr'); tr.dataset.conv = conv.value; tr.dataset.mon = mon.value;
+    tr.innerHTML = '<td class="pf-b">' + esc(conv.value) + '</td><td><span class="pf-pill">' + esc(proc.value) + '</span></td><td data-pf-monc>' + esc(mon.value) + '</td>' +
       '<td><div class="pf-chips">' + sel.map(function (m) { return '<span class="pf-chip">' + esc(m) + '</span>'; }).join('') + '</div></td>' +
       '<td><div style="display:flex;justify-content:flex-end"><button type="button" class="pf-ico" data-pf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div></td>';
     rows.appendChild(tr);
@@ -5787,7 +5833,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
   q('[data-pf-rows]').addEventListener('click', function (e) {
     var b = e.target.closest('[data-pf-del]'); if (!b) return;
     var rows = q('[data-pf-rows]'); b.closest('tr').remove();
-    if (!rows.querySelector('tr')) rows.innerHTML = '<tr class="pf-none" data-pf-none><td colspan="4">Aucune procédure paramétrée.</td></tr>';
+    if (!rows.querySelector('tr')) rows.innerHTML = '<tr class="pf-none" data-pf-none><td colspan="5">Aucune procédure paramétrée.</td></tr>';
     select(null); publish(); count();
   });
   count(); setMode('consult');
