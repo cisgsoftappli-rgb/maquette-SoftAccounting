@@ -2138,7 +2138,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     <div class="ed-card">
       <div class="ed-head2"><h3>Modifier la ligne sélectionnée</h3><button type="button" class="ed-btn" data-ed-edit disabled><i class="ti ti-pencil"></i> Modifier</button></div>
       <div class="ed-scroll"><table class="ed-table" style="min-width:1280px">
-        <thead><tr><th>Site</th><th>Date</th><th>N° Bordereau</th><th>N° Pièce</th><th>Cat. financière</th><th>Libellé complémentaire</th><th>Description</th><th>Réf. facture</th><th>Bénéficiaire paiement</th><th>N° marché / BC</th><th class="ed-r" style="text-align:right">Montant Monnaie 1</th><th class="ed-r" style="text-align:right">Montant Devise</th><th class="ed-r" style="text-align:right">Cours utilisé</th><th class="ed-c">Statut</th></tr></thead>
+        <thead><tr><th>Site</th><th>Date</th><th>N° Bordereau</th><th>N° Pièce</th><th>Cat. financière</th><th>Libellé complémentaire</th><th>Description</th><th>Réf. facture</th><th>Bénéficiaire paiement</th><th>N° marché / BC</th><th class="ed-r" style="text-align:right" data-ed-th="1">Montant (MGA)</th><th class="ed-r" style="text-align:right" data-ed-th="2">Montant à émettre</th><th class="ed-r" style="text-align:right">Cours utilisé</th><th class="ed-c">Statut</th></tr></thead>
         <tbody data-ed-rows2></tbody>
         <tfoot><tr class="ed-tf"><td colspan="10" data-ed-tot2></td><td class="ed-r" data-ed-tm></td><td class="ed-r" data-ed-td></td><td colspan="2" style="text-align:right" data-ed-fn></td></tr></tfoot>
       </table></div>
@@ -2183,11 +2183,11 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
             <div><label class="ed-lab">Activite</label><input class="ed-in ed-ro" data-ed-imp="ACTIVITE" readonly></div><div><label class="ed-lab">Poste budgetaire</label><input class="ed-in ed-ro" data-ed-imp="POSTE BUDGETAIRE" readonly></div><div><label class="ed-lab">Financement</label><input class="ed-in ed-ro" data-ed-imp="FINANCEMENT" readonly></div><div><label class="ed-lab">Geographique</label><input class="ed-in ed-ro" data-ed-imp="GEOGRAPHIQUE" readonly></div>
           </div></section>
           <section class="ed-card"><h3>Montant</h3><div class="ed-cg">
-            <div><label class="ed-lab">Montant en monnaie locale</label><input class="ed-in ed-ro" data-ed-m="mont" readonly></div>
-            <div><label class="ed-lab">Montant en devise</label><input class="ed-in ed-ro" data-ed-m="dev" readonly></div>
+            <div><label class="ed-lab" data-ed-lab="mont">Montant en monnaie locale (MGA)</label><input class="ed-in ed-ro" data-ed-m="mont" readonly></div>
+            <div><label class="ed-lab" data-ed-lab="dev">Montant à émettre</label><input class="ed-in ed-ro" data-ed-m="dev" readonly></div>
             <div><label class="ed-lab">Cours</label><input type="number" min="0" step="0.0001" class="ed-in pl" data-ed-m="taux"></div>
             <div><label class="ed-lab">Pourcentage d'éligibilité (%)</label><input type="number" min="0" max="100" step="0.01" class="ed-in pl" data-ed-m="tx"></div>
-            <div><label class="ed-lab">Montant du contrat</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="mtot"></div>
+            <div><label class="ed-lab" data-ed-lab="mtot">Montant du contrat (MGA)</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="mtot"></div>
             <div><label class="ed-lab">Monnaie du contrat</label><select class="ed-in pl" data-ed-m="mmon"><option>MGA</option><option>USD</option><option>EUR</option></select></div>
           </div></section>
           <section class="ed-card"><h3>Description</h3><div class="ed-cg">
@@ -2209,8 +2209,8 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
             <div><label class="ed-lab">Financement</label><input class="ed-in pl" data-ed-m="finc" placeholder="Ex : 01 E083-MG"></div>
             <div><label class="ed-lab">Catégorie</label><input class="ed-in pl" data-ed-m="catf" placeholder="Ex : 01"></div>
             <div hidden><label class="ed-lab">Date de lancement / signature</label><input type="date" class="ed-in pl" data-ed-m="mdate"></div>
-            <div hidden><label class="ed-lab">Montant total net</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="net"></div>
-            <div hidden><label class="ed-lab">Montant des factures (financement autorisé)</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="fin"></div>
+            <div hidden><label class="ed-lab">Montant total net (MGA)</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="net"></div>
+            <div hidden><label class="ed-lab">Montant des factures (financement autorisé) (MGA)</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="fin"></div>
             <div hidden><label class="ed-lab">Montant compte spécial (USD)</label><input type="number" min="0" step="0.01" class="ed-in pl" data-ed-m="usd"></div>
             <div hidden><label class="ed-lab">Mode de paiement (procédé)</label><select class="ed-in pl" data-ed-m="pmode"><option value="">—</option><option>VIREMENT</option><option>CHEQUE</option><option>ESPECES</option><option>PRELEVEMENT</option></select></div>
             <div hidden><label class="ed-lab">Journal de paiement (modalité)</label><input class="ed-in pl" data-ed-m="jnl" placeholder="Ex : BNI/UGP"></div>
@@ -2314,20 +2314,26 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     }
     D2.forEach(function (r, i) { r.fcat = i < 55 ? '01' : '02'; });
   })();
+  var TX0 = 4472;
+  function emis() { var m = ''; (window.__pfProcs || []).forEach(function (p) { if (p.proc === 'IDA' && p.mon) m = p.mon; }); return m || 'USD'; }
+  function tx(r) { return r.taux != null && r.taux > 0 ? r.taux : TX0; }
+  function ev(r) { return r.mont / tx(r); }
   var sel = -1, rows2 = q('[data-ed-rows2]'), btnEdit = q('[data-ed-edit]');
   function stat(r) { return r.fact ? '<span class="ed-pill f">Facturable</span>' : '<span class="ed-pill n">Non facturable</span>'; }
   function draw2() {
     rows2.innerHTML = '';
     D2.forEach(function (r, i) {
       var tr = document.createElement('tr'); tr.className = 'ed-sel'; tr.setAttribute('aria-selected', i === sel);
-      tr.innerHTML = '<td><b style="color:#2c2c2a">Siège</b></td><td>' + r.date + '</td><td style="font-family:monospace;color:#2f80c1">' + r.bord + '</td><td style="font-family:monospace;color:#2f80c1"></td><td>6</td><td style="color:#2c2c2a">' + r.lib + '</td><td>' + r.desc + '</td><td>' + (r.fref || '') + '</td><td>' + (r.benp || '') + '</td><td>' + (r.marche || '') + '</td><td class="ed-r">' + fmt(r.mont) + '</td><td class="ed-r">' + fmt(r.mont) + '</td><td class="ed-r" style="font-weight:400!important;color:#4b5675!important">1,00</td><td class="ed-c">' + stat(r) + '</td>';
+      tr.innerHTML = '<td><b style="color:#2c2c2a">Siège</b></td><td>' + r.date + '</td><td style="font-family:monospace;color:#2f80c1">' + r.bord + '</td><td style="font-family:monospace;color:#2f80c1"></td><td>6</td><td style="color:#2c2c2a">' + r.lib + '</td><td>' + r.desc + '</td><td>' + (r.fref || '') + '</td><td>' + (r.benp || '') + '</td><td>' + (r.marche || '') + '</td><td class="ed-r">' + fmt(r.mont) + '</td><td class="ed-r">' + fmt(ev(r)) + '</td><td class="ed-r" style="font-weight:400!important;color:#4b5675!important">' + fmt(tx(r)) + '</td><td class="ed-c">' + stat(r) + '</td>';
       tr.addEventListener('click', function () { sel = i; btnEdit.disabled = false; draw2(); });
       tr.addEventListener('dblclick', function () { r.fact = r.fact ? 0 : 1; sel = i; btnEdit.disabled = false; draw2(); });
       rows2.appendChild(tr);
     });
     var t = D2.reduce(function (a, r) { return a + r.mont; }, 0), f = D2.reduce(function (a, r) { return a + (r.fact ? r.mont : 0); }, 0);
-    q('[data-ed-tot2]').textContent = 'Totaux monnaie 1 ' + fmt(t) + ' · Totaux devise ' + fmt(t);
-    q('[data-ed-tm]').textContent = fmt(t); q('[data-ed-td]').textContent = fmt(t);
+    var te = D2.reduce(function (a, r) { return a + ev(r); }, 0);
+    q('[data-ed-th="2"]').textContent = 'Montant à émettre (' + emis() + ')';
+    q('[data-ed-tot2]').textContent = 'Totaux (MGA) ' + fmt(t) + ' · Totaux à émettre (' + emis() + ') ' + fmt(te);
+    q('[data-ed-tm]').textContent = fmt(t); q('[data-ed-td]').textContent = fmt(te);
     q('[data-ed-fn]').textContent = 'F : ' + fmt(f) + ' / N : ' + fmt(t - f);
   }
   draw2();
@@ -2339,13 +2345,15 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
       var P = [['ACTIVITE', 'ACT.' + (1 + h) + '.1'], ['POSTE BUDGETAIRE', c || '627000'], ['FINANCEMENT', ['IDA', 'DA-A', 'DA-B', 'PD'][h]], ['GEOGRAPHIQUE', ['Analamanga', 'Atsinanana', 'Boeny', 'Siège'][h]]];
       P.forEach(function (p) { q('[data-ed-imp="' + p[0] + '"]').value = p[1]; });
     }
-    mf('date').value = r.date; imputation(r); mf('dev').value = fmt(r.mont) + ' MGA'; mf('mont').value = fmt(r.mont); mf('lib').value = r.lib; mf('desc').value = r.desc; ['fref', 'pref', 'benp', 'bcol', 'baux', 'marche', 'mdate', 'chq', 'finc', 'catf', 'mmon', 'mtot', 'pmode', 'jnl', 'dreg'].forEach(function (k) { mf(k).value = r[k] != null ? r[k] : (k === 'mmon' ? 'MGA' : ''); });
+    mf('date').value = r.date; imputation(r); q('[data-ed-lab="dev"]').textContent = 'Montant à émettre (' + emis() + ')'; mf('mont').value = fmt(r.mont); mf('lib').value = r.lib; mf('desc').value = r.desc; ['fref', 'pref', 'benp', 'bcol', 'baux', 'marche', 'mdate', 'chq', 'finc', 'catf', 'mmon', 'mtot', 'pmode', 'jnl', 'dreg'].forEach(function (k) { mf(k).value = r[k] != null ? r[k] : (k === 'mmon' ? 'MGA' : ''); });
     var tx0 = r.taux != null ? r.taux : 4472;
-    mf('taux').value = tx0; mf('net').value = r.net != null ? r.net : r.mont; mf('fin').value = r.fin != null ? r.fin : r.mont; mf('usd').value = r.usd != null ? r.usd : Math.round(r.mont / tx0 * 100) / 100; mf('piece').value = r.bord; if (!mf('catf').value) mf('catf').value = r.fcat || '01'; if (!mf('finc').value) mf('finc').value = '01 E083-MG';
+    mf('taux').value = tx0; mf('dev').value = fmt(r.mont / (tx0 > 0 ? tx0 : TX0)); mf('mmon').dispatchEvent(new Event('change'));mf('net').value = r.net != null ? r.net : r.mont; mf('fin').value = r.fin != null ? r.fin : r.mont; mf('usd').value = r.usd != null ? r.usd : Math.round(r.mont / tx0 * 100) / 100; mf('piece').value = r.bord; if (!mf('catf').value) mf('catf').value = r.fcat || '01'; if (!mf('finc').value) mf('finc').value = '01 E083-MG';
     mf('tx').value = r.tx != null ? r.tx : 100; mf('rel').value = r.rel != null ? r.rel : '';
     qa('[name="edst"]').forEach(function (x) { x.checked = x.value === (r.fact ? 'f' : 'n'); });
     m2.style.display = '';
   });
+  mf('taux').addEventListener('input', function () { var t = parseFloat(mf('taux').value) || 0, m = parseFloat(String(mf('mont').value).replace(/\s/g, '').replace(',', '.')) || 0; mf('dev').value = t > 0 ? fmt(m / t) : ''; });
+  mf('mmon').addEventListener('change', function () { q('[data-ed-lab="mtot"]').textContent = 'Montant du contrat (' + (mf('mmon').value || 'MGA') + ')'; });
   ['fin', 'taux'].forEach(function (k) { mf(k).addEventListener('input', function () { var t = parseFloat(mf('taux').value) || 0, f = parseFloat(mf('fin').value) || 0; if (t) mf('usd').value = Math.round(f / t * 100) / 100; }); });
   qa('[data-ed-m2c]').forEach(function (b) { b.addEventListener('click', function () { m2.style.display = 'none'; }); });
   q('[data-ed-m2s]').addEventListener('click', function () {
