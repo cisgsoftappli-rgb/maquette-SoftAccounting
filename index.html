@@ -4096,7 +4096,7 @@ app-balance-analytique .page-header .toolbar-btn-primary:hover{border-color:#1d4
     var ov = document.createElement('div'); ov.className = 'md4-ov';
     ov.innerHTML = '<div class="md4-box"><div class="md4-hd"><div><h2>Modèle d’état — ' + esc(name) + '</h2><p>Variante « Taux 3 » · aperçu du document avec des données d’exemple</p></div><button type="button" class="md4-x" aria-label="Fermer">×</button></div>' +
       '<div class="md4-tabs"><button type="button" class="on" data-md4-t="prev">Aperçu</button><button type="button" data-md4-t="fill">Détail de remplissage</button><label class="md4-rep"><input type="checkbox" data-md4-rep> Afficher les repères sur l’aperçu</label></div>' +
-      '<div class="md4-bd"><div data-md4-p="prev"><div class="md4-st"><span>Regroupement : financement / catégorie</span><span>Monnaie : USD</span><span>Colonnes : 13</span><span>Total par catégorie</span><span>Signature : Responsable Financier</span></div>' + window.__render4F(SAMPLE4F) + '</div><div data-md4-p="fill" style="display:none">' + fillHtml() + '</div></div></div>';
+      '<div class="md4-bd"><div data-md4-p="prev"><div class="md4-st"><span>Regroupement : financement / catégorie</span><span>Monnaie : USD</span><span>Colonnes : 13</span><span>Total par catégorie</span><span>Rupture : saut de page par catégorie</span><span>Signature : Responsable Financier</span></div>' + window.__render4F(SAMPLE4F) + '</div><div data-md4-p="fill" style="display:none">' + fillHtml() + '</div></div></div>';
     function marks(on) {
       ov.querySelectorAll('.md4-tb thead').forEach(function (th) {
         th.querySelectorAll('.md4-bdg').forEach(function (b) { b.remove(); });
