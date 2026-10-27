@@ -13978,8 +13978,11 @@ window.ECRITURES_REF = {
     var j = journal.value.code;
     return j.slice(0, 2).toUpperCase() + String((compteurs[j] || 0) + 1).padStart(4, '0');
   }
+  // Pièce saisie à la main (sinon le numéro proposé par le journal est utilisé)
+  function pieceSaisie() { return ctrl('piece').value.trim().toUpperCase(); }
+  function pieceCourante() { return pieceSaisie() || piece(); }
   function majEntete() {
-    var per = periode(), p = piece();
+    var per = periode(), p = pieceCourante();
     // Comptabilisation dans un programme : l'exercice est grisé (non opérationnel)
     exercice.btn.disabled = valide || !!dp.value;
     exercice.btn.title = dp.value ? 'Comptabilisation dans le programme ' + dp.value.code + ' : exercice non utilisé' : '';
@@ -13991,7 +13994,7 @@ window.ECRITURES_REF = {
     dp.btn.disabled = valide;
     dateEcriture.min = per.debut; dateEcriture.max = per.fin;
     $('strong', bordereau).textContent = p;
-    ctrl('piece').placeholder = 'Pièce générée : ' + p;
+    ctrl('piece').placeholder = 'Proposée : ' + piece();
     $('.entry-page-header p').textContent = journal.value.code + ' - ' + journal.value.label + ' · ' +
       (dp.value ? 'programme ' + dp.value.code + ' — ' + dp.value.libelle : 'exercice ' + exercice.value.code);
   }
@@ -14007,36 +14010,53 @@ window.ECRITURES_REF = {
     }
     majEntete();
   });
+  ctrl('piece').disabled = false; ctrl('piece').readOnly = false; ctrl('piece').maxLength = 20; // jamais grisé, même avec une proposition
+  ctrl('piece').addEventListener('input', function () { majEntete(); });
   majEntete();
 
   var panneaux = $$('fieldset', form);
   var champsEntete = $$('.header-primary-grid button, input[type="date"], input[type="text"]:not([disabled])', bordereau);
-  function verrouiller(on) {
-    valide = on;
-    panneaux.forEach(function (f) {
-      f.disabled = !on;
-      f.classList.toggle('panneau-ligne-verrouille', !on);
-      f.classList.toggle('entry-line-editor-active', on);
-    });
-    champsEntete.forEach(function (c) { c.disabled = on; });
+  // Plus de titre « Sélection de l'exercice et du journal » ni de cadenas : l'en-tête reste modifiable et la saisie des lignes est toujours active.
+  // La date d'écriture est contrôlée à l'ajout d'une ligne (entetePret).
+  $$('h1,h2,h3,h4,h5,p,span,div', bordereau).forEach(function (e) { if (!e.children.length && /s[ée]lection de l.exercice/i.test(e.textContent)) e.style.display = 'none'; });
+  lock.style.display = 'none';
+  if (lock.parentNode && lock.parentNode.parentNode) lock.parentNode.parentNode.style.display = 'none'; // ligne de titre vide
+  // En-tête compact : trois blocs sur une même ligne (gain de place) —
+  // « Exercice et journal » (exercice, site, journal, devis programme), « Dates » (date d'écriture, date pièce, cours 1)
+  // et « Références » (n° de facture, référence, pièce). Les blocs passent à la ligne sur écran étroit.
+  (function () {
+    var primaire = $('.header-primary-grid', bordereau), details = $('.header-details-grid', bordereau); if (!primaire || !details) return;
+    function bloc(titre) {
+      var g = document.createElement('div'); g.className = 'hd-groupe'; g.setAttribute('role', 'group'); g.setAttribute('aria-label', titre);
+      var t = document.createElement('span'); t.className = 'hd-titre'; t.textContent = titre; g.appendChild(t); return g;
+    }
+    function champs(g, noms) {
+      var c = document.createElement('div'); c.className = 'hd-champs'; g.appendChild(c);
+      noms.forEach(function (n) { var f = ctrl(n); if (f && f.parentNode) c.appendChild(f.parentNode); });
+    }
+    var ligne = document.createElement('div'); ligne.className = 'hd-ligne';
+    var g0 = bloc('Exercice et journal'), g1 = bloc('Dates'), g2 = bloc('Références');
+    primaire.classList.add('hd-champs', 'hd-primaire'); g0.appendChild(primaire);
+    champs(g1, ['dateEcriture', 'datePiece', 'cours1']); champs(g2, ['facture', 'reference', 'piece']);
+    ligne.appendChild(g0); ligne.appendChild(g1); ligne.appendChild(g2);
+    details.parentNode.insertBefore(ligne, details); details.style.display = 'none';
+  })();
+  function verrouiller() {
+    valide = false;
+    panneaux.forEach(function (f) { f.disabled = false; f.classList.remove('panneau-ligne-verrouille'); f.classList.add('entry-line-editor-active'); });
+    champsEntete.forEach(function (c) { c.disabled = false; });
     majEntete();
-    $('i', lock).className = 'text-[19px] ti ' + (on ? 'ti-lock' : 'ti-lock-open');
-    lock.title = on ? 'Modifier l’en-tête' : 'Valider l’en-tête';
-    lock.setAttribute('aria-label', lock.title);
     majTiers();
   }
+  function entetePret() {
+    var d = dateEcriture.value, per = periode();
+    var err = !d ? "La date d'écriture est obligatoire."
+      : (d < per.debut || d > per.fin) ? "La date d'écriture doit être comprise dans " + per.nom + ' (' + fmtDate(per.debut) + ' – ' + fmtDate(per.fin) + ').' : '';
+    invalide(dateEcriture, !!err);
+    if (err) { notify(err, true); dateEcriture.focus(); return false; }
+    return true;
+  }
   function invalide(champ, on) { champ.style.borderColor = on ? '#dc2626' : ''; champ.style.boxShadow = on ? '0 0 0 2px rgba(220,38,38,.12)' : ''; }
-  lock.addEventListener('click', function () {
-    if (!valide) {
-      var d = dateEcriture.value, per = periode();
-      var err = !d ? 'La date d\'écriture est obligatoire.'
-        : (d < per.debut || d > per.fin) ? 'La date d\'écriture doit être comprise dans ' + per.nom + ' (' + fmtDate(per.debut) + ' – ' + fmtDate(per.fin) + ').' : '';
-      invalide(dateEcriture, !!err);
-      if (err) { notify(err, true); dateEcriture.focus(); return; }
-    }
-    verrouiller(!valide);
-    if (valide) compte.btn.focus();
-  });
   dateEcriture.addEventListener('input', function () { invalide(dateEcriture, false); });
 
   // ---------- Panneau de ligne ----------
@@ -14061,7 +14081,7 @@ window.ECRITURES_REF = {
   function majTiers() {
     var c = compte.value, collectif = !!(c && c.collectif);
     tiers.items = collectif ? tiersDe(c.code) : [];
-    tiers.btn.disabled = !valide || !tiers.items.length;
+    tiers.btn.disabled = !tiers.items.length;
     var garde = tiers.value && tiers.items.some(function (t) { return t.code === tiers.value.code; });
     if (!garde) tiers.set(null, true);
     tiers.setPlaceholder(!c ? 'Sélectionner un tiers' : !collectif ? 'Non applicable'
@@ -14181,7 +14201,7 @@ window.ECRITURES_REF = {
     renderDocs();
   });
   infoBtn.addEventListener('click', function () {
-    if (!valide) { notify('Validez d\'abord l\'en-tête de la pièce.', true); return; }
+    if (!entetePret()) return;
     infoBtn.setAttribute('aria-expanded', 'true');
     mInfos.ouvrir();
   });
@@ -14294,7 +14314,7 @@ window.ECRITURES_REF = {
 
   var ACTIONS = {
     Ajouter: function () {
-      if (!valide) { notify('Validez d\'abord l\'en-tête de la pièce (cadenas).', true); return; }
+      if (!entetePret()) return;
       var l = lireLigne();
       if (!valider(l)) return;
       if (edition >= 0) { lignes[edition] = l; selection = edition; edition = -1; notify('Ligne mise à jour.'); }
@@ -14310,8 +14330,9 @@ window.ECRITURES_REF = {
       var d = 0, c = 0;
       lignes.forEach(function (l) { if (l.sens === 'DEBIT') d += l.montant; else c += l.montant; });
       if (Math.round((d - c) * 100)) { notify('Pièce déséquilibrée : écart de ' + fmt(Math.abs(d - c)) + ' entre débit et crédit.', true); return; }
-      var p = piece(), n = lignes.length;
-      compteurs[journal.value.code] = (compteurs[journal.value.code] || 0) + 1;
+      var manuelle = !!pieceSaisie(), p = pieceCourante(), n = lignes.length;
+      if (!manuelle) compteurs[journal.value.code] = (compteurs[journal.value.code] || 0) + 1;
+      ctrl('piece').value = '';
       // Les tiers mouvementés deviennent « Utilisés » dans le référentiel
       lignes.forEach(function (l) { if (l.tiers && window.SoftTiers) window.SoftTiers.marquerUtilise(l.tiers.code); });
       lignes = []; selection = -1; edition = -1;
@@ -14356,15 +14377,16 @@ window.ECRITURES_REF = {
 
   // « Annuler » en bas de page : abandon de la pièce en cours
   $('.entry-bottom-actions button').addEventListener('click', function () {
-    if (lignes.length && !window.confirm('Abandonner la pièce ' + piece() + ' et ses ' + lignes.length + ' ligne(s) ?')) return;
+    if (lignes.length && !window.confirm('Abandonner la pièce ' + pieceCourante() + ' et ses ' + lignes.length + ' ligne(s) ?')) return;
     lignes = []; selection = -1; edition = -1;
     ecrireLigne(null);
-    dateEcriture.value = ''; ctrl('datePiece').value = ''; ctrl('facture').value = ''; ctrl('reference').value = '';
+    dateEcriture.value = ''; ctrl('datePiece').value = ''; ctrl('facture').value = ''; ctrl('reference').value = ''; ctrl('piece').value = '';
     verrouiller(false);
     render();
   });
 
   render();
+  verrouiller(); // saisie des lignes active dès l’ouverture (plus de cadenas)
 })();
 </script><script>
 // Champ « Devis programme » des filtres d'édition des états (même règle que la saisie d'écritures) :
@@ -16068,4 +16090,34 @@ soft-modal input:not([type=hidden]):not([type=checkbox]):not([type=radio]),soft-
 [data-screen] button.ml-sw.ml-sw.ml-sw.ml-sw.ml-sw{width:38px!important;height:22px!important;min-height:0!important;min-width:0!important;padding:0!important;border-radius:999px!important}
 [data-screen] button.dp-switch.dp-switch.dp-switch.dp-switch.dp-switch{width:44px!important;height:24px!important;min-height:0!important;min-width:0!important;padding:0!important;border-radius:999px!important}
 [data-screen] button.tp-tg.tp-tg.tp-tg.tp-tg.tp-tg{width:40px!important;height:24px!important;min-height:0!important;min-width:0!important;padding:0!important;border-radius:99px!important}
+
+/* Saisie d'écritures : champs réduits d'un cinquième (36 px -> 29 px) */
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="range"]),
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] select,
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .cb-box,
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .custom-select-wrapper > button,
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] button.w-full.justify-between{height:29px!important;min-height:29px!important;box-sizing:border-box!important;padding-top:0!important;padding-bottom:0!important}
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] textarea{min-height:50px!important}
+
+/* Saisie d'écritures : le champ Pièce n'est jamais grisé (le numéro proposé n'est qu'une aide) */
+[data-screen="ecritures"][data-screen="ecritures"] input[formcontrolname="piece"]{background:#fff!important;opacity:1!important;color:#0B1332!important;cursor:text!important;transition:none!important}
+
+/* Saisie d'écritures : en-tête compact en trois blocs sur une ligne */
+[data-screen="ecritures"] .hd-ligne{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch}
+@media(max-width:1300px){[data-screen="ecritures"] .hd-ligne{grid-template-columns:1fr 1fr}[data-screen="ecritures"] .hd-ligne .hd-groupe:first-child{grid-column:1/-1}}
+@media(max-width:800px){[data-screen="ecritures"] .hd-ligne{grid-template-columns:1fr}}
+[data-screen="ecritures"] .hd-groupe{display:flex;flex-direction:column;gap:4px;padding:6px 10px 8px;border:1px solid #D6D9E0;border-radius:8px;background:#F8F9FB}
+[data-screen="ecritures"] .hd-titre{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2E427B}
+[data-screen="ecritures"] .hd-champs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
+[data-screen="ecritures"] .hd-primaire{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))!important}
+[data-screen="ecritures"] .hd-groupe label{margin-bottom:2px}
+
+/* Saisie d'écritures : en-tête sans intitulés de blocs, fonds toujours blancs */
+[data-screen="ecritures"] .hd-titre{display:none!important}
+[data-screen="ecritures"] .hd-groupe{background:#fff!important}
+[data-screen="ecritures"] .hd-groupe label{white-space:nowrap}
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-bordereau input,
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-bordereau input:disabled,
+[data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-bordereau input:read-only{background:#fff!important;opacity:1!important;color:#0B1332!important}
+[data-screen="ecritures"] .entry-bordereau{padding-top:8px!important}
 </style></body></html>
