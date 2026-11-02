@@ -23029,7 +23029,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 </div><div data-screen="passation" style="display:none"><!--
   Écran « Type de passation » (Gestion des contrats › Paramétrages › Type de passation) — onglets Saisie / Liste : liste filtrable (Code, Libellé, Utilisation, Statut),
   saisie (Code *, Libellé *, case « Actif »). Boutons dans la barre d'actions (Ajouter, Modifier, Supprimer, Enregistrer, Annuler, Importer, Imprimer, PDF, Excel).
-  Généré par gen_types.cjs (modèle types_modele.tpl) : ne pas modifier à la main. Données en mémoire ; « Utilisation » = « – » (aucun contrat dans la maquette).
+  ATTENTION : ce fichier a évolué directement (assistant d'import commun, bouton « Synchroniser avec Soft e-Procurement ») et ne correspond plus au modèle types_modele.tpl :
+  ne pas relancer gen_types.cjs sans y avoir reporté ces changements (il les écraserait). Données en mémoire ; « Utilisation » = « – » (aucun contrat dans la maquette).
   S'appuie sur les styles bp-* de l'écran « Paramétrage du bilan ». Ne pas nommer de fonction « $ » (build.cjs).
 -->
 <style>
@@ -23050,6 +23051,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     <button type="button" data-typa-enregistrer>Enregistrer</button>
     <button type="button" data-typa-annuler>Annuler</button>
     <button type="button" data-typa-importer>Importer</button>
+    <button type="button" data-typa-sync><i class="ti ti-refresh"></i>Synchroniser avec Soft e-Procurement</button>
     <button type="button" data-typa-imprimer>Imprimer</button>
     <button type="button" data-typa-pdf>PDF</button>
     <button type="button" data-typa-xlsx>Excel (XLSX)</button>
@@ -23118,7 +23120,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     qa('[data-typa-form] input').forEach(function (e) { e.disabled = !ed; });
     q('[data-f=code]').disabled = mode !== 'creation';
     var a = q('[data-typa-actions]');
-    a.querySelector('[data-typa-ajouter]').disabled = ed; a.querySelector('[data-typa-importer]').disabled = ed;
+    a.querySelector('[data-typa-ajouter]').disabled = ed; a.querySelector('[data-typa-importer]').disabled = ed; a.querySelector('[data-typa-sync]').disabled = ed;
     a.querySelector('[data-typa-modifier]').disabled = ed || sel < 0; a.querySelector('[data-typa-supprimer]').disabled = ed || sel < 0;
     a.querySelector('[data-typa-enregistrer]').disabled = !ed; a.querySelector('[data-typa-annuler]').disabled = !ed;
     ['imprimer', 'pdf', 'xlsx'].forEach(function (k) { a.querySelector('[data-typa-' + k + ']').disabled = !data.length; });
@@ -23178,8 +23180,32 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     };
     fr.readAsText(f);
   });
+  // synchronisation avec Soft e-Procurement : référentiel des types de passation (fenêtre partagée ecrans/eprocurement.js ; création par code, mise à jour du libellé et du statut ; rien n'est supprimé)
+  function sansAcc(t) { return String(t == null ? '' : t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  function synchroniserEproc() {
+    var EP = window.EPROCUREMENT; if (!EP) { toast('Soft e-Procurement indisponible.'); return; }
+    var L = EP.typesPassation().map(function (l) { l.statut = l.actif ? 'Actif' : 'Inactif'; return l; });
+    EP.ouvrir({
+      titre: 'Synchroniser les types de passation', intro: 'Choisissez les éléments du référentiel Soft e-Procurement à créer ou à mettre à jour dans la maquette (rapprochement par le code).',
+      lignes: L, cle: function (l) { return l.code; },
+      colonnes: [{ k: 'code', l: 'Code', mono: true }, { k: 'libelle', l: 'Libellé' }, { k: 'statut', l: 'Statut e-Procurement' }],
+      etat: function (l) { var x = data.filter(function (c) { return c.code === l.code; })[0]; if (!x) return { txt: 'Nouveau' }; return { txt: sansAcc(x.lib) === sansAcc(l.libelle) && x.actif === l.actif ? 'À jour' : 'Mise à jour' }; },
+      ok: 'Synchroniser', note: 'Rien n’est supprimé : les éléments absents d’e-Procurement sont conservés.',
+      onValider: function (S) {
+        var cr = 0, mj = 0, ok = 0;
+        S.forEach(function (l) {
+          var x = data.filter(function (c) { return c.code === l.code; })[0];
+          if (!x) { data.push({ code: l.code, lib: l.libelle, actif: l.actif, usage: 0 }); cr++; }
+          else if (sansAcc(x.lib) !== sansAcc(l.libelle) || x.actif !== l.actif) { x.lib = l.libelle; x.actif = l.actif; mj++; } else ok++;
+        });
+        mode = 'consultation'; sel = -1; liste(); form(null); etat(); onglet('liste');
+        toast('Synchronisation avec Soft e-Procurement terminée : ' + cr + ' créé(s), ' + mj + ' mis à jour' + (ok ? ', ' + ok + ' déjà à jour' : '') + '.');
+      }
+    });
+  }
   root.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b || b.disabled) return;
+    if (b.hasAttribute('data-typa-sync')) { synchroniserEproc(); return; }
     if (b.hasAttribute('data-typa-ajouter')) { onglet('saisie'); mode = 'creation'; sel = -1; liste(); form(null); etat(); q('[data-f=code]').focus(); return; }
     if (b.hasAttribute('data-typa-modifier')) { onglet('saisie'); mode = 'edition'; etat(); q('[data-f=lib]').focus(); return; }
     if (b.hasAttribute('data-typa-annuler')) { mode = 'consultation'; liste(); form(sel >= 0 ? data[sel] : null); etat(); return; }
@@ -23436,6 +23462,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     <button type="button" data-fct-supprimer>Supprimer</button>
     <button type="button" data-fct-enregistrer>Enregistrer</button>
     <button type="button" data-fct-annuler>Annuler</button>
+    <button type="button" data-fct-sync><i class="ti ti-refresh"></i>Synchroniser avec Soft e-Procurement</button>
     <span class="fct-ok" data-fct-msg role="status"></span>
   </div>
 
@@ -23752,6 +23779,39 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function annuler() { cur = null; edit = -1; effacer(); tab('liste'); msg(''); }
   q('[data-fct-ajouter]').addEventListener('click', ajouter); q('[data-fct-modifier]').addEventListener('click', modifier); q('[data-fct-supprimer]').addEventListener('click', supprimer);
   q('[data-fct-enregistrer]').addEventListener('click', enregistrer); q('[data-fct-annuler]').addEventListener('click', annuler);
+
+  // ---------- synchronisation avec Soft e-Procurement : récupération d'un marché attribué (window.EPROCUREMENT, fenêtre partagée ecrans/eprocurement.js)
+  // Depuis la liste : ouvre une nouvelle fiche préremplie ; depuis la saisie : remplit la fiche en cours. Numéro, désignation, dates, types de marché et de passation,
+  // attributaire (rapproché des tiers par son nom) et, si la ventilation est vide, une ligne au montant du marché. Les valeurs absentes des listes y sont ajoutées.
+  function appliquerEproc(m, saisie) {
+    if (!saisie) { cur = vide(); edit = -1; sous('vent'); }
+    else if (cur && (String(cur.num).trim() || String(cur.designation).trim()) && String(cur.num).trim().toLowerCase() !== m.ref.toLowerCase() && !window.confirm('Remplacer les informations déjà saisies par celles du marché « ' + m.ref + ' » ?')) return;
+    cur.num = m.ref; cur.designation = m.objet; cur.dateNO = m.dateNO || ''; cur.dateSign = m.dateSign || '';
+    if (m.typeMarche && MARCHES.indexOf(m.typeMarche) < 0) MARCHES.push(m.typeMarche); cur.typeMarche = m.typeMarche || cur.typeMarche;
+    if (m.typePassation && PASSATIONS.indexOf(m.typePassation) < 0) PASSATIONS.push(m.typePassation); cur.typePassation = m.typePassation || cur.typePassation;
+    var trouve = null; TIERS.forEach(function (t) { t[2].forEach(function (x) { if (String(x[1]).toUpperCase() === String(m.attributaire).toUpperCase()) trouve = [t[0], x[0]]; }); });
+    if (trouve) { cur.compteTiers = trouve[0]; cur.tiers = trouve[1]; }
+    var vent = !(cur.vent || []).length; if (vent) cur.vent = [{ desc: m.objet, pcg: '', avenant: false, ana: {}, mt: { MGA: m.montant } }];
+    cur.eproc = { ref: m.ref, date: new Date().toISOString().slice(0, 10) };
+    charger(); tab('saisie');
+    msg('Marché ' + m.ref + ' récupéré depuis Soft e-Procurement' + (trouve ? '' : ' — attributaire « ' + m.attributaire + ' » introuvable dans les tiers : sélectionnez-le') + (vent ? ' ; montant ' + nb(m.montant) + ' repris en ventilation (renseignez le PCG)' : '') + '. Vérifiez puis enregistrez.');
+  }
+  function synchroniserEproc() {
+    var EP = window.EPROCUREMENT; if (!EP) { msg('Soft e-Procurement indisponible.'); return; }
+    var saisie = !q('[data-fct-pan="saisie"]').hidden, courant = saisie && cur ? String(cur.num || '').trim().toLowerCase() : '';
+    EP.ouvrir({
+      titre: 'Récupérer un marché depuis Soft e-Procurement', intro: saisie ? 'Le marché choisi remplit la fiche contrat en cours de saisie.' : 'Le marché choisi ouvre une nouvelle fiche contrat préremplie.',
+      lignes: EP.contrats(), unique: true, cle: function (l) { return l.ref; },
+      colonnes: [{ k: 'ref', l: 'N° de marché', mono: true }, { k: 'objet', l: 'Objet' }, { k: 'attributaire', l: 'Attributaire' }, { k: 'typePassation', l: 'Type de passation' }, { k: 'dateSign', l: 'Signature', fmt: 'date' }, { k: 'montant', l: 'Montant', fmt: 'montant', r: true }],
+      etat: function (l) {
+        var ref = l.ref.toLowerCase(); if (!data.some(function (c) { return String(c.num).toLowerCase() === ref; })) return { txt: 'Nouveau' };
+        return courant === ref ? { txt: 'Mise à jour' } : { txt: 'Déjà présent', actif: false };
+      },
+      ok: 'Récupérer le marché', note: 'Un marché déjà enregistré dans la maquette n’est pas proposé de nouveau.',
+      onValider: function (S) { appliquerEproc(S[0], saisie); }
+    });
+  }
+  q('[data-fct-sync]').addEventListener('click', synchroniserEproc);
 
   publier(); liste(); tab('liste');
 })();
@@ -29177,7 +29237,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
 (function () {
   // Écrans équipés. « add » : écran de gestion (bouton Ajouter / Nouveau…) ; « txt » : boutons repérés par leur libellé.
   var CFG = {
-    exercices: { plat: 1, txt: /^(ajouter|modifier|supprimer|définir en cours|clôturer l'exercice|enregistrer|annuler|imprimer|exporter)$/i }, saisie: { add: 1 }, dp: { add: 1 }, procfin: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|nouvelle sélection)$/i }, fichecontrat: { add: 1, plat: 1 }, budgetconv: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, rfiparam: { plat: 1, txt: /^(enregistrer|annuler)$/i }, rfiedit: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, reliquats: { plat: 1, txt: /^(simuler|générer les reliquats|rafraîchir)$/i }, suivicontrats: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, detailcontrat: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, typemarche: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|importer|imprimer|pdf|excel \(xlsx\))$/i }, passation: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|importer|imprimer|pdf|excel \(xlsx\))$/i }, pays: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|exporter)$/i }, tiers: { add: 1 },
+    exercices: { plat: 1, txt: /^(ajouter|modifier|supprimer|définir en cours|clôturer l'exercice|enregistrer|annuler|imprimer|exporter)$/i }, saisie: { add: 1 }, dp: { add: 1 }, procfin: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|nouvelle sélection)$/i }, fichecontrat: { add: 1, plat: 1 }, budgetconv: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, rfiparam: { plat: 1, txt: /^(enregistrer|annuler)$/i }, rfiedit: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, reliquats: { plat: 1, txt: /^(simuler|générer les reliquats|rafraîchir)$/i }, suivicontrats: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, detailcontrat: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, typemarche: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|importer|imprimer|pdf|excel \(xlsx\))$/i }, passation: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|importer|synchroniser avec soft e-procurement|imprimer|pdf|excel \(xlsx\))$/i }, pays: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|exporter)$/i }, tiers: { add: 1 },
     listing: { add: 1 }, listing2: { add: 1 }, recap: { add: 1 }, soemodel: { add: 1 }, modfisc: { add: 1 }, typetaxe: { add: 1 },
     taxes: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|exporter)$/i }, racines: { txt: /^(modifier|enregistrer|annuler|imprimer|exporter)$/i }, plans: { txt: /^(modifier|enregistrer|annuler|imprimer|exporter)$/i }, journal: { txt: /^(critères|imprimer|exporter)$/i }, crparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, erparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, cred: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, ered: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, tfted: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, tftparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, biledit: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, bilparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, modfisc2: {},
     rapprochement: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, situation: { txt: /^(détail.*|fiche( 2)?|exporter)$/i }, pointage: { txt: /^(liste des relevés|proposer automatiquement|valider le rapprochement)$/i },
@@ -29974,6 +30034,117 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
   };
 })();
 
+// Connecteur « Soft e-Procurement » (maquette) : source de données simulée + fenêtre de synchronisation partagée.
+// Utilisé par Gestion des contrats › Paramétrages › Type de passation (bouton « Synchroniser avec Soft e-Procurement » : référentiel des types de passation)
+// et par Gestion des contrats › Saisies › Fiche contrat (même bouton : récupération d'un marché attribué dans e-Procurement pour préremplir la fiche).
+// Même principe que la récupération Soft e-Payment de la liste des banques : la fenêtre liste les éléments d'e-Procurement avec leur situation par rapport à la
+// maquette (Nouveau / Mise à jour / À jour / Déjà présent), l'utilisateur coche ce qu'il veut synchroniser, l'écran appelant applique la sélection.
+// Les données d'e-Procurement ci-dessous sont FICTIVES (aucun appel réseau). window.EPROCUREMENT.ouvrir(options) :
+//   { titre, intro, lignes, colonnes: [{ k, l, mono, r }], cle(ligne), etat(ligne) -> { txt: 'Nouveau' | 'Mise à jour' | 'À jour' | 'Déjà présent', actif: bool },
+//     unique: bool (un seul choix, boutons radio), ok: 'libellé du bouton', onValider(sélection[]) }
+(function () {
+  var TYPES_PASSATION = [
+    { code: 'AOI', libelle: "Appel d'offre International", actif: true },
+    { code: 'AON', libelle: "Appel d'Offre National", actif: true },
+    { code: 'AOR', libelle: "Appel d'offres restreint", actif: true },
+    { code: 'AMI', libelle: "Appel à manifestation d'intérêt", actif: true },
+    { code: 'CF', libelle: 'Consultation de fournisseurs', actif: true },
+    { code: 'DC', libelle: 'Demande de cotation', actif: true },
+    { code: 'DP', libelle: 'Demande de Proposition', actif: true },
+    { code: 'GG', libelle: 'Gré à gré (entente directe)', actif: true },
+    { code: 'SQC', libelle: 'Sélection fondée sur la qualité et le coût', actif: true },
+    { code: 'SMC', libelle: 'Sélection au moindre coût', actif: false }
+  ];
+  // Marchés attribués dans e-Procurement (fictifs). typeMarche / typePassation : libellés ; attributaire : nom du tiers.
+  var CONTRATS = [
+    { ref: 'MP-2026-001', objet: 'Fourniture de matériel informatique', attributaire: 'FOURNISSEUR A', typeMarche: 'Fournitures', typePassation: 'Appel d’offres ouvert', dateNO: '2026-02-10', dateSign: '2026-03-02', montant: 48000000, devise: 'MGA' },
+    { ref: 'MP-2026-003', objet: 'Acquisition de véhicules de service', attributaire: 'FOURNISSEUR B', typeMarche: 'Fournitures', typePassation: 'Appel d’offres ouvert', dateNO: '2026-06-02', dateSign: '2026-06-20', montant: 185000000, devise: 'MGA' },
+    { ref: 'MP-2026-004', objet: 'Construction du magasin de stockage', attributaire: 'ENTREPRISE DE TRAVAUX 2', typeMarche: 'Travaux', typePassation: 'Appel d’offres restreint', dateNO: '2026-07-01', dateSign: '2026-07-15', montant: 96000000, devise: 'MGA' },
+    { ref: 'MP-2026-005', objet: 'Assistance technique en audit interne', attributaire: 'FOURNISSEUR C', typeMarche: 'Prestations intellectuelles', typePassation: 'Consultation de fournisseurs', dateNO: '', dateSign: '2026-08-03', montant: 24500000, devise: 'MGA' },
+    { ref: 'MP-2026-006', objet: 'Maintenance du parc informatique', attributaire: 'FOURNISSEUR A', typeMarche: 'Services courants', typePassation: 'Gré à gré', dateNO: '', dateSign: '2026-09-10', montant: 12000000, devise: 'MGA' },
+    { ref: 'MP-2026-007', objet: 'Fourniture de mobilier de bureau', attributaire: 'SOCIÉTÉ HASINA MEUBLES', typeMarche: 'Fournitures', typePassation: 'Consultation de fournisseurs', dateNO: '', dateSign: '2026-10-05', montant: 8300000, devise: 'MGA' }
+  ];
+  function copie(L) { return JSON.parse(JSON.stringify(L)); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sans(t) { return String(t == null ? '' : t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+  function nb(n) { return (Math.round((+n || 0) * 100) / 100).toLocaleString('fr-FR', { maximumFractionDigits: 2 }); }
+
+  var css = document.createElement('style'); css.id = 'epr-css';
+  css.textContent = '.epr-voile{z-index:60!important}.epr-dialog{max-width:980px!important}' +
+    '.epr-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 12px}.epr-bar input[type=search]{flex:1;min-width:220px;min-height:40px;padding:0 12px;border:1px solid #878D9A;border-radius:8px;font:inherit}' +
+    '.epr-info{font-size:12px;color:#5B606D}.epr-conn{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#047857;font-weight:600}.epr-conn::before{content:"";width:8px;height:8px;border-radius:50%;background:#10B981}' +
+    '.epr-wrap{max-height:48vh;overflow:auto;border:1px solid #D6D9E0;border-radius:8px}' +
+    '.epr-tb{width:100%;border-collapse:collapse;font-size:13px}.epr-tb th{position:sticky;top:0;background:#F5F7F9;text-align:left;padding:8px 10px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#2E427B;white-space:nowrap}' +
+    '.epr-tb td{padding:8px 10px;border-top:1px solid #E9EBF0;vertical-align:middle}.epr-tb tr.off td{opacity:.55}.epr-tb .r{text-align:right;white-space:nowrap}.epr-m{font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-weight:600}' +
+    '.epr-st{display:inline-flex;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}.epr-st.n{background:#ECFDF5;color:#047857}.epr-st.m{background:#FEF3C7;color:#92400E}.epr-st.a{background:#E9EBF0;color:#5B606D}' +
+    '.epr-vide{padding:24px;text-align:center;color:#5B606D}.epr-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid #D6D9E0;border-radius:8px;background:#fff;color:#18244F;font-weight:600;font-size:14px;cursor:pointer}' +
+    '.epr-btn:hover:not(:disabled){background:#F4F7FE;border-color:#2E427B}.epr-btn.p{background:#2E427B;border-color:#2E427B;color:#fff}.epr-btn.p:hover:not(:disabled){background:#243569}.epr-btn:disabled{opacity:.5;cursor:default}';
+  document.head.appendChild(css);
+
+  var ov = null, O = null, rsel = {}, extraction = '';
+  function construire() {
+    ov = document.createElement('div'); ov.className = 'etm-voile epr-voile'; ov.hidden = true; ov.style.display = 'none';
+    ov.innerHTML = '<div class="etm-dialog epr-dialog" role="dialog" aria-modal="true" aria-labelledby="epr-t">' +
+      '<div class="etm-head"><div class="etm-titre"><span class="etm-icone"><i class="ti ti-cloud-download" aria-hidden="true"></i></span><div><p class="etm-eyebrow">Soft e-Procurement</p><h2 class="etm-h" id="epr-t" data-epr-titre></h2><p class="etm-sub" data-epr-intro></p></div></div>' +
+      '<button type="button" class="etm-x" data-epr-x aria-label="Fermer"><i class="ti ti-x" aria-hidden="true"></i></button></div>' +
+      '<div class="etm-body"><div class="epr-bar"><span class="epr-conn" data-epr-conn></span><input type="search" data-epr-q placeholder="Rechercher…" aria-label="Rechercher"><span class="epr-info" data-epr-info></span></div>' +
+      '<div class="epr-wrap"><table class="epr-tb"><thead data-epr-thead></thead><tbody data-epr-tbody></tbody></table></div></div>' +
+      '<div class="etm-foot"><span class="epr-info" data-epr-note></span><div class="etm-droite"><button type="button" class="epr-btn" data-epr-annuler>Annuler</button><button type="button" class="epr-btn p" data-epr-ok><i class="ti ti-refresh" aria-hidden="true"></i> <span data-epr-oklib></span></button></div></div></div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) fermer(); });
+    ov.addEventListener('click', function (e) {
+      if (e.target.closest('[data-epr-x]') || e.target.closest('[data-epr-annuler]')) { fermer(); return; }
+      if (e.target.closest('[data-epr-ok]') && !ov.querySelector('[data-epr-ok]').disabled) valider();
+    });
+    ov.addEventListener('input', function (e) { if (e.target.matches('[data-epr-q]')) rendre(); });
+    ov.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t.matches('[data-epr-k]')) { if (O.unique) rsel = {}; rsel[t.dataset.eprK] = t.checked; rendre(); }
+      else if (t.matches('[data-epr-all]')) { filtre().forEach(function (x) { if (x.actif) rsel[x.cle] = t.checked; }); rendre(); }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && ov && !ov.hidden) fermer(); });
+  }
+  function filtre() {
+    var t = sans(ov.querySelector('[data-epr-q]').value);
+    return O.lignes.map(function (l) { var e = O.etat(l) || {}; return { l: l, cle: O.cle(l), txt: e.txt || '', actif: e.actif !== false }; }).filter(function (x) {
+      return !t || sans(O.colonnes.map(function (c) { return x.l[c.k]; }).join(' ') + ' ' + x.txt).indexOf(t) >= 0;
+    });
+  }
+  function rendre() {
+    var L = filtre(), nbSel = Object.keys(rsel).filter(function (k) { return rsel[k]; }).length, cls = { 'Nouveau': 'n', 'Mise à jour': 'm' };
+    ov.querySelector('[data-epr-thead]').innerHTML = '<tr><th style="width:36px">' + (O.unique ? '' : '<input type="checkbox" data-epr-all aria-label="Tout sélectionner">') + '</th>' + O.colonnes.map(function (c) { return '<th' + (c.r ? ' class="r"' : '') + '>' + esc(c.l) + '</th>'; }).join('') + '<th>Situation</th></tr>';
+    ov.querySelector('[data-epr-tbody]').innerHTML = L.length ? L.map(function (x) {
+      return '<tr' + (x.actif ? '' : ' class="off"') + '><td><input type="' + (O.unique ? 'radio' : 'checkbox') + '" name="epr-sel" data-epr-k="' + esc(x.cle) + '"' + (rsel[x.cle] ? ' checked' : '') + (x.actif ? '' : ' disabled') + ' aria-label="Sélectionner"></td>' +
+        O.colonnes.map(function (c) { var v = x.l[c.k]; if (c.fmt === 'montant') v = nb(v) + ' ' + (x.l.devise || ''); else if (c.fmt === 'date') v = v ? String(v).split('-').reverse().join('/') : '—'; return '<td class="' + (c.r ? 'r ' : '') + (c.mono ? 'epr-m' : '') + '">' + esc(v == null || v === '' ? '—' : v) + '</td>'; }).join('') +
+        '<td><span class="epr-st ' + (cls[x.txt] || 'a') + '">' + esc(x.txt) + '</span></td></tr>';
+    }).join('') : '<tr><td colspan="' + (O.colonnes.length + 2) + '" class="epr-vide">Aucun élément ne correspond à la recherche.</td></tr>';
+    ov.querySelector('[data-epr-info]').textContent = L.length + ' élément(s) affiché(s) sur ' + O.lignes.length + ' — ' + nbSel + ' sélectionné(s)';
+    var ok = ov.querySelector('[data-epr-ok]'); ok.disabled = !nbSel; ov.querySelector('[data-epr-oklib]').textContent = O.ok + (nbSel && !O.unique ? ' (' + nbSel + ')' : '');
+    var all = ov.querySelector('[data-epr-all]'); if (all) all.checked = L.length > 0 && L.every(function (x) { return !x.actif || rsel[x.cle]; });
+  }
+  function fermer() { if (ov) { ov.hidden = true; ov.style.display = 'none'; } }
+  function valider() {
+    var S = O.lignes.filter(function (l) { return rsel[O.cle(l)]; }); if (!S.length) return;
+    fermer(); O.onValider(S);
+  }
+  function ouvrir(o) {
+    if (!ov) construire(); O = o; rsel = {};
+    var n = new Date(); extraction = n.toLocaleDateString('fr-FR') + ' à ' + n.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    ov.querySelector('[data-epr-titre]').textContent = o.titre; ov.querySelector('[data-epr-intro]').textContent = o.intro || '';
+    ov.querySelector('[data-epr-conn]').textContent = 'Connecté à Soft e-Procurement — extraction du ' + extraction;
+    ov.querySelector('[data-epr-q]').value = ''; ov.querySelector('[data-epr-note]').textContent = o.note || '';
+    ov.hidden = false; ov.style.display = ''; rendre();
+    var q = ov.querySelector('[data-epr-q]'); setTimeout(function () { q.focus(); }, 0);
+  }
+
+  window.EPROCUREMENT = {
+    nom: 'Soft e-Procurement',
+    typesPassation: function () { return copie(TYPES_PASSATION); },
+    contrats: function () { return copie(CONTRATS); },
+    ouvrir: ouvrir
+  };
+})();
+
 // Sélecteur de produits (en-tête) : la liste déroulante de la capture est inerte dans la maquette ; elle est reconstruite ici.
 // Produits : SoftAccounting (courant), Soft e-Payment, Soft Budget. Les deux autres produits ne sont pas navigables (maquette) : un message l'indique.
 (function () {
@@ -30085,6 +30256,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
     pays: 'Liste des pays utilisés par les autres écrans (banques, tiers, comptes émetteurs).', devise: "Monnaies de l'entité, décimales et billetage.", signataires: 'Signataires habilités à valider les paiements.', banques: 'Banques et agences ; la récupération Soft e-Payment synchronise les comptes émetteurs.',
     exercices: "Exercices comptables (dates de début et de fin, exercice en cours, clôture).", racines: 'Racines des comptes par plan.', taxes: 'Types de taxe applicables aux écritures.', modereglement: 'Modes de règlement (virement, chèque, espèces…).',
     lieuaffect: 'Immobilisations › Lieu d’affectation : structure hiérarchique (niveaux et longueur des codes) et arbre des localisations physiques des immobilisations (site, bâtiment, étage, salle…).',
+    fichecontrat: 'Fiche contrat : informations générales, ventilation des montants, modalités de paiement, exécution et lettres de garantie ; « Synchroniser avec Soft e-Procurement » récupère un marché attribué pour préremplir la fiche.',
     etatinv: 'Immobilisations › États › État d’inventaire : un seul écran avec une fenêtre de critères pour éditer le tableau des amortissements ou l’inventaire des immobilisations (acquises, cédées ou autres) par lieu et responsable, à la date de situation, en tenant compte des réassignations.',
     reassign: 'Immobilisations › Saisies › Réassignation : change le site, l’emplacement, le responsable ou la ventilation analytique d’une immobilisation existante ; chaque mouvement est historisé de manière immuable.',
     immolist: 'Immobilisations › Saisies › Liste d’immobilisations : saisie manuelle d’une fiche d’immobilisation (informations générales et complémentaires, imputations comptables) et génération de l’écriture comptable d’acquisition.',
@@ -30106,7 +30278,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
     balance: 'Balance générale avec critères d’édition.', balaux: 'Balance des tiers (auxiliaire).', glg: 'Grand livre général par compte.', journal: 'Journaux comptables.', balana: 'Balance analytique par axe.',
     bilparam: 'Paramétrage des modèles de bilan (lignes, rubriques, comptes) ; le bouton en haut à droite ouvre l’édition.', crparam: 'Paramétrage du compte de résultat.', erparam: 'Paramétrage du tableau emplois et ressources.', tftparam: 'Paramétrage du tableau de flux de trésorerie.',
     biledit: 'Édition du bilan selon des critères (modèle, exercice, période, sites, devise).', cred: 'Édition du compte de résultat.', ered: 'Édition du tableau emplois et ressources.', tfted: 'Édition du tableau de flux de trésorerie.',
-    passation: 'Types de passation de marché.', typemarche: 'Types de marché.', detailcontrat: 'Gestion des contrats › Suivi et historique › Détail d\u2019un contrat : identification du contrat, montants (initial, avenant, total), payé, facturé, soldes et liste des décomptes.', suivicontrats: 'Gestion des contrats › Suivi et historique › Suivi des contrats : état de suivi des marchés (marché, facturé, solde, payé) selon les critères choisis, avec exports PDF et Excel.', reliquats: 'Gestion des contrats › Saisies › Génération des reliquats : report du solde non consommé des contrats d\u2019un exercice N vers N+1, avec simulation puis journal des opérations.', rfimodeles: 'Procédure FIDA › États RFI › Modèles d\u2019état RFI : les six rapports RFI (I à VI) à ouvrir dans le designer ou à dupliquer.', rfiparam: 'Procédure FIDA › États RFI › Paramètres : catégories, trésoreries et avances, sources et utilisations, activité du compte désigné, par convention.', rfiedit: 'Procédure FIDA › États RFI › Édition : rapports RFI I à VI (PTBA, sources et utilisations, compte désigné, écarts), indépendants de l\u2019état de dépense.', budgetconv: 'Projets & Bailleurs › Saisie › Budget de la convention : montants initiaux par catégorie et par devise des conventions du plan financier (niveau de type CONVENTION).', fichecontrat: 'Gestion des contrats › Saisies › Fiche contrat : informations générales, ventilation des montants, modalités de paiement, exécution et lettres de garantie.', recap: 'Modèle de récapitulatif de demande.', soemodel: 'Modèle de relevé de dépenses (SOE).', etatdep: 'État de dépense.', regul: 'Régularisation de la demande.', histdem: 'Historique des demandes.',
+    passation: 'Types de passation de marché ; le bouton « Synchroniser avec Soft e-Procurement » crée ou met à jour les types d’après le référentiel d’e-Procurement.', typemarche: 'Types de marché.', detailcontrat: 'Gestion des contrats › Suivi et historique › Détail d\u2019un contrat : identification du contrat, montants (initial, avenant, total), payé, facturé, soldes et liste des décomptes.', suivicontrats: 'Gestion des contrats › Suivi et historique › Suivi des contrats : état de suivi des marchés (marché, facturé, solde, payé) selon les critères choisis, avec exports PDF et Excel.', reliquats: 'Gestion des contrats › Saisies › Génération des reliquats : report du solde non consommé des contrats d\u2019un exercice N vers N+1, avec simulation puis journal des opérations.', rfimodeles: 'Procédure FIDA › États RFI › Modèles d\u2019état RFI : les six rapports RFI (I à VI) à ouvrir dans le designer ou à dupliquer.', rfiparam: 'Procédure FIDA › États RFI › Paramètres : catégories, trésoreries et avances, sources et utilisations, activité du compte désigné, par convention.', rfiedit: 'Procédure FIDA › États RFI › Édition : rapports RFI I à VI (PTBA, sources et utilisations, compte désigné, écarts), indépendants de l\u2019état de dépense.', budgetconv: 'Projets & Bailleurs › Saisie › Budget de la convention : montants initiaux par catégorie et par devise des conventions du plan financier (niveau de type CONVENTION).', fichecontrat: 'Gestion des contrats › Saisies › Fiche contrat : informations générales, ventilation des montants, modalités de paiement, exécution et lettres de garantie.', recap: 'Modèle de récapitulatif de demande.', soemodel: 'Modèle de relevé de dépenses (SOE).', etatdep: 'État de dépense.', regul: 'Régularisation de la demande.', histdem: 'Historique des demandes.',
     tiers: 'Plan des tiers (clients, fournisseurs…).', dashboard: 'Tableau de bord de pilotage financier.', tchat: 'Messagerie interne (canaux et messages directs).'
   };
   window.AI_DESC = DESC;   // descriptions brèves des écrans (utilisées aussi par la recherche de menu)
@@ -30128,6 +30300,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
 
   /* ---------- Guides pas à pas ---------- */
   var GUIDES = [
+    { kw: ['synchroniser e-procurement', 'synchroniser eprocurement', 'soft e-procurement', 'soft eprocurement', 'eprocurement', 'e procurement', 'synchroniser type passation', 'recuperer marche', 'importer marche procurement'], t: 'Synchroniser avec Soft e-Procurement', cible: 'Type de passation', e: ['Types de passation : ouvrez Gestion des contrats › Paramétrages › Type de passation puis cliquez sur « Synchroniser avec Soft e-Procurement ».', 'Cochez dans la fenêtre les types à créer (Nouveau) ou à mettre à jour (Mise à jour) ; ils sont rapprochés par leur code et rien n’est supprimé.', 'Fiche contrat : ouvrez Gestion des contrats › Saisies › Fiche contrat (liste ou saisie) puis cliquez sur le même bouton.', 'Choisissez le marché attribué à récupérer : numéro, objet, dates, types de marché et de passation, attributaire et montant préremplissent la fiche.', 'Vérifiez la fiche (compte PCG de la ventilation, tiers si l’attributaire n’est pas trouvé) puis cliquez sur « Enregistrer ».'] },
     { kw: ['etat inventaire', 'inventaire immobilisation', 'inventaire des immobilisations', 'tableau amortissement', 'tableau des amortissements', 'etat immobilisation', 'immobilisations acquises', 'immobilisations cedees', 'situation immobilisation', 'vnc par lieu'], t: 'Éditer l’état d’inventaire des immobilisations', cible: 'État d’inventaire', e: ['Ouvrez Immobilisations › États › État d’inventaire : la fenêtre de critères s’ouvre ; sinon cliquez sur « Filtre ».', 'Choisissez l’état : « Tableau des amortissements » ou « Inventaire des immobilisations ».', 'Indiquez l’exercice et la période : la date « Au » est la date de situation.', 'Pour l’inventaire, cochez le périmètre : acquises, cédées ou autres ; vous pouvez limiter à un lieu, un responsable ou une famille.', 'Cliquez sur « Éditer l’état » : l’inventaire montre, pour chaque bien, le lieu et le responsable en vigueur à la date de situation (d’après les réassignations) et sa VNC. Imprimer, PDF et Excel sont dans la barre d’actions.'] },
     { kw: ['reassignation', 'reassigner immobilisation', 'changer emplacement immobilisation', 'changer responsable immobilisation', 'transfert immobilisation', 'changement affectation', 'historique reassignation'], t: 'Réassigner une immobilisation', cible: 'Réassignation', e: ['Ouvrez Immobilisations › Saisies › Réassignation, puis « Nouvelle réassignation ».', 'Sélectionnez l’immobilisation par son numéro d’identification ou son nom : son ancienne affectation s’affiche en lecture seule.', 'Dans « Nouvelle affectation », saisissez la date, puis le nouveau site, emplacement, responsable ou les imputations analytiques à modifier ; les champs modifiés sont surlignés.', 'Cliquez sur « Enregistrer » : la fiche est mise à jour et le mouvement est ajouté à l’historique.', 'Seul le dernier mouvement d’une immobilisation peut être supprimé : l’affectation précédente est alors rétablie. Une immobilisation cédée ne peut plus être réassignée.'] },
     { kw: ['fiche immobilisation', 'fiches immobilisation', 'liste immobilisation', 'saisir immobilisation', 'nouvelle immobilisation', 'generer ecriture immobilisation', 'ecriture immobilisation', 'acquisition immobilisation'], t: 'Saisir une fiche d’immobilisation et générer son écriture', cible: 'Liste d’immobilisations', e: ['Ouvrez Immobilisations › Saisies › Liste d’immobilisations, puis « Ajouter ».', 'Onglet Général : année, site, référence de la facture, désignation, compte général, quantité, prix unitaire, dates d’acquisition et de mise en service ; puis numéro d’identification, état, famille, emplacement et responsable.', 'Onglet Écritures : choisissez le fournisseur collectif et le compte auxiliaire, puis la ventilation analytique des plans activés.', 'Cliquez sur « Enregistrer » : la fiche apparaît dans la liste au statut Brouillon.', 'Sélectionnez la fiche puis « Générer écriture » : l’écriture d’acquisition est créée (débit du compte général, crédit du fournisseur) et la fiche passe à « Écriture générée ».'] },
