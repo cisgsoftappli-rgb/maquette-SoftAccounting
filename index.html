@@ -2244,7 +2244,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   En-tête : compte bancaire (configurations de « Rapprochement bancaire › Configuration », window.RAPPROCH_CONFIG), relevé n°, date du relevé, solde relevé, solde comptable.
   Deux listes : « Relevé bancaire » (lignes rapprochées « R » ou en attente « ? ») et « Écritures comptables » non pointées avec leur proposition de rapprochement.
   Importer un relevé (simulé), Proposer automatiquement (même montant), Valider le rapprochement (somme des lignes cochées égale de part et d'autre).
-  Écart à justifier = lignes du relevé en attente sans écriture de même montant (ex. agios) ; « Créer l'écriture d'agios » l'ajoute aux écritures.
+  Écart à justifier = lignes du relevé en attente sans écriture de même montant (ex. agios) ; « Générer les écritures » crée, à partir des lignes du relevé sans écriture, la pièce (en-tête + schéma comptable) ajoutée aux écritures.
   Données de démonstration en mémoire (compte 512100). Préfixe pt- / data-pt. Ne pas nommer de fonction « $ » (build.cjs).
 -->
 <style>
@@ -2307,6 +2307,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     <span class="pt-msg" data-pt-msg role="status" style="margin-right:auto;align-self:center"></span>
     <button type="button" data-pt-retour>Liste des relevés</button>
     <button type="button" data-pt-proposer>Proposer automatiquement</button>
+    <button type="button" data-pt-gener>Générer les écritures</button>
     <button type="button" class="pt-p" data-pt-valider>Valider le rapprochement</button>
   </div>
 
@@ -2321,7 +2322,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <div class="pt-phinfo" data-pt-phinfo hidden>Relevé physique : aucune ligne n’est saisie ni importée. Cochez les écritures retrouvées sur le relevé papier, renseignez le n° et la date du relevé, puis validez le pointage.</div>
       <div class="pt-sc"><table><thead><tr><th><input type="checkbox" data-pt-tout="ecr" aria-label="Tout cocher"></th><th>Date</th><th>Pièce</th><th>Libellé</th><th class="r">Montant</th><th>Proposition</th></tr></thead><tbody data-pt-ecr></tbody></table></div>
       <div class="pt-vide" data-pt-vecr hidden>Toutes les écritures sont pointées.</div>
-      <div class="pt-ft"><span data-pt-ecart></span><button type="button" data-pt-agios hidden>+ Créer l'écriture d'agios</button></div>
+      <div class="pt-ft"><span data-pt-ecart></span></div>
     </section>
   </div>
 </div>
@@ -2390,14 +2391,14 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       return '<tr><td><input type="checkbox" data-pt-r="' + i + '"' + (r.r ? ' checked disabled' : cocheR[i] ? ' checked' : '') + ' aria-label="Ligne ' + (i + 1) + '"></td><td>' + date(r.d) + '</td><td>' + esc(r.l) + (orig(e, i) ? '<span class="pt-rp" title="Ligne non pointée du relevé ' + esc(orig(e, i)) + ', reportée jusqu’à son pointage">Reportée · ' + esc(orig(e, i)) + '</span>' : '') + '</td><td class="r ' + (r.m < 0 ? 'neg' : 'pos') + '">' + nbr(r.m) + '</td><td class="pt-piece">' + esc(r.rr || (r.r ? e.releve : '')) + '</td><td><span class="pt-st ' + (r.r ? 'ok' : 'ko') + '" title="' + (r.r ? 'Rapprochée' : 'En attente') + '">' + (r.r ? 'R' : '?') + '</span></td></tr>';
     }).join('');
     q('[data-pt-vrel]').hidden = e.rel.length > 0;
-    root.classList.toggle('pt-ph', phys); q('[data-pt-phinfo]').hidden = !phys; q('[data-pt-etl]').textContent = phys ? 'Retour au relevé' : 'Relevé physique'; q('[data-pt-etendre]').setAttribute('aria-pressed', phys); q('[data-pt-proposer]').disabled = phys;
+    root.classList.toggle('pt-ph', phys); q('[data-pt-phinfo]').hidden = !phys; q('[data-pt-etl]').textContent = phys ? 'Retour au relevé' : 'Relevé physique'; q('[data-pt-etendre]').setAttribute('aria-pressed', phys); q('[data-pt-proposer]').disabled = phys; q('[data-pt-gener]').disabled = phys;
     q('[data-pt-ecr]').innerHTML = e.ecr.map(function (x, i) {
       return '<tr><td><input type="checkbox" data-pt-e="' + i + '"' + (cocheE[i] ? ' checked' : '') + ' aria-label="Écriture ' + (i + 1) + '"></td><td>' + date(x.d) + '</td><td class="pt-piece">' + esc(x.p) + '</td><td>' + esc(x.l) + '</td><td class="r ' + (x.m < 0 ? 'neg' : 'pos') + '">' + nbr(x.m) + '</td><td>' + (x.prop ? '<span class="pt-pr">' + esc(x.prop) + '</span>' : '') + '</td></tr>';
     }).join('');
     q('[data-pt-vecr]').hidden = e.ecr.length > 0;
     var ec = ecart(e);
-    q('[data-pt-ecart]').innerHTML = ec ? 'Écart à justifier : <b>' + nbr(Math.abs(ec)) + ' Ar</b> (agios T3 non comptabilisés)' : 'Aucun écart à justifier';
-    q('[data-pt-agios]').hidden = !ec;
+    q('[data-pt-ecart]').innerHTML = ec ? 'Écart à justifier : <b>' + nbr(Math.abs(ec)) + ' Ar</b> (lignes du relevé sans écriture)' : 'Aucun écart à justifier';
+    
     qa('[data-pt-tout]').forEach(function (c) { c.checked = false; });
   }
   function lues() {
@@ -2466,12 +2467,70 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     e.ecr = e.ecr.filter(function (x, j) { return !cocheE[j]; });
     cocheR = {}; cocheE = {}; rendre(); msg('Rapprochement validé : ' + ir.length + ' ligne(s) du relevé, ' + ie.length + ' écriture(s) pointée(s).');
   });
-  q('[data-pt-agios]').addEventListener('click', function () {
-    var e = cur(); if (!e) return; var ec = ecart(e); if (!ec) return;
-    var l = e.rel.filter(function (r) { return !r.r && !e.ecr.some(function (x) { return x.m === r.m; }); })[0];
-    e.ecr.push({ d: l.d, p: cle.slice(0, 3) === '512' ? 'BNI-2026-0315' : 'PIECE-0001', l: 'Agios T3', m: l.m, prop: 'Montant' });
-    cocheR = {}; cocheE = {}; rendre(); msg("Écriture d'agios créée : elle peut être rapprochée.");
-  });
+  // ---------- génération des écritures à partir des lignes du relevé : en-tête de pièce + schéma comptable (banque / contrepartie) ----------
+  function planLib(code) { var r = (window.PLAN_COMPTABLE || []).filter(function (x) { return x.code === code; })[0]; return r ? (r.libelle || r.label || '') : ''; }
+  function suggere(r) {
+    var l = String(r.l).toUpperCase(), p = r.m < 0 ? '401' : '411', pre = null;
+    if (/AGIOS|INTER[EÉ]T/.test(l)) pre = '661'; else if (/FRAIS|COMMISSION|TENUE/.test(l)) pre = '627';
+    else if (/JIRAMA|PRLV|PRELEV/.test(l)) pre = '606'; else if (/SALAIRE/.test(l)) pre = '421'; else if (/IMPOT|TAXE|TVA/.test(l)) pre = '44';
+    pre = pre || p; var pc = window.PLAN_COMPTABLE || [], x = pc.filter(function (c) { return String(c.code).indexOf(pre) === 0; })[0];
+    return x ? x.code : (pre + '000000').slice(0, 6);
+  }
+  function genererEcritures() {
+    var e = lues(); if (!e) return; var O = window.FACTURE_OCR, REF = window.ECRITURES_REF || {};
+    if (!O || !O.fenetre) { msg('Génération d’écriture indisponible.', true); return; }
+    var sans = function (r) { return !r.r && !e.ecr.some(function (x) { return x.m === r.m; }); };
+    var pre = {}; Object.keys(cocheR).forEach(function (i) { pre[i] = 1; });
+    var idx = e.rel.map(function (r, i) { return i; }).filter(function (i) { return !e.rel[i].r; });
+    if (!idx.length) { msg('Aucune ligne du relevé à comptabiliser : toutes sont rapprochées.', true); return; }
+    var J = (window.JOURNAUX_PLAN || []).filter(function (j) { return j.actif !== false; }), jb = J.filter(function (j) { return j.compte === cle; })[0] || J.filter(function (j) { return /banque/i.test(j.type + ' ' + j.nature); })[0] || J[0] || {};
+    var lib = planLib(cle), items = idx.map(function (i) { var r = e.rel[i]; return { i: i, on: !!pre[i], cp: suggere(r), lib: r.l, dej: !sans(r) }; });
+    var w = O.fenetre('Générer les écritures à partir du relevé', true, 'scale', 'Générer les écritures');
+    w.b.innerHTML = '<div class="fo-sec" style="margin-top:0">En-tête des pièces</div><div class="fo-fl">' +
+      '<label>Site<select class="fo-in" data-ge="site">' + (REF.sites || []).map(function (x, k) { return '<option value="' + esc(x.code) + '"' + (k === 0 ? ' selected' : '') + '>' + esc(x.code + (x.label ? ' — ' + x.label : '')) + '</option>'; }).join('') + '</select></label>' +
+      '<label>Code du journal<select class="fo-in" data-ge="jnl">' + J.map(function (j) { return '<option value="' + esc(j.code) + '"' + (j.code === jb.code ? ' selected' : '') + '>' + esc(j.code + (j.libelle ? ' — ' + j.libelle : '')) + '</option>'; }).join('') + '</select></label>' +
+      '<label>Exercice<select class="fo-in" data-ge="ex">' + (window.EXERCICES_API ? window.EXERCICES_API.liste() : []).filter(function (x) { return !x.cloture; }).map(function (x) { return '<option value="' + esc(x.annee) + '">' + esc(x.annee + (x.cours ? ' (en cours)' : '')) + '</option>'; }).join('') + '</select></label>' +
+      '<label>Compte bancaire<input class="fo-in" readonly value="' + esc(cle + (lib ? ' – ' + lib : '')) + '"></label>' +
+      '<label>Référence<input class="fo-in" data-ge="ref" maxlength="40" value="' + esc('REL-' + String(e.releve).replace(/\s/g, '')) + '"></label>' +
+      '<label>Relevé n°<input class="fo-in" readonly value="' + esc(e.releve) + '"></label></div>' +
+      '<div class="fo-sec">Lignes du relevé à comptabiliser</div><div data-ge-l></div><div class="fo-sec">Schéma comptable</div><div data-ge-sch></div><div data-ge-ctl></div>';
+    w.f.innerHTML = '<button type="button" data-ge-x>Annuler</button><button type="button" class="p" data-ge-g><i class="ti ti-wand"></i> Générer les écritures</button>';
+    var Q = function (k) { return w.b.querySelector('[data-ge="' + k + '"]'); };
+    function dessinerL() {
+      w.b.querySelector('[data-ge-l]').innerHTML = '<datalist id="ge-pc">' + (window.PLAN_COMPTABLE || []).map(function (c) { return '<option value="' + esc(c.code) + '">' + esc(c.libelle || c.label || '') + '</option>'; }).join('') + '</datalist>' +
+        '<table class="fo-t"><thead><tr><th style="width:30px"><input type="checkbox" data-ge-tout' + (items.every(function (it) { return it.on; }) ? ' checked' : '') + '></th><th>Date</th><th>Libellé</th><th style="width:130px;text-align:right">Montant</th><th style="width:150px">Compte de contrepartie</th></tr></thead><tbody>' +
+        items.map(function (it, k) { var r = e.rel[it.i]; return '<tr><td><input type="checkbox" data-ge-on="' + k + '"' + (it.on ? ' checked' : '') + '></td><td>' + date(r.d) + '</td><td><input class="fo-in" data-ge-lib="' + k + '" value="' + esc(it.lib) + '" maxlength="120">' + (it.dej ? '<small style="color:#8A5A12">Une écriture de même montant existe déjà</small>' : '') + '</td><td class="r ' + (r.m < 0 ? 'neg' : 'pos') + '">' + nbr(r.m) + '</td><td><input class="fo-in" list="ge-pc" data-ge-cp="' + k + '" value="' + esc(it.cp) + '"></td></tr>'; }).join('') + '</tbody></table>';
+    }
+    function schema() {
+      var D = 0, K = 0, rows = '';
+      items.forEach(function (it) {
+        if (!it.on) return; var m = Math.abs(e.rel[it.i].m), deb = e.rel[it.i].m > 0;
+        var l1 = [cle, lib, it.lib, deb], l2 = [it.cp, planLib(it.cp), it.lib, !deb];
+        [l1, l2].forEach(function (x) { if (x[3]) D += m; else K += m; rows += '<tr><td><b>' + esc(x[0]) + '</b> <span style="color:#5B606D">' + esc(x[1]) + '</span></td><td>' + esc(x[2]) + '</td><td class="r">' + (x[3] ? nbr(m) : '') + '</td><td class="r">' + (x[3] ? '' : nbr(m)) + '</td></tr>'; });
+      });
+      w.b.querySelector('[data-ge-sch]').innerHTML = '<table class="fo-t"><thead><tr><th>Compte</th><th>Libellé</th><th style="width:130px;text-align:right">Débit</th><th style="width:130px;text-align:right">Crédit</th></tr></thead><tbody>' + (rows || '<tr><td colspan="4" style="color:#5B606D;text-align:center">Cochez une ligne du relevé pour proposer l’écriture comptable.</td></tr>') + (rows ? '<tr style="font-weight:700"><td colspan="2">Total — équilibré</td><td class="r">' + nbr(D) + '</td><td class="r">' + nbr(K) + '</td></tr>' : '') + '</tbody></table>';
+    }
+    dessinerL(); schema();
+    w.b.addEventListener('input', function (ev) { var t = ev.target, k; if ((k = t.getAttribute('data-ge-lib')) !== null) items[k].lib = t.value; else if ((k = t.getAttribute('data-ge-cp')) !== null) items[k].cp = t.value.trim(); else return; schema(); });
+    w.b.addEventListener('change', function (ev) { if (ev.target.hasAttribute('data-ge-tout')) { items.forEach(function (it) { it.on = ev.target.checked; }); dessinerL(); schema(); return; } var k = ev.target.getAttribute('data-ge-on'); if (k !== null) { items[k].on = ev.target.checked; schema(); } });
+    w.f.querySelector('[data-ge-x]').addEventListener('click', O.fermer);
+    w.f.querySelector('[data-ge-g]').addEventListener('click', function () {
+      var sel = items.filter(function (it) { return it.on; }), ctl = w.b.querySelector('[data-ge-ctl]');
+      if (!Q('jnl').value) { ctl.innerHTML = '<div class="fo-ko">Choisissez le journal.</div>'; return; }
+      if (!sel.length) { ctl.innerHTML = '<div class="fo-ko">Cochez au moins une ligne.</div>'; return; }
+      var bad = sel.filter(function (it) { return !/^\d{3,}/.test(it.cp) || it.cp === cle; });
+      if (bad.length) { ctl.innerHTML = '<div class="fo-ko">Renseignez un compte de contrepartie valide (différent du compte bancaire) pour chaque ligne cochée.</div>'; return; }
+      var j = (window.JOURNAUX_PLAN || []).filter(function (x) { return x.code === Q('jnl').value; })[0], pieces = [];
+      sel.forEach(function (it) {
+        var r = e.rel[it.i], piece = j && j.auto && window.JOURNAUX_PROCHAIN ? window.JOURNAUX_PROCHAIN(j, { date: r.d }) : Q('jnl').value + '-REL' + ('000' + (e.ecr.length + 1)).slice(-4);
+        if (j && j.auto && window.JOURNAUX_AVANCER) window.JOURNAUX_AVANCER(j, { date: r.d });
+        e.ecr.push({ d: r.d, p: piece, l: it.lib, m: r.m, prop: 'Montant', cp: it.cp }); pieces.push(piece);
+        cocheR[it.i] = 1; cocheE[e.ecr.length - 1] = 1;
+      });
+      O.fermer(); rendre(); msg(sel.length + ' écriture(s) générée(s) (' + pieces[0] + (pieces.length > 1 ? ' … ' + pieces[pieces.length - 1] : '') + ', journal ' + Q('jnl').value + ') : les lignes sont cochées, validez le rapprochement.');
+    });
+  }
+  q('[data-pt-gener]').addEventListener('click', genererEcritures);
   window.addEventListener('rapprochement-changed', init);
   window.addEventListener('hashchange', init);
   window.addEventListener('load', init);
@@ -31209,7 +31268,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
     exercices: { plat: 1, txt: /^(ajouter|modifier|supprimer|définir en cours|clôturer l'exercice|enregistrer|annuler|imprimer|exporter)$/i }, saisie: { add: 1 }, dp: { add: 1 }, procfin: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|nouvelle sélection)$/i }, fichecontrat: { add: 1, plat: 1 }, budgetconv: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, rfiparam: { plat: 1, txt: /^(enregistrer|annuler)$/i }, rfiedit: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, reliquats: { plat: 1, txt: /^(simuler|générer les reliquats|rafraîchir)$/i }, suivicontrats: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, detailcontrat: { plat: 1, txt: /^(critères|pdf|excel \(xlsx\))$/i }, typemarche: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|importer|imprimer|pdf|excel \(xlsx\))$/i }, passation: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|importer|imprimer|pdf|excel \(xlsx\))$/i }, pays: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|exporter)$/i }, tiers: { add: 1 },
     listing: { add: 1 }, listing2: { add: 1 }, recap: { add: 1 }, soemodel: { add: 1 }, modfisc: { add: 1 }, typetaxe: { add: 1 },
     taxes: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|exporter)$/i }, racines: { txt: /^(modifier|enregistrer|annuler|imprimer|exporter)$/i }, plans: { txt: /^(modifier|enregistrer|annuler|imprimer|exporter)$/i }, journal: { txt: /^(critères|imprimer|exporter)$/i }, crparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, erparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, cred: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, ered: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, tfted: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, tftparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, biledit: { txt: /^(critères|imprimer|exporter|paramétrage)$/i }, bilparam: { txt: /^(ajouter|nouveau modèle|dupliquer|supprimer|modifier|enregistrer|annuler|imprimer|exporter|édition)$/i }, modfisc2: {},
-    rapprochement: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, situation: { txt: /^(détail.*|fiche( 2)?|exporter)$/i }, pointage: { txt: /^(liste des relevés|proposer automatiquement|valider le rapprochement)$/i },
+    rapprochement: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, situation: { txt: /^(détail.*|fiche( 2)?|exporter)$/i }, pointage: { txt: /^(liste des relevés|proposer automatiquement|générer les écritures|valider le rapprochement)$/i },
     devise: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, banques: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\)|récupération soft e-payment)$/i }, signataires: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, modereglement: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, lieuaffect: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, jtraces: { plat: 1, txt: /^(réinitialiser|dictionnaire|pdf|pdf avec détails|excel \(xlsx\)|excel \(xlsx\) avec détails)$/i }, cloture: { txt: /^(annuler|enregistrer)$/i }, lettparam: { txt: /^(annuler|enregistrer)$/i }, prelettrage: { plat: 1, txt: /^(tout désélectionner|annuler le prélettrage|prélettrer)$/i }, designer: { plat: 1, txt: /^(retour|enregistrer)$/i }, collabresp: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, famimmo: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, immolist: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer|enregistrer|annuler|générer écriture|imprimer|pdf|excel \(xlsx\))$/i }, reassign: { plat: 1, txt: /^(nouvelle réassignation|supprimer|enregistrer|annuler|historique|imprimer|pdf|excel \(xlsx\))$/i }, caissegen: { plat: 1, txt: /^proposer schéma comptable$/i }, caissesaisie: { plat: 1, txt: /^(ajouter|modifier|supprimer|ajouter des opérations|enregistrer|annuler)$/i }, caissetypes: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, conversion: { plat: 1, txt: /^(réinitialiser|convertir)$/i }, cours: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer|enregistrer|annuler)$/i }, releves: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer les lignes|importer par ocr|enregistrer|annuler|pointage)$/i }, lettmanuel: { plat: 1, txt: /^(lettrage automatique|tout désélectionner|délettrer|écart de règlement|lettrer)$/i }, clotper: { plat: 1, txt: /^(clôturer la période|annuler la clôture)$/i }, clotmens: { plat: 1, txt: /^(clôturer la période|rouvrir la période)$/i }, anouvanalytique: { plat: 1, txt: /^(saisie manuelle|importer|supprimer les à nouveaux analytiques|pdf|excel \(xlsx\))$/i }, anouveaux: { plat: 1, txt: /^(générer les à nouveaux provisoires|saisie manuelle|importer|supprimer les à nouveaux|pdf|excel \(xlsx\))$/i }, clotannuelle: { plat: 1, txt: /^(clôturer l'exercice)$/i }, traces: { txt: /^(annuler|enregistrer)$/i }, acces: { txt: /^(réinitialiser|enregistrer|nouvel utilisateur|modifier|supprimer|imprimer|pdf|excel \(xlsx\))$/i }, entite: { txt: /^(annuler|enregistrer)$/i },
     circparam: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i },
     ecritures: { txt: /^(importer des écritures|mod[èe]le d.[ée]criture|facture softdocs|facture ocr|infos libres|annuler|enregistrer la pièce)/i },
@@ -31249,6 +31308,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
     if (g === 'filter' && /^rechercher/.test(n)) ic = 'search';
     if (/^lettrage automatique/.test(n)) ic = 'sparkles';
     if (/^écart de règlement/.test(n)) ic = 'receipt';
+    if (/^générer les écritures/.test(n)) ic = 'wand';
     if (/^(liste des relevés|retour)/.test(n)) ic = 'arrow-left';
     if (g === 'export') ic = /^importer par ocr/.test(n) ? 'scan' : /^imprimer/.test(n) ? 'printer' : /^excel/.test(n) ? 'file-spreadsheet' : /^pdf/.test(n) ? 'file-type-pdf' : /^csv/.test(n) ? 'file-text' : /^import/.test(n) ? 'upload' : 'download';
     var esc = t.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; });
