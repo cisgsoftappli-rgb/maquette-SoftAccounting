@@ -3487,7 +3487,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var n = nbSel(o), tot = o.items.length, chips = o.box.querySelector('.cv-chips');
     chips.classList.toggle('vide', !n);
     chips.innerHTML = (!n ? '<span class="cv-vide">Sélection…</span>' : n === tot ? '<span class="cv-chip">Tous sélectionnés (' + tot + ')<button type="button" data-k="*" aria-label="Tout désélectionner">&#10006;</button></span>' :
-      o.items.filter(function (i) { return o.sel[i[0]]; }).map(function (i) { return '<span class="cv-chip" title="' + esc(i[1]) + '">' + esc(i[0]) + '<button type="button" data-k="' + esc(i[0]) + '" aria-label="Retirer ' + esc(i[0] + ' ' + i[1]) + '">&#10006;</button></span>'; }).join('')) +
+      '<span class="cv-chip">' + n + ' sélectionné' + (n > 1 ? 's' : '') + ' sur ' + tot + '<button type="button" data-k="*" aria-label="Tout désélectionner">&#10006;</button></span>') +
       '<i class="ti ti-alert-circle-filled cv-alerte" aria-hidden="true"></i>';
     infos();
   }
