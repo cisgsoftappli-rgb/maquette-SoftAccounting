@@ -9522,11 +9522,34 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var TXT = [['numBord', 'numBord'], ['piece', 'piece'], ['facture', 'facture'], ['reference', 'reference'], ['tiers', 'tiers'], ['modePaiement', 'mode'], ['info1', 'info1'], ['info2', 'info2'], ['info3', 'info3'], ['documents', 'documents'], ['liens', 'liens']];
   var EXTRA = [["exercice","Exercice"],["typeJournal","Type de journal"],["facture","N° facture"],["contrat","N° contrat"],["saisiPar","Saisi par"],["numLettrage","N° lettrage"],["numReleve","N° relevé"],["info1","Information libre 1"],["info2","Information libre 2"],["info3","Information libre 3"],["documents","Documents"],["liens","Liens documentaires"],["budget","Budget"],["ligneBud","Ligne budgétaire"]];
   function colsVis() { var g = MSS.colsExtra ? MSS.colsExtra.get() : []; return EXTRA.filter(function (x) { return g.indexOf(x[0]) >= 0; }); }
+  var ORD = null;   // ordre des colonnes (indices d'origine), modifiable par glisser-déposer
+  function entete() { return q('table.le-tb').tHead.rows[0]; }
+  function initOrd() { if (!ORD) { ORD = []; [].slice.call(entete().cells).forEach(function (c, i) { c.setAttribute('data-oc', i); ORD.push(i); }); } }
+  function ordreLignes() { if (!ORD) return; [].slice.call(q('[data-le-lignes]').rows).forEach(function (rw) { var cs = [].slice.call(rw.cells); if (cs.length !== ORD.length) return; ORD.forEach(function (o) { rw.appendChild(cs[o]); }); }); }
   function majCols() {
-    var tb = q('table.le-tb'), vis = colsVis().map(function (x) { return x[0]; }), base = 17;
-    [].slice.call(tb.rows).forEach(function (rw) { [].slice.call(rw.cells).forEach(function (c, k) { if (k < base) return; var key = EXTRA[k - base] && EXTRA[k - base][0]; c.style.display = vis.indexOf(key) >= 0 ? '' : 'none'; }); });
+    var tb = q('table.le-tb'), vis = colsVis().map(function (x) { return x[0]; }), hide = [];
+    [].slice.call(entete().cells).forEach(function (c, k) { var key = c.getAttribute('data-xc'); hide[k] = !!key && vis.indexOf(key) < 0; });
+    [].slice.call(tb.rows).forEach(function (rw) { [].slice.call(rw.cells).forEach(function (c, k) { c.style.display = hide[k] ? 'none' : ''; }); });
     tb.style.minWidth = (1900 + vis.length * 160) + 'px';
   }
+  function deplacer(from, to) {
+    var tb = q('table.le-tb'); if (from === to || from < 1 || to < 1) return;
+    [].slice.call(tb.rows).forEach(function (rw) { var cs = rw.cells, n = cs[from], ref = cs[to]; if (!n || !ref) return; if (from < to) ref.parentNode.insertBefore(n, ref.nextSibling); else ref.parentNode.insertBefore(n, ref); });
+    ORD.splice(to, 0, ORD.splice(from, 1)[0]);
+    var hr = entete(); [].slice.call(hr.cells).forEach(function (c, i) { c.__i = i; });
+    var fr = tb.tHead.querySelector('.tf-row'); if (fr) [].slice.call(fr.cells).forEach(function (c, i) { var inp = c.querySelector('input'); if (inp) inp.dataset.tfc = i; });
+    majCols(); toast('Colonne déplacée.');
+  }
+  (function () {
+    var tb = q('table.le-tb'), src = -1, st = document.createElement('style'); st.textContent = '[data-le] .le-tb thead tr:first-child th[draggable=true]{cursor:grab}[data-le] .le-tb th.le-dov{box-shadow:inset 3px 0 0 #2E427B;background:#F4F7FE}[data-le] .le-tb th.le-dsrc{opacity:.45}'; document.head.appendChild(st);
+    function th(e) { var t = e.target.closest && e.target.closest('th'); return t && t.parentNode === entete() ? t : null; }
+    function marquer() { initOrd(); [].slice.call(entete().cells).forEach(function (c, i) { if (i > 0) c.setAttribute('draggable', 'true'); }); }
+    marquer();
+    tb.addEventListener('dragstart', function (e) { var t = th(e); if (!t || t.cellIndex < 1) { e.preventDefault(); return; } src = t.cellIndex; t.classList.add('le-dsrc'); try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'col'); } catch (x) {} });
+    tb.addEventListener('dragover', function (e) { var t = th(e); if (src < 0 || !t || t.cellIndex < 1) return; e.preventDefault(); [].slice.call(entete().cells).forEach(function (c) { c.classList.toggle('le-dov', c === t && c.cellIndex !== src); }); });
+    tb.addEventListener('drop', function (e) { var t = th(e); if (src < 0 || !t) return; e.preventDefault(); var to = t.cellIndex, from = src; src = -1; [].slice.call(entete().cells).forEach(function (c) { c.classList.remove('le-dov', 'le-dsrc'); }); deplacer(from, to); });
+    tb.addEventListener('dragend', function () { src = -1; [].slice.call(entete().cells).forEach(function (c) { c.classList.remove('le-dov', 'le-dsrc'); }); });
+  })();
   var res = [], SEL = {};
   function filtrer() {
     var S = {}; Object.keys(MSS).forEach(function (k) { S[k] = MSS[k].get(); });
@@ -9554,7 +9577,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     q('[data-le-lignes]').innerHTML = res.map(function (l) {
       return '<tr><td><input type="checkbox" data-le-ck="' + l.id + '"' + (SEL[l.id] ? ' checked' : '') + ' aria-label="Sélectionner la ligne"></td><td class="m">' + esc(l.numBord) + '</td><td>' + esc(l.site) + '</td><td>' + esc(l.journal) + '</td><td>' + dt(l.date) + '</td><td>' + dt(l.datePiece) + '</td><td>' + esc(l.piece) + '</td><td>' + T(l.reference) + '</td><td class="m">' + esc(l.compte) + '</td><td>' + T(l.tiers) + '</td><td class="lb">' + esc(l.libelle) + '</td><td>' + l.sens + '</td><td class="r">' + (l.debit ? nb(l.debit) : '—') + '</td><td class="r">' + (l.credit ? nb(l.credit) : '—') + '</td><td>' + (l.echeance ? dt(l.echeance) : '—') + '</td><td>' + T(l.etape) + '</td><td>' + T(l.mode) + '</td>' + EXTRA.map(function (x) { return '<td data-xc="' + x[0] + '">' + T(l[x[0]]) + '</td>'; }).join('') + '</tr>';
     }).join('');
-    majCols(); q('[data-le-tout]').checked = false; q('[data-le-vide]').textContent = lance ? 'Aucune écriture ne correspond aux critères.' : 'Définissez vos critères dans la fenêtre de filtrage, puis cliquez sur « Rechercher ».'; q('[data-le-vide]').hidden = n > 0; q('[data-le-compte]').innerHTML = '<b>' + n + '</b> ligne(s) d’écriture';
+    ordreLignes(); majCols(); q('[data-le-tout]').checked = false; q('[data-le-vide]').textContent = lance ? 'Aucune écriture ne correspond aux critères.' : 'Définissez vos critères dans la fenêtre de filtrage, puis cliquez sur « Rechercher ».'; q('[data-le-vide]').hidden = n > 0; q('[data-le-compte]').innerHTML = '<b>' + n + '</b> ligne(s) d’écriture';
     q('[data-le-tot]').innerHTML = 'Total débit <b>' + nb(td) + '</b> — Total crédit <b>' + nb(tc) + '</b>';
   }
   function nbFiltres() { return qa('.f').filter(function (f) { return valeur(f); }).length; }
