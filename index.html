@@ -5329,61 +5329,59 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   en vigueur à la date du mouvement (Gestion des cours › Saisie, window.COURS_API.taux : dernier cours à la date ou avant).
   Tout écart supérieur au seuil de tolérance (± 3 % par défaut, modifiable) est signalé en anomalie ; sans cours officiel, la ligne est « Sans cours ».
   Sources : pièces enregistrées (window.ECRITURES_PIECES) + écritures de démonstration. Boutons relayés par la barre d'actions de page (CFG « coursapplique »).
-  Préfixe ca- / data-ca. Ne pas nommer de fonction « $ » (build.cjs).
+  Préfixe ca- / data-cpa. Ne pas nommer de fonction « $ » (build.cjs).
 -->
 <style>
-[data-ca] .ca-bar{display:flex;flex-wrap:wrap;align-items:end;gap:16px;margin:0 0 14px}[data-ca] .ca-bar label{display:grid;gap:4px;font-size:12px;color:#5B606D;min-width:150px}
-[data-ca] .ca-info{font-size:13px;color:#474C58;margin:0 0 12px;max-width:980px;line-height:1.5}[data-ca] .ca-info b{color:#0B1332}
-[data-ca] .ca-kpi{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0 0 14px}
-[data-ca] .ca-k{border:1px solid #E9EBF0;border-radius:8px;background:#fff;padding:10px 14px}[data-ca] .ca-k span{display:block;font-size:12px;color:#5B606D}[data-ca] .ca-k b{font-size:20px;color:#0B1332}
-[data-ca] .ca-k.ko b{color:#B63132}[data-ca] .ca-k.ok b{color:#1E7B4B}
-[data-ca] .ca-tb td.r,[data-ca] .ca-tb th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}[data-ca] .ca-tb td.m{font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-size:12px}
-[data-ca] .ca-st{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
-[data-ca] .ca-st.ok{background:#E3F3EA;color:#1E7B4B}[data-ca] .ca-st.ko{background:#FDE8E8;color:#B63132}[data-ca] .ca-st.nc{background:#FDF1D8;color:#8A5A12}
-[data-ca] tr.ca-ano td{background:#FFF7F7}[data-ca] .ca-neg{color:#B63132;font-weight:600}
-[data-ca] .ca-pg{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 4px 0;font-size:13px;color:#5B606D}
-@media (max-width:900px){[data-ca] .ca-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}}
+[data-cpa] .cpa-bar{display:flex;flex-wrap:wrap;align-items:end;gap:16px;margin:0 0 14px}[data-cpa] .cpa-bar label{display:grid;gap:4px;font-size:12px;color:#5B606D;min-width:150px}
+[data-cpa] .cpa-kpi{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0 0 14px}
+[data-cpa] .cpa-k{border:1px solid #E9EBF0;border-radius:8px;background:#fff;padding:10px 14px}[data-cpa] .cpa-k span{display:block;font-size:12px;color:#5B606D}[data-cpa] .cpa-k b{font-size:20px;color:#0B1332}
+[data-cpa] .cpa-k.ko b{color:#B63132}[data-cpa] .cpa-k.ok b{color:#1E7B4B}
+[data-cpa] .cpa-tb td.r,[data-cpa] .cpa-tb th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}[data-cpa] .cpa-tb td.m{font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-size:12px}
+[data-cpa] .cpa-st{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+[data-cpa] .cpa-st.ok{background:#E3F3EA;color:#1E7B4B}[data-cpa] .cpa-st.ko{background:#FDE8E8;color:#B63132}[data-cpa] .cpa-st.nc{background:#FDF1D8;color:#8A5A12}
+[data-cpa] tr.cpa-ano td{background:#FFF7F7}[data-cpa] .cpa-neg{color:#B63132;font-weight:600}
+[data-cpa] .cpa-pg{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:10px 4px 0;font-size:13px;color:#5B606D}
+@media (max-width:900px){[data-cpa] .cpa-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
-<div class="bp-root" data-ca>
+<div class="bp-root" data-cpa>
   <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0">Cours appliqué</h1>
-  <div class="no-print" data-ca-actions>
-    <button type="button" data-ca-lancer>Lancer le contrôle</button>
-    <button type="button" data-ca-pdf>PDF</button>
-    <button type="button" data-ca-xlsx>Excel (XLSX)</button>
+  <div class="no-print" data-cpa-actions>
+    <button type="button" data-cpa-lancer>Lancer le contrôle</button>
+    <button type="button" data-cpa-pdf>PDF</button>
+    <button type="button" data-cpa-xlsx>Excel (XLSX)</button>
   </div>
   <div class="bp-grid"><section class="bp-pan" aria-label="Contrôle du cours appliqué">
-    <p class="ca-info">Le contrôle calcule le <b>taux réellement appliqué</b> entre la monnaie de comptabilisation et la contre-valeur en devises, à partir des montants enregistrés sur chaque écriture, et le compare au <b>cours officiel en vigueur à la date du mouvement</b>. Tout écart supérieur au seuil de tolérance (<b>± <span data-ca-seuiltxt>3</span> %</b>) est signalé en anomalie.</p>
-    <div class="ca-bar">
-      <label>Exercice<select class="bp-sel" data-ca-ex data-no-combo></select></label>
-      <label>Du<input class="bp-in" type="date" data-ca-du></label>
-      <label>Au<input class="bp-in" type="date" data-ca-au></label>
-      <label>Journal<select class="bp-sel" data-ca-jnl data-no-combo></select></label>
-      <label>Seuil de tolérance (± %)<input class="bp-in" type="number" min="0" max="100" step="0.1" value="3" data-ca-seuil></label>
-      <label>Résultat<select class="bp-sel" data-ca-st data-no-combo><option value="">Tous</option><option value="ko">Anomalies</option><option value="ok">Conformes</option><option value="nc">Sans cours</option></select></label>
+    <div class="cpa-bar">
+      <label>Exercice<select class="bp-sel" data-cpa-ex data-no-combo></select></label>
+      <label>Du<input class="bp-in" type="date" data-cpa-du></label>
+      <label>Au<input class="bp-in" type="date" data-cpa-au></label>
+      <label>Journal<select class="bp-sel" data-cpa-jnl data-no-combo></select></label>
+      <label>Seuil de tolérance (± %)<input class="bp-in" type="number" min="0" max="100" step="0.1" value="3" data-cpa-seuil></label>
+      <label>Résultat<select class="bp-sel" data-cpa-st data-no-combo><option value="">Tous</option><option value="ko">Anomalies</option><option value="ok">Conformes</option><option value="nc">Sans cours</option></select></label>
     </div>
-    <div class="ca-kpi" data-ca-kpi hidden></div>
-    <div data-ca-res hidden>
-      <div style="overflow:auto"><table class="bp-tb ca-tb" style="min-width:1150px"><thead><tr><th>Date</th><th>Journal</th><th>Pièce</th><th>Compte</th><th>Libellé</th><th class="r">Montant local</th><th class="r" data-ca-hdev>Montant devise 1</th><th class="r">Taux appliqué</th><th class="r">Cours officiel</th><th class="r">Écart</th><th>Résultat</th></tr></thead><tbody data-ca-lignes></tbody></table></div>
-      <div class="bp-vide" data-ca-vide hidden>Aucune ligne ne correspond au filtre.</div>
-      <div class="ca-pg"><span data-ca-pginfo></span></div>
+    <div class="cpa-kpi" data-cpa-kpi hidden></div>
+    <div data-cpa-res hidden>
+      <div style="overflow:auto"><table class="bp-tb cpa-tb" style="min-width:1150px"><thead><tr><th>Date</th><th>Journal</th><th>Pièce</th><th>Compte</th><th>Libellé</th><th class="r">Montant local</th><th class="r" data-cpa-hdev>Montant devise 1</th><th class="r">Taux appliqué</th><th class="r">Cours officiel</th><th class="r">Écart</th><th>Résultat</th></tr></thead><tbody data-cpa-lignes></tbody></table></div>
+      <div class="bp-vide" data-cpa-vide hidden>Aucune ligne ne correspond au filtre.</div>
+      <div class="cpa-pg"><span data-cpa-pginfo></span></div>
     </div>
-    <div class="bp-vide" data-ca-init>Renseignez la période puis cliquez sur « Lancer le contrôle ».</div>
+    <div class="bp-vide" data-cpa-init>Renseignez la période puis cliquez sur « Lancer le contrôle ».</div>
   </section></div>
-  <div class="bp-toast" role="status" hidden data-ca-toast></div>
+  <div class="bp-toast" role="status" hidden data-cpa-toast></div>
 </div>
 
 <script>
 (function () {
-  var root = document.querySelector('[data-ca]'); if (!root) return;
+  var root = document.querySelector('[data-cpa]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function nb(n, d) { return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }).replace(/[  ]/g, ' '); }
   function dt(d) { return d ? d.split('-').reverse().join('/') : ''; }
-  function toast(m) { var t = q('[data-ca-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function toast(m) { var t = q('[data-cpa-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
   function devise1() { var d = 'USD'; [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'); if (l && s && l.textContent.trim() === 'Devise 1' && s.value) d = s.value; }); return d; }
   function exercices() { return (window.EXERCICES_API && window.EXERCICES_API.liste()) || []; }
-  function exo() { var v = q('[data-ca-ex]').value; return exercices().filter(function (e) { return String(e.annee) === v; })[0]; }
+  function exo() { var v = q('[data-cpa-ex]').value; return exercices().filter(function (e) { return String(e.annee) === v; })[0]; }
   function iso(d) { return d ? d.split('/').reverse().join('-') : ''; }
   // écritures de démonstration (montants local / devise 1 déjà comptabilisés) — complétées par les pièces réellement saisies
   var DEMO = [
@@ -5406,21 +5404,21 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   var res = [];
   function remplir() {
-    var ex = exercices(), s = q('[data-ca-ex]'), v = s.value;
+    var ex = exercices(), s = q('[data-cpa-ex]'), v = s.value;
     s.innerHTML = ex.map(function (e) { return '<option value="' + esc(e.annee) + '">' + esc(e.annee + (e.cours ? ' (en cours)' : '')) + '</option>'; }).join('');
     var mc = (window.COURS || []).reduce(function (m, c) { return c.date > m ? c.date : m; }, ''), cour = ex.filter(function (e) { return mc && String(e.annee) === mc.slice(0, 4); })[0] || ex.filter(function (e) { return e.cours; })[0];
     s.value = v && s.querySelector('option[value="' + v + '"]') ? v : (cour ? String(cour.annee) : (ex[0] ? String(ex[0].annee) : ''));
-    var j = q('[data-ca-jnl]'), J = ((window.ECRITURES_REF || {}).journaux || []);
+    var j = q('[data-cpa-jnl]'), J = ((window.ECRITURES_REF || {}).journaux || []);
     j.innerHTML = '<option value="">Tous</option>' + J.map(function (x) { return '<option value="' + esc(x.code) + '">' + esc(x.code + ' — ' + (x.label || '')) + '</option>'; }).join('');
     bornes();
   }
   function bornes() {
-    var e = exo(); if (!e) return; q('[data-ca-du]').value = iso(e.debut) || ''; q('[data-ca-au]').value = iso(e.fin) || '';
+    var e = exo(); if (!e) return; q('[data-cpa-du]').value = iso(e.debut) || ''; q('[data-cpa-au]').value = iso(e.fin) || '';
   }
-  function seuil() { var v = parseFloat(q('[data-ca-seuil]').value); return isNaN(v) || v < 0 ? 3 : v; }
+  function seuil() { var v = parseFloat(q('[data-cpa-seuil]').value); return isNaN(v) || v < 0 ? 3 : v; }
   function controler() {
-    var d1 = devise1(), du = q('[data-ca-du]').value, au = q('[data-ca-au]').value, jn = q('[data-ca-jnl]').value, S = seuil(), api = window.COURS_API;
-    q('[data-ca-seuiltxt]').textContent = String(S).replace('.', ',');
+    var d1 = devise1(), du = q('[data-cpa-du]').value, au = q('[data-cpa-au]').value, jn = q('[data-cpa-jnl]').value, S = seuil(), api = window.COURS_API;
+    var st = q('[data-cpa-seuiltxt]'); if (st) st.textContent = String(S).replace('.', ',');
     res = sources().filter(function (x) { return (!du || x.d >= du) && (!au || x.d <= au) && (!jn || x.j === jn); }).sort(function (a, b) { return a.d < b.d ? -1 : 1; }).map(function (x) {
       var app = x.loc / x.dev, off = api ? api.taux(d1, x.d) : null, ec = off ? (app - off) / off * 100 : null;
       return { d: x.d, j: x.j, p: x.p, c: x.c, l: x.l, loc: x.loc, dev: x.dev, app: app, off: off, ec: ec, st: off ? (Math.abs(ec) > S + 1e-9 ? 'ko' : 'ok') : 'nc' };
@@ -5428,36 +5426,36 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     dessiner();
   }
   function dessiner() {
-    var d1 = devise1(), f = q('[data-ca-st]').value, L = res.filter(function (r) { return !f || r.st === f; });
-    q('[data-ca-hdev]').textContent = 'Montant ' + d1;
+    var d1 = devise1(), f = q('[data-cpa-st]').value, L = res.filter(function (r) { return !f || r.st === f; });
+    q('[data-cpa-hdev]').textContent = 'Montant ' + d1;
     var n = res.length, ko = res.filter(function (r) { return r.st === 'ko'; }).length, ok = res.filter(function (r) { return r.st === 'ok'; }).length, nc = n - ko - ok;
     var mx = res.reduce(function (m, r) { return r.ec != null && Math.abs(r.ec) > Math.abs(m) ? r.ec : m; }, 0);
-    var K = q('[data-ca-kpi]'); K.hidden = false;
-    K.innerHTML = '<div class="ca-k"><span>Lignes contrôlées</span><b>' + n + '</b></div><div class="ca-k ok"><span>Conformes</span><b>' + ok + '</b></div><div class="ca-k ' + (ko ? 'ko' : '') + '"><span>Anomalies (&gt; ' + String(seuil()).replace('.', ',') + ' %)</span><b>' + ko + '</b></div><div class="ca-k"><span>Sans cours officiel</span><b>' + nc + '</b></div><div class="ca-k"><span>Écart maximal</span><b>' + (n ? (mx > 0 ? '+' : '') + nb(mx, 2) + ' %' : '—') + '</b></div>';
-    q('[data-ca-init]').hidden = true; q('[data-ca-res]').hidden = false;
-    q('[data-ca-lignes]').innerHTML = L.map(function (r) {
-      return '<tr class="' + (r.st === 'ko' ? 'ca-ano' : '') + '"><td>' + dt(r.d) + '</td><td>' + esc(r.j) + '</td><td class="m">' + esc(r.p) + '</td><td class="m">' + esc(r.c) + '</td><td>' + esc(r.l) + '</td><td class="r">' + nb(r.loc, 2) + '</td><td class="r">' + nb(r.dev, 2) + '</td><td class="r">' + nb(r.app, 4) + '</td><td class="r">' + (r.off ? nb(r.off, 4) : '—') + '</td><td class="r ' + (r.st === 'ko' ? 'ca-neg' : '') + '">' + (r.ec == null ? '—' : (r.ec > 0 ? '+' : '') + nb(r.ec, 2) + ' %') + '</td><td><span class="ca-st ' + r.st + '">' + (r.st === 'ko' ? 'Anomalie' : r.st === 'ok' ? 'Conforme' : 'Sans cours') + '</span></td></tr>';
+    var K = q('[data-cpa-kpi]'); K.hidden = false;
+    K.innerHTML = '<div class="cpa-k"><span>Lignes contrôlées</span><b>' + n + '</b></div><div class="cpa-k ok"><span>Conformes</span><b>' + ok + '</b></div><div class="cpa-k ' + (ko ? 'ko' : '') + '"><span>Anomalies (&gt; ' + String(seuil()).replace('.', ',') + ' %)</span><b>' + ko + '</b></div><div class="cpa-k"><span>Sans cours officiel</span><b>' + nc + '</b></div><div class="cpa-k"><span>Écart maximal</span><b>' + (n ? (mx > 0 ? '+' : '') + nb(mx, 2) + ' %' : '—') + '</b></div>';
+    q('[data-cpa-init]').hidden = true; q('[data-cpa-res]').hidden = false;
+    q('[data-cpa-lignes]').innerHTML = L.map(function (r) {
+      return '<tr class="' + (r.st === 'ko' ? 'cpa-ano' : '') + '"><td>' + dt(r.d) + '</td><td>' + esc(r.j) + '</td><td class="m">' + esc(r.p) + '</td><td class="m">' + esc(r.c) + '</td><td>' + esc(r.l) + '</td><td class="r">' + nb(r.loc, 2) + '</td><td class="r">' + nb(r.dev, 2) + '</td><td class="r">' + nb(r.app, 4) + '</td><td class="r">' + (r.off ? nb(r.off, 4) : '—') + '</td><td class="r ' + (r.st === 'ko' ? 'cpa-neg' : '') + '">' + (r.ec == null ? '—' : (r.ec > 0 ? '+' : '') + nb(r.ec, 2) + ' %') + '</td><td><span class="cpa-st ' + r.st + '">' + (r.st === 'ko' ? 'Anomalie' : r.st === 'ok' ? 'Conforme' : 'Sans cours') + '</span></td></tr>';
     }).join('');
-    q('[data-ca-vide]').hidden = L.length > 0; q('[data-ca-pginfo]').textContent = L.length + ' ligne(s) affichée(s) sur ' + n + ' — taux = montant local / montant en ' + d1 + ' ; cours officiel à la date du mouvement.';
+    q('[data-cpa-vide]').hidden = L.length > 0; q('[data-cpa-pginfo]').textContent = L.length + ' ligne(s) affichée(s) sur ' + n + ' — taux = montant local / montant en ' + d1 + ' ; cours officiel à la date du mouvement.';
   }
   function exporter(fmt) {
-    var X = window.EXPORT_TABLEAU, f = q('[data-ca-st]').value, L = res.filter(function (r) { return !f || r.st === f; });
+    var X = window.EXPORT_TABLEAU, f = q('[data-cpa-st]').value, L = res.filter(function (r) { return !f || r.st === f; });
     if (!X) { toast('Module d’export indisponible.'); return; } if (!L.length) { toast('Lancez le contrôle : rien à exporter.'); return; }
     var d1 = devise1(), T = ['Date', 'Journal', 'Pièce', 'Compte', 'Libellé', 'Montant local', 'Montant ' + d1, 'Taux appliqué', 'Cours officiel', 'Écart (%)', 'Résultat'],
       rows = L.map(function (r) { return [dt(r.d), r.j, r.p, r.c, r.l, r.loc, r.dev, Math.round(r.app * 10000) / 10000, r.off || '', r.ec == null ? '' : Math.round(r.ec * 100) / 100, r.st === 'ko' ? 'Anomalie' : r.st === 'ok' ? 'Conforme' : 'Sans cours']; });
     if (fmt === 'pdf') X.pdf('cours_applique.pdf', 'Contrôle du cours appliqué', 'Seuil de tolérance ± ' + seuil() + ' % — ' + L.length + ' ligne(s)', T, rows); else X.xlsx('cours_applique.xlsx', 'Cours appliqué', T, rows);
     toast('Export ' + (fmt === 'pdf' ? 'PDF' : 'Excel (XLSX)') + ' généré : ' + L.length + ' ligne(s).');
   }
-  q('[data-ca-lancer]').addEventListener('click', function () {
-    if (q('[data-ca-du]').value && q('[data-ca-au]').value && q('[data-ca-du]').value > q('[data-ca-au]').value) { toast('La date de début est postérieure à la date de fin.'); return; }
+  q('[data-cpa-lancer]').addEventListener('click', function () {
+    if (q('[data-cpa-du]').value && q('[data-cpa-au]').value && q('[data-cpa-du]').value > q('[data-cpa-au]').value) { toast('La date de début est postérieure à la date de fin.'); return; }
     controler(); var ko = res.filter(function (r) { return r.st === 'ko'; }).length; toast('Contrôle terminé : ' + res.length + ' ligne(s), ' + ko + ' anomalie(s).');
   });
-  q('[data-ca-ex]').addEventListener('change', function () { bornes(); });
-  q('[data-ca-st]').addEventListener('change', function () { if (res.length || !q('[data-ca-res]').hidden) dessiner(); });
-  q('[data-ca-pdf]').addEventListener('click', function () { exporter('pdf'); });
-  q('[data-ca-xlsx]').addEventListener('click', function () { exporter('xlsx'); });
+  q('[data-cpa-ex]').addEventListener('change', function () { bornes(); });
+  q('[data-cpa-st]').addEventListener('change', function () { if (res.length || !q('[data-cpa-res]').hidden) dessiner(); });
+  q('[data-cpa-pdf]').addEventListener('click', function () { exporter('pdf'); });
+  q('[data-cpa-xlsx]').addEventListener('click', function () { exporter('xlsx'); });
   window.addEventListener('hashchange', function () { if (location.hash === '#coursapplique') remplir(); });
-  window.addEventListener('cours-changed', function () { if (!q('[data-ca-res]').hidden) controler(); });
+  window.addEventListener('cours-changed', function () { if (!q('[data-cpa-res]').hidden) controler(); });
   window.addEventListener('load', remplir); remplir();
 })();
 </script>
@@ -6656,7 +6654,34 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       h += '<p style="margin-top:8px"><b>Qui fait quoi</b> (R = réalise, V = valide, C = consulte) :</p><table><thead><tr><th>Module</th>' + ROLC.map(function (c) { return '<th class="r" style="font-size:12px">' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' + ks.map(function (m) { return '<tr><td>' + modLien(m) + '</td>' + GU.matrice[m].map(function (c) { return '<td class="r"' + (c === 'R' ? ' style="font-weight:700;color:#2E427B"' : c === 'V' ? ' style="font-weight:700;color:#8A5A12"' : '') + '>' + (c || '·') + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
       return h;
     }
+    function titre(n, t) { return '<p style="margin:14px 0 4px;font-size:15px;font-weight:700;color:#2E427B;border-bottom:1px solid #CAD9FB;padding-bottom:4px">' + (n ? n + '. ' : '') + esc(t) + '</p>'; }
+    function sstitre(n, t) { return '<p style="margin:10px 0 2px;font-weight:700;color:#0B1332">' + n + '. ' + esc(t) + '</p>'; }
+    function cheminDe(id) { return crumbDe(id).replace(/^softcompta\s*›\s*/i, ''); }
+    function puce(txt) { var i = txt.indexOf(' : '); return i > 0 && i < 48 ? '<b>' + esc(txt.slice(0, i)) + '</b> : ' + esc(txt.slice(i + 3)) : esc(txt); }
+    function sections(list, base, vu) {
+      return list.map(function (s2, i) {
+        var h = sstitre(base + '.' + (i + 1), s2.t) + '<p><b>Chemin :</b> ' + esc(cheminDe(s2.ecran)) + '</p>';
+        if (!vu[s2.ecran]) { vu[s2.ecran] = 1; h += capture(s2.ecran, 240); }
+        h += '<p style="margin:6px 0 0"><i>Étapes — ' + esc(s2.t.charAt(0).toLowerCase() + s2.t.slice(1)) + '</i></p><ul>' + s2.etapes.map(function (e) { return '<li><b>' + esc(e[0]) + '</b> : ' + esc(e[1]) + '</li>'; }).join('') + '</ul>';
+        if (s2.nb) h += '<p><b>N.B :</b> ' + esc(s2.nb) + '</p>';
+        return h;
+      }).join('');
+    }
     function guide(g) {
+      var m = g.m; if (!m) return guideAncien(g);
+      var n = 0, vu = {}, h = '<p style="font-size:16px"><b>GUIDE — ' + esc(g.t.toUpperCase()) + '</b></p><p style="font-size:12px;color:#5B606D">Module : ' + esc(nomMod(g.mod)) + ' — Qui intervient : ' + esc(g.roles) + '</p>';
+      h += titre(++n, 'Définition et objectif') + '<p>' + esc(m.def[0]) + '</p><ul>' + m.def.slice(1).map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>';
+      h += titre(++n, 'Importance stratégique et opérationnelle') + '<ul>' + m.imp.map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>';
+      h += '<p style="margin-top:10px"><i>Prérequis</i></p>' + liste(g.pre); var ck = GCHK[g.id] || []; if (ck.length) h += '<p style="margin:2px 0"><i>État actuel de vos paramétrages</i> : ' + puces(ck) + '</p>';
+      if (m.param.length) { var pn = ++n; h += titre(pn, 'Paramétrage') + sections(m.param, pn, vu); }
+      if (m.util.length || m.regles.length) { var un = ++n; h += titre(un, 'Utilisation et règles') + sections(m.util, un, vu) + sstitre(un + '.' + (m.util.length + 1), 'Règles') + '<ul>' + m.regles.map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>'; }
+      h += titre(++n, 'Rôles et responsabilités') + '<p>' + esc(g.roles) + '</p>';
+      var am = GU.amont(g.mod), av = GU.aval(g.mod);
+      h += titre(++n, 'Impacts et interdépendances') + '<p><i>Impacts</i></p>' + liste(g.impacts) + '<p style="margin-top:6px"><i>Interdépendances</i> — <b>' + esc(nomMod(g.mod)) + '</b></p><ul>' + (am.length ? '<li><b>Dépend de</b> : ' + am.map(function (l) { return modLien(l[0]) + ' (' + esc(l[2]) + ')'; }).join(' ; ') + '</li>' : '') + (av.length ? '<li><b>Alimente</b> : ' + av.map(function (l) { return modLien(l[1]) + ' (' + esc(l[2]) + ')'; }).join(' ; ') + '</li>' : '') + '</ul>';
+      if (g.erreurs && g.erreurs.length) h += titre(++n, 'Erreurs fréquentes') + liste(g.erreurs);
+      return h + L(g.l) + '<button type="button" class="aa-lien" data-aa-imp="' + esc(g.mod) + '">Impact en cascade</button><button type="button" class="aa-lien" data-aa-roles="' + esc(g.mod) + '">Rôles sur ce module</button><button type="button" class="aa-lien" data-aa-print>Imprimer le guide</button>';
+    }
+    function guideAncien(g) {
       var h = '<p><b>' + esc(g.t) + '</b></p><p>' + esc(g.but) + '</p>' + capture(g.l[0][0]) + '<p><i>Qui intervient</i> : ' + esc(g.roles) + '</p>';
       h += '<p style="margin-top:6px"><i>Prérequis</i></p>' + liste(g.pre);
       var ck = GCHK[g.id] || []; if (ck.length) h += '<p style="margin:2px 0"><i>État actuel de vos paramétrages</i> : ' + puces(ck) + '</p>';
@@ -6720,7 +6745,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function acc() { return CONF.accueilFn ? CONF.accueilFn() : CONF.accueil; }
   q('[data-aa-eff]').addEventListener('click', function () { ms.innerHTML = ''; bulle(acc()); });
   ms.addEventListener('click', function (e) {
-    var cp = e.target.closest('[data-aa-cap]'); if (cp) { e.preventDefault(); var h0 = capture(cp.dataset.aaCap); if (h0) bulle(h0); return; } var fg = e.target.closest('.aa-cap'); if (fg && !e.target.closest('a')) { agrandir(fg.dataset.aaCapid); return; } var H = CONF.hooks; if (!H) return; var b;
+    var pr = e.target.closest('[data-aa-print]'); if (pr) { var bb = pr.closest('.aa-b').cloneNode(true); [].forEach.call(bb.querySelectorAll('.aa-cap,button,.aa-ap,small,svg,.aa-fig'), function (x) { x.remove(); }); var w = window.open('', '_blank'); if (w) { w.document.write('<!doctype html><meta charset="utf-8"><title>Guide</title><style>body{font:13px/1.5 system-ui,sans-serif;color:#0B1332;margin:28px}ul{margin:4px 0 8px;padding-left:24px}a{color:#2E427B;text-decoration:none}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #E9EBF0;padding:4px 8px;text-align:left}</style>' + bb.innerHTML); w.document.close(); w.focus(); w.print(); } return; } var cp = e.target.closest('[data-aa-cap]'); if (cp) { e.preventDefault(); var h0 = capture(cp.dataset.aaCap); if (h0) bulle(h0); return; } var fg = e.target.closest('.aa-cap'); if (fg && !e.target.closest('a')) { agrandir(fg.dataset.aaCapid); return; } var H = CONF.hooks; if (!H) return; var b;
     if ((b = e.target.closest('[data-aa-xl]'))) H.xl(); else if ((b = e.target.closest('[data-aa-relancer]'))) H.relancer(); else if ((b = e.target.closest('[data-aa-run]'))) H.run(b.dataset.aaRun); else if ((b = e.target.closest('[data-aa-rap]'))) H.rap(b.dataset.aaRap); else if ((b = e.target.closest('[data-aa-ckraz]'))) H.ckraz(b); else if ((b = e.target.closest('[data-aa-xr]'))) H.xr(); else if ((b = e.target.closest('[data-aa-g]'))) H.g(b.dataset.aaG); else if ((b = e.target.closest('[data-aa-imp]'))) H.imp(b.dataset.aaImp); else if ((b = e.target.closest('[data-aa-roles]'))) H.roles(b.dataset.aaRoles);
   });
   ms.addEventListener('change', function (e) { if (CONF.hooks && e.target.matches('[data-aa-ckc]')) CONF.hooks.ck(e); });
@@ -7393,7 +7418,34 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       h += '<p style="margin-top:8px"><b>Qui fait quoi</b> (R = réalise, V = valide, C = consulte) :</p><table><thead><tr><th>Module</th>' + ROLC.map(function (c) { return '<th class="r" style="font-size:12px">' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' + ks.map(function (m) { return '<tr><td>' + modLien(m) + '</td>' + GU.matrice[m].map(function (c) { return '<td class="r"' + (c === 'R' ? ' style="font-weight:700;color:#2E427B"' : c === 'V' ? ' style="font-weight:700;color:#8A5A12"' : '') + '>' + (c || '·') + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
       return h;
     }
+    function titre(n, t) { return '<p style="margin:14px 0 4px;font-size:15px;font-weight:700;color:#2E427B;border-bottom:1px solid #CAD9FB;padding-bottom:4px">' + (n ? n + '. ' : '') + esc(t) + '</p>'; }
+    function sstitre(n, t) { return '<p style="margin:10px 0 2px;font-weight:700;color:#0B1332">' + n + '. ' + esc(t) + '</p>'; }
+    function cheminDe(id) { return crumbDe(id).replace(/^softcompta\s*›\s*/i, ''); }
+    function puce(txt) { var i = txt.indexOf(' : '); return i > 0 && i < 48 ? '<b>' + esc(txt.slice(0, i)) + '</b> : ' + esc(txt.slice(i + 3)) : esc(txt); }
+    function sections(list, base, vu) {
+      return list.map(function (s2, i) {
+        var h = sstitre(base + '.' + (i + 1), s2.t) + '<p><b>Chemin :</b> ' + esc(cheminDe(s2.ecran)) + '</p>';
+        if (!vu[s2.ecran]) { vu[s2.ecran] = 1; h += capture(s2.ecran, 240); }
+        h += '<p style="margin:6px 0 0"><i>Étapes — ' + esc(s2.t.charAt(0).toLowerCase() + s2.t.slice(1)) + '</i></p><ul>' + s2.etapes.map(function (e) { return '<li><b>' + esc(e[0]) + '</b> : ' + esc(e[1]) + '</li>'; }).join('') + '</ul>';
+        if (s2.nb) h += '<p><b>N.B :</b> ' + esc(s2.nb) + '</p>';
+        return h;
+      }).join('');
+    }
     function guide(g) {
+      var m = g.m; if (!m) return guideAncien(g);
+      var n = 0, vu = {}, h = '<p style="font-size:16px"><b>GUIDE — ' + esc(g.t.toUpperCase()) + '</b></p><p style="font-size:12px;color:#5B606D">Module : ' + esc(nomMod(g.mod)) + ' — Qui intervient : ' + esc(g.roles) + '</p>';
+      h += titre(++n, 'Définition et objectif') + '<p>' + esc(m.def[0]) + '</p><ul>' + m.def.slice(1).map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>';
+      h += titre(++n, 'Importance stratégique et opérationnelle') + '<ul>' + m.imp.map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>';
+      h += '<p style="margin-top:10px"><i>Prérequis</i></p>' + liste(g.pre); var ck = GCHK[g.id] || []; if (ck.length) h += '<p style="margin:2px 0"><i>État actuel de vos paramétrages</i> : ' + puces(ck) + '</p>';
+      if (m.param.length) { var pn = ++n; h += titre(pn, 'Paramétrage') + sections(m.param, pn, vu); }
+      if (m.util.length || m.regles.length) { var un = ++n; h += titre(un, 'Utilisation et règles') + sections(m.util, un, vu) + sstitre(un + '.' + (m.util.length + 1), 'Règles') + '<ul>' + m.regles.map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>'; }
+      h += titre(++n, 'Rôles et responsabilités') + '<p>' + esc(g.roles) + '</p>';
+      var am = GU.amont(g.mod), av = GU.aval(g.mod);
+      h += titre(++n, 'Impacts et interdépendances') + '<p><i>Impacts</i></p>' + liste(g.impacts) + '<p style="margin-top:6px"><i>Interdépendances</i> — <b>' + esc(nomMod(g.mod)) + '</b></p><ul>' + (am.length ? '<li><b>Dépend de</b> : ' + am.map(function (l) { return modLien(l[0]) + ' (' + esc(l[2]) + ')'; }).join(' ; ') + '</li>' : '') + (av.length ? '<li><b>Alimente</b> : ' + av.map(function (l) { return modLien(l[1]) + ' (' + esc(l[2]) + ')'; }).join(' ; ') + '</li>' : '') + '</ul>';
+      if (g.erreurs && g.erreurs.length) h += titre(++n, 'Erreurs fréquentes') + liste(g.erreurs);
+      return h + L(g.l) + '<button type="button" class="aa-lien" data-aa-imp="' + esc(g.mod) + '">Impact en cascade</button><button type="button" class="aa-lien" data-aa-roles="' + esc(g.mod) + '">Rôles sur ce module</button><button type="button" class="aa-lien" data-aa-print>Imprimer le guide</button>';
+    }
+    function guideAncien(g) {
       var h = '<p><b>' + esc(g.t) + '</b></p><p>' + esc(g.but) + '</p>' + capture(g.l[0][0]) + '<p><i>Qui intervient</i> : ' + esc(g.roles) + '</p>';
       h += '<p style="margin-top:6px"><i>Prérequis</i></p>' + liste(g.pre);
       var ck = GCHK[g.id] || []; if (ck.length) h += '<p style="margin:2px 0"><i>État actuel de vos paramétrages</i> : ' + puces(ck) + '</p>';
@@ -7457,7 +7509,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function acc() { return CONF.accueilFn ? CONF.accueilFn() : CONF.accueil; }
   q('[data-aa-eff]').addEventListener('click', function () { ms.innerHTML = ''; bulle(acc()); });
   ms.addEventListener('click', function (e) {
-    var cp = e.target.closest('[data-aa-cap]'); if (cp) { e.preventDefault(); var h0 = capture(cp.dataset.aaCap); if (h0) bulle(h0); return; } var fg = e.target.closest('.aa-cap'); if (fg && !e.target.closest('a')) { agrandir(fg.dataset.aaCapid); return; } var H = CONF.hooks; if (!H) return; var b;
+    var pr = e.target.closest('[data-aa-print]'); if (pr) { var bb = pr.closest('.aa-b').cloneNode(true); [].forEach.call(bb.querySelectorAll('.aa-cap,button,.aa-ap,small,svg,.aa-fig'), function (x) { x.remove(); }); var w = window.open('', '_blank'); if (w) { w.document.write('<!doctype html><meta charset="utf-8"><title>Guide</title><style>body{font:13px/1.5 system-ui,sans-serif;color:#0B1332;margin:28px}ul{margin:4px 0 8px;padding-left:24px}a{color:#2E427B;text-decoration:none}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #E9EBF0;padding:4px 8px;text-align:left}</style>' + bb.innerHTML); w.document.close(); w.focus(); w.print(); } return; } var cp = e.target.closest('[data-aa-cap]'); if (cp) { e.preventDefault(); var h0 = capture(cp.dataset.aaCap); if (h0) bulle(h0); return; } var fg = e.target.closest('.aa-cap'); if (fg && !e.target.closest('a')) { agrandir(fg.dataset.aaCapid); return; } var H = CONF.hooks; if (!H) return; var b;
     if ((b = e.target.closest('[data-aa-xl]'))) H.xl(); else if ((b = e.target.closest('[data-aa-relancer]'))) H.relancer(); else if ((b = e.target.closest('[data-aa-run]'))) H.run(b.dataset.aaRun); else if ((b = e.target.closest('[data-aa-rap]'))) H.rap(b.dataset.aaRap); else if ((b = e.target.closest('[data-aa-ckraz]'))) H.ckraz(b); else if ((b = e.target.closest('[data-aa-xr]'))) H.xr(); else if ((b = e.target.closest('[data-aa-g]'))) H.g(b.dataset.aaG); else if ((b = e.target.closest('[data-aa-imp]'))) H.imp(b.dataset.aaImp); else if ((b = e.target.closest('[data-aa-roles]'))) H.roles(b.dataset.aaRoles);
   });
   ms.addEventListener('change', function (e) { if (CONF.hooks && e.target.matches('[data-aa-ckc]')) CONF.hooks.ck(e); });
@@ -7721,6 +7773,136 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       etapes: [['Ouvrir Assistance comptable AI : consulter le badge d’anomalies, lancer les contrôles, exporter le plan de correction.', ['aicompta', 'Assistance comptable']], ['Ouvrir Assistance financière AI : lire le diagnostic, les ratios et les recommandations.', ['aifin', 'Assistance financière']], ['Utiliser cette assistance pour les guides pas à pas, les rôles et les impacts entre modules.', null]],
       impacts: ['Lecture seule : les assistances ne modifient aucune donnée.'], erreurs: [], l: [['aicompta', 'Assistance comptable'], ['aifin', 'Assistance financière'], ['aifonc', 'Assistance fonctionnelle']] }
   ];
+  // ---------- structure « modèle de guide » (cf. GUIDE_WORKFLOW) : définition et objectif, importance, paramétrage, utilisation et règles ----------
+  // chaque section : t = titre, ecran = écran concerné (chemin et capture), etapes = [verbe en gras, description], nb = note
+  G.modele = {
+    demarrer: {
+      def: ['Dans SoftAccounting, l’administration de l’entité définit ce que l’entité utilise : identité, modules visibles, procédures financières et produit. Elle remplit les fonctions suivantes :', 'Modules activables : chaque module dispose d’un interrupteur ; un module désactivé disparaît du menu latéral.', 'Personnalisation : choix des procédures financières (IDA, FIDA, FED, FM, BAD) et des options de l’entité.', 'Produits : SoftAccounting ou SoftAccounting Entreprise (sans Gestion des contrats ni Comptabilité Projets & Bailleurs).', 'Informations de l’entité : identité, environnement et éditeur affichés dans l’application.'],
+      imp: ['Cohérence du menu avec le métier de l’entité : chaque utilisateur ne voit que ce qui lui est utile.', 'Réduction de la complexité et des risques de mauvaise manipulation.', 'Socle de tous les paramétrages ultérieurs (plans, journaux, circuits).'],
+      param: [{ t: 'Activation des modules', ecran: 'entite', etapes: [['Ouvrir', 'Administration de l’entité puis l’onglet Modules.'], ['Activer ou désactiver', 'utiliser l’interrupteur de chaque module ; le menu latéral se met à jour immédiatement.'], ['Contrôler', 'vérifier dans le menu que chaque module actif affiche ses sous-menus.']] }, { t: 'Personnalisation des procédures financières', ecran: 'entite', etapes: [['Ouvrir', 'l’onglet Personnalisation.'], ['Cocher', 'les procédures financières utilisées (IDA, FIDA, FED, FM, BAD).'], ['Enregistrer', 'les options : les procédures décochées disparaissent du module Comptabilité Projets & Bailleurs.']] }, { t: 'Choix du produit', ecran: 'entite', etapes: [['Ouvrir', 'le sélecteur de produit en haut à gauche.'], ['Choisir', 'SoftAccounting Entreprise pour masquer Gestion des contrats, Comptabilité Projets & Bailleurs et leurs paramètres.']] }],
+      util: [], regles: ['Module désactivé : il n’est plus accessible depuis le menu, mais ses données ne sont pas supprimées.', 'Procédure décochée : elle disparaît du module et des listes de procédures.', 'Produit Entreprise : masque aussi la personnalisation et les écrans réservés aux projets.'] },
+    plans: {
+      def: ['Les plans définissent la structure des comptes (plan comptable) et des axes d’analyse (activité, budget, financier, géographique, plans libres). Ils remplissent les fonctions suivantes :', 'Codification maîtrisée : chaque niveau a son libellé, son format (numérique, alphabétique, alphanumérique) et sa longueur.', 'Activation : seuls les plans actifs sont proposés à la saisie.', 'Hiérarchie : le code d’un niveau reprend le code du parent plus son segment.', 'Comportements du dernier niveau : analytique obligatoire, racine de compte, tiers.'],
+      imp: ['Qualité et comparabilité des données comptables et analytiques.', 'Base des états, des filtres de la liste des écritures et du suivi budgétaire.', 'Le plan financier alimente le budget de la convention ; le plan d’activité alimente l’utilisation de fonds.'],
+      param: [{ t: 'Configuration des niveaux d’un plan', ecran: 'plans', etapes: [['Ouvrir', 'Configuration des plans et sélectionner le plan.'], ['Modifier', 'le libellé, l’abréviation et, pour chaque niveau, le libellé, le format de codification et le nombre de caractères.'], ['Enregistrer', 'la configuration.']], nb: 'Pour le plan financier, définir un niveau de type CONVENTION et un niveau de type CATÉGORIE (un seul niveau par type).' }, { t: 'Saisie du plan comptable', ecran: 'pl_comptable', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'le niveau, le code parent, le code (conforme au format) et le libellé.'], ['Définir', 'la racine de compte rattachée et les comportements du dernier niveau.'], ['Enregistrer', 'la ligne : elle apparaît dans la liste.']] }, { t: 'Saisie d’un plan analytique', ecran: 'pl_activite', etapes: [['Ajouter', 'une ligne : niveau, code parent, code, libellé.'], ['Enregistrer', 'puis répéter pour chaque ligne du plan.']] }],
+      util: [{ t: 'Utilisation des plans', ecran: 'ecritures', etapes: [['Saisir', 'une écriture : les plans actifs sont proposés par ligne de charge ou de produit.'], ['Filtrer', 'la liste des écritures par intervalle Du / Au sur chaque plan.']] }],
+      regles: ['Format : un code qui ne respecte pas le format ou la longueur du niveau est refusé.', 'Plan inactif : non proposé à la saisie ; son intervalle est grisé dans les filtres.', 'Compte désactivé : non proposé mais lisible dans l’historique.'] },
+    exercices: {
+      def: ['L’exercice comptable est la période pendant laquelle les écritures sont enregistrées. Sa gestion remplit les fonctions suivantes :', 'Ouverture : dates de début et de fin de l’exercice.', 'Exercice en cours : celui qui reçoit les saisies et sert de période par défaut aux états.', 'Clôture : verrouillage de l’exercice et report des soldes à l’exercice suivant.'],
+      imp: ['Les écritures sont rattachées au bon exercice (principe de séparation des exercices).', 'Un exercice clôturé n’accepte plus aucune saisie : protection des comptes arrêtés.'],
+      param: [{ t: 'Création d’un exercice', ecran: 'exercices', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'l’année, la date de début et la date de fin.'], ['Définir en cours', 'choisir l’exercice qui reçoit les saisies.'], ['Enregistrer', 'l’exercice.']] }],
+      util: [{ t: 'Clôture de l’exercice', ecran: 'clotannuelle', etapes: [['Contrôler', 'rapprochements, lettrages et pièces validées.'], ['Générer', 'les à nouveaux (provisoires puis définitifs).'], ['Clôturer', 'l’exercice : le résultat est reporté et l’exercice suivant s’ouvre.']] }],
+      regles: ['Date d’écriture : elle doit se situer dans les bornes de l’exercice.', 'Exercice clôturé : plus de saisie ni de modification.'] },
+    journaux: {
+      def: ['Les journaux regroupent les écritures par nature d’opération (achats, ventes, banque, caisse, opérations diverses). Ils remplissent les fonctions suivantes :', 'Numérotation : automatique (compteur par journal) ou manuelle.', 'Contrepartie par défaut : compte de banque ou de caisse.', 'Utilisateurs autorisés : qui peut saisir dans quel journal.'],
+      imp: ['Traçabilité et continuité de la numérotation des pièces.', 'Le type de journal conditionne les lignes proposées à la saisie (échéances, banque).'],
+      param: [{ t: 'Création d’un journal', ecran: 'pl_journaux', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'le code, le libellé et le type du journal.'], ['Choisir', 'la numérotation : automatique ou manuelle.'], ['Enregistrer', 'le journal.']] }],
+      util: [{ t: 'Utilisation à la saisie', ecran: 'ecritures', etapes: [['Choisir', 'le journal : le numéro de pièce est proposé selon le compteur.']] }],
+      regles: ['Numérotation manuelle : le numéro doit être saisi à la pièce, sinon la pièce est refusée.', 'Continuité : toute rupture de numérotation est signalée par l’assistance comptable.'] },
+    tiers: {
+      def: ['Les tiers sont les clients, fournisseurs et autres correspondants de l’entité. Leur gestion remplit les fonctions suivantes :', 'Fiche tiers : code, libellé, collectif rattaché.', 'Compte auxiliaire : proposé à la saisie avec son compte collectif.', 'Statut « Utilisé » : un tiers mouvementé ne peut plus être supprimé.'],
+      imp: ['Fiabilité du suivi des créances et des dettes (lettrage, échéancier).', 'Une fiche unique par tiers évite les doublons et les erreurs de paiement.'],
+      param: [{ t: 'Création d’un tiers', ecran: 'pl_tiers', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'le code, le libellé et le compte collectif.'], ['Compléter', 'les informations d’identification et les conditions de règlement.'], ['Enregistrer', 'la fiche.']] }],
+      util: [{ t: 'Utilisation à la saisie', ecran: 'ecritures', etapes: [['Choisir', 'le tiers sur la ligne : le collectif et le compte auxiliaire sont proposés.']] }],
+      regles: ['Suppression : impossible pour un tiers déjà mouvementé.', 'Unicité : une seule fiche par tiers.'] },
+    cours: {
+      def: ['La gestion des cours permet de travailler en devises. Elle remplit les fonctions suivantes :', 'Saisie des cours : devise, date, parité (saisie manuelle ou import Excel).', 'Conversion : calcul d’un montant converti à la date voulue.', 'Contrôle du cours appliqué : comparaison du taux de chaque écriture au cours officiel (seuil ± 3 % par défaut).'],
+      imp: ['Exactitude des montants en devises dans les écritures, la caisse et les immobilisations.', 'Détection des écarts de change anormaux avant la clôture.'],
+      param: [{ t: 'Activation des devises', ecran: 'devise', etapes: [['Ouvrir', 'Devises et activer les devises utilisées.']] }, { t: 'Saisie des cours', ecran: 'cours', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'la devise, la date et la parité.'], ['Importer', 'un fichier Excel (colonnes Devise, Date, Parité) pour saisir plusieurs cours.'], ['Enregistrer', 'les cours.']] }],
+      util: [{ t: 'Conversion', ecran: 'conversion', etapes: [['Choisir', 'la devise, la date et le montant.'], ['Convertir', 'lire le montant converti.']] }, { t: 'Contrôle du cours appliqué', ecran: 'coursapplique', etapes: [['Renseigner', 'l’exercice, la période, le journal et le seuil de tolérance.'], ['Lancer le contrôle', 'cliquer sur « Lancer le contrôle ».'], ['Lire', 'les anomalies (écart au-dessus du seuil) et les lignes « Sans cours ».']] }],
+      regles: ['Cours manquant : la ligne est classée « Sans cours ».', 'Écart supérieur au seuil : signalé en anomalie.'] },
+    saisie: {
+      def: ['La saisie d’écritures enregistre les pièces comptables. Elle remplit les fonctions suivantes :', 'Saisie par journal : date d’écriture, date de pièce, numéro automatique ou manuel.', 'Lignes complètes : compte, tiers, montant, échéance, mode de règlement, axes analytiques.', 'Aides à la saisie : modèles d’écriture, import d’écritures, facture OCR / SoftDocs.', 'Contrôles à l’enregistrement : équilibre débit = crédit, période, axes obligatoires.'],
+      imp: ['Fiabilité de la comptabilité : une pièce déséquilibrée ne peut pas être enregistrée.', 'Alimentation de tous les états (balances, grands livres, états financiers).', 'Traçabilité : chaque pièce est numérotée, datée et rattachée à un journal.'],
+      param: [{ t: 'Prérequis de paramétrage', ecran: 'pl_journaux', etapes: [['Journaux', 'créer le journal et choisir sa numérotation.'], ['Plans', 'activer les plans analytiques utiles dans Configuration des plans.'], ['Tiers', 'créer les tiers avec leur collectif.'], ['Cours', 'saisir les cours si des devises sont utilisées.']] }],
+      util: [{ t: 'Saisie d’une pièce', ecran: 'ecritures', etapes: [['Choisir', 'le journal, la date d’écriture, la date de pièce et le numéro (automatique ou manuel).'], ['Ajouter les lignes', 'compte, tiers (collectif + auxiliaire), libellé, sens et montant ; en devise, le montant converti est calculé avec le cours.'], ['Renseigner', 'l’échéance et le mode de règlement des lignes de tiers.'], ['Compléter les axes', 'analytiques exigés par le compte (activité, budget, financier, géographique).'], ['Gagner du temps', 'appliquer un modèle d’écriture, importer des écritures ou partir d’une facture OCR / SoftDocs.'], ['Enregistrer', 'vérifier Débit = Crédit puis cliquer sur « Enregistrer la pièce » : la pièce reçoit son numéro.']], nb: 'Pour corriger une erreur, contrepasser par une écriture inverse traçable plutôt que supprimer.' }, { t: 'Consultation et impression', ecran: 'listeecritures', etapes: [['Filtrer', 'ouvrir « Filtres » : entête, traitement, plans, informations libres.'], ['Lire', 'le tableau des résultats (filtre et tri par colonne).'], ['Imprimer', 'cocher les lignes puis « Imprimer la fiche d’imputation » ; choisir les signataires.']] }],
+      regles: ['Équilibre : Débit = Crédit, sinon l’enregistrement est refusé.', 'Période : une date hors exercice ou en période clôturée est refusée.', 'Axes : un axe analytique obligatoire manquant bloque l’enregistrement.', 'Numérotation manuelle : le numéro de pièce doit être saisi.'] },
+    liste: {
+      def: ['La liste des écritures permet de retrouver des lignes selon de nombreux critères. Elle remplit les fonctions suivantes :', 'Filtres en fenêtre : entête, traitement (lettrage, rapprochement, validation), plans, informations libres.', 'Résultats : tableau avec filtre et tri par colonne, totaux débit et crédit.', 'Impression : fiche d’imputation avec choix des signataires, export PDF et Excel.'],
+      imp: ['Gain de temps pour retrouver et justifier une écriture.', 'Support des contrôles et des audits (lettrage, validation, rapprochement visibles).'],
+      param: [],
+      util: [{ t: 'Recherche et impression', ecran: 'listeecritures', etapes: [['Filtrer', 'cliquer sur « Filtres » et renseigner les critères utiles.'], ['Rechercher', 'lancer : les lignes s’affichent dans le tableau.'], ['Sélectionner', 'cocher les lignes à imprimer.'], ['Imprimer', 'cliquer sur « Imprimer la fiche d’imputation » puis choisir les signataires.'], ['Exporter', 'PDF ou Excel.']] }],
+      regles: ['Lecture seule : aucune donnée n’est modifiée.', 'Plans inactifs : leurs intervalles sont grisés.'] },
+    lettrage: {
+      def: ['Le lettrage associe les factures et règlements d’un même tiers. Il remplit les fonctions suivantes :', 'Paramètre : comptes lettrables et tolérance d’écart.', 'Lettrage manuel et automatique : rapprochement des lignes dont le solde est nul.', 'Prélettrage : regroupement provisoire avant lettrage définitif.', 'Délettrage : correction d’une erreur de lettrage.'],
+      imp: ['Suivi fiable des créances et des dettes (impayés, échéancier).', 'Les lettres apparaissent dans les grands livres et la liste des écritures.'],
+      param: [{ t: 'Paramétrage du lettrage', ecran: 'lettparam', etapes: [['Ouvrir', 'Lettrage › Paramètre.'], ['Définir', 'les comptes lettrables et la tolérance d’écart.'], ['Enregistrer', 'le paramétrage.']] }],
+      util: [{ t: 'Lettrage manuel', ecran: 'lettmanuel', etapes: [['Choisir', 'le compte et le tiers : les lignes non lettrées s’affichent.'], ['Cocher', 'les lignes à rapprocher : le solde sélectionné doit être nul.'], ['Lettrer', 'cliquer sur « Lettrer » (ou « Lettrage automatique » pour une proposition).'], ['Délettrer', 'en cas d’erreur, sélectionner la lettre puis « Délettrer ».']] }, { t: 'Prélettrage', ecran: 'prelettrage', etapes: [['Sélectionner', 'les lignes à regrouper.'], ['Prélettrer', 'cliquer sur « Prélettrer » ; « Annuler le prélettrage » pour revenir en arrière.']] }],
+      regles: ['Solde : les lignes lettrées ensemble doivent s’équilibrer (ou l’écart de règlement être accepté).', 'Tiers : on ne lettre que des lignes d’un même tiers.'] },
+    rappro: {
+      def: ['Le rapprochement bancaire fait correspondre le relevé de la banque et les écritures de banque. Il remplit les fonctions suivantes :', 'Configuration par compte bancaire : banque et signataires.', 'Pointage : proposition automatique et pointage manuel des lignes.', 'Génération des écritures : à partir des lignes du relevé sans écriture (agios, frais).', 'Situation : solde livres, mouvements non passés, solde du relevé, solde corrigé.'],
+      imp: ['Fiabilité de la trésorerie et détection des erreurs ou fraudes.', 'Justification de l’écart entre le solde comptable et le solde bancaire.'],
+      param: [{ t: 'Configuration d’un compte bancaire', ecran: 'rapprochement', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'le compte bancaire, la banque et les signataires.'], ['Enregistrer', 'la configuration.']] }],
+      util: [{ t: 'Pointage du relevé', ecran: 'releves', etapes: [['Importer', 'le relevé (ou saisir ses lignes) depuis la liste des relevés.'], ['Proposer automatiquement', 'les lignes de même montant sont rapprochées.'], ['Pointer', 'manuellement les lignes restantes : le total des lignes cochées doit être égal de part et d’autre.'], ['Générer les écritures', 'cocher les lignes sans écriture, vérifier la contrepartie proposée puis générer.'], ['Valider', 'cliquer sur « Valider le rapprochement ».']] }, { t: 'Situation du rapprochement', ecran: 'situation', etapes: [['Choisir', 'le compte bancaire et le relevé.'], ['Lire', 'le solde dans les livres, les mouvements non passés et le solde corrigé.']] }],
+      regles: ['Égalité : la somme des lignes cochées doit être égale de part et d’autre pour valider.', 'Écart : toute ligne de relevé sans écriture est à justifier.', 'Éléments anciens : à apurer rapidement.'] },
+    circuit: {
+      def: ['Dans SoftAccounting, le circuit de validation (ou chaîne de traitement) est un mécanisme séquentiel paramétrable qui encadre le parcours d’une pièce comptable. Il remplit les fonctions suivantes :', 'Circuits de validation sur mesure : étapes successives obligatoires (ex. : Saisi ➔ Contrôlé ➔ Approuvé ➔ Validé).', 'Habilitations par étape : seuls les utilisateurs autorisés à une étape peuvent faire évoluer le statut.', 'Verrous de sécurité : modification ou suppression bloquées dès qu’une étape paramétrée est franchie.', 'Check-lists de contrôle : chaque point doit être confirmé avant la transition (points obligatoires bloquants).', 'Commentaire obligatoire : justification exigée à la validation, selon l’étape.'],
+      imp: ['Contrôle interne et séparation des fonctions : celui qui saisit n’est pas celui qui valide.', 'Réduction des risques d’erreur et de fraude : pas de saut d’étape, pas de modification d’une pièce validée.', 'Traçabilité : chaque passage d’étape est historisé (utilisateur, date, réponses, commentaire).'],
+      param: [{ t: 'Paramétrage d’une étape du circuit', ecran: 'circparam', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner la saisie', 'le Numéro est attribué automatiquement ; saisir le Nom de l’étape (ex. : VALIDATION), l’État atteint (ex. : VALIDE) et l’Action proposée (ex. : VALIDER).'], ['Définir les verrous', 'cocher Modification impossible et/ou Suppression impossible.'], ['Rattacher les utilisateurs', 'dans le panneau Utilisateur(s), cocher les utilisateurs habilités à exécuter l’étape.'], ['Construire la check-list', 'dans la carte Checklist de l’étape, cliquer sur « + Ajouter un point » puis saisir le libellé et cocher Obligatoire si le point est bloquant.'], ['Exiger un commentaire', 'cocher « Commentaire obligatoire à la validation » si nécessaire.'], ['Enregistrer', 'cliquer sur Enregistrer pour valider l’étape.']], nb: 'Répéter l’opération pour chaque étape du circuit (contrôle, approbation, validation…), en respectant l’ordre de passage souhaité.' }],
+      util: [{ t: 'Traitement des pièces', ecran: 'circtrait', etapes: [['Filtrer', 'sélectionner le site et la période puis rechercher.'], ['Lire le tableau', 'chaque colonne correspond à une étape du circuit et indique le nombre de pièces qu’elle contient.'], ['Faire avancer', 'ouvrir l’étape suivante d’une pièce : la fenêtre de contrôle s’ouvre.'], ['Répondre à la check-list', 'cocher chaque point (les points obligatoires doivent être cochés) et saisir le commentaire si exigé.'], ['Valider', 'cliquer sur Valider : la pièce passe à l’étape suivante.']], nb: 'L’historique de chaque pièce est affiché sur sa carte (étape, utilisateur, date, réponses).' }],
+      regles: ['Habilitations : seuls les utilisateurs rattachés à une étape peuvent y faire passer une pièce.', 'Verrous : une pièce ayant franchi une étape « Modification impossible » ou « Suppression impossible » ne peut plus être modifiée ou supprimée.', 'Points obligatoires : ils doivent être cochés pour poursuivre.', 'Traçabilité : chaque passage d’étape est historisé.'] },
+    caisse: {
+      def: ['La petite caisse gère les mouvements d’espèces par lot. Elle remplit les fonctions suivantes :', 'Types d’opération : compte général, sens, imputation analytique éventuelle.', 'Modèles de pièce de caisse : import Word / RTF avec champs dynamiques pour l’impression.', 'Lots : numéro unique, journal, compte, devise, solde initial et opérations.', 'PV de caisse : billetage, écart justifié, deux signataires.', 'Génération des écritures comptables du lot.'],
+      imp: ['Maîtrise de la caisse : pas de solde négatif ni de dépense sans justificatif.', 'Inventaire physique documenté par le PV validé.', 'Écritures générées automatiquement et cohérentes avec la caisse.'],
+      param: [{ t: 'Types d’opération', ecran: 'caissetypes', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'le libellé, le sens, le compte général et, si nécessaire, l’imputation analytique.'], ['Enregistrer', 'le type.']] }, { t: 'Modèles de pièce de caisse', ecran: 'caissemodeles', etapes: [['Nouveau modèle', 'ou importer un modèle Word / RTF.'], ['Insérer', 'les champs dynamiques (double-clic) dans la zone de conception.'], ['Aperçu', 'contrôler le rendu avec des données d’exemple.'], ['Enregistrer', 'le modèle, éventuellement défini par défaut.']] }],
+      util: [{ t: 'Saisie d’un lot', ecran: 'caissesaisie', etapes: [['Ajouter', 'un lot : numéro, journal, compte, devise, solde initial.'], ['Ajouter des opérations', 'type, date, montant, libellé, pièce.'], ['Imprimer', 'la pièce de caisse d’une opération avec le modèle choisi.'], ['Fermer le lot', 'il n’est plus modifiable et ouvre le PV de caisse.']] }, { t: 'PV de caisse', ecran: 'pvcaisse', etapes: [['Renseigner', 'le billetage par valeur.'], ['Justifier', 'l’écart (excédent ou manquant).'], ['Choisir', 'deux signataires différents.'], ['Valider', 'le PV : il est verrouillé.']] }, { t: 'Génération des écritures', ecran: 'caissegen', etapes: [['Proposer le schéma comptable', 'contrôler les écritures proposées.'], ['Générer', 'les écritures rejoignent la saisie.']] }],
+      regles: ['Lot fermé : plus de modification ni d’ajout d’opération.', 'Signataires : le signataire 1 et le signataire 2 doivent être différents.', 'Écart de caisse : justification obligatoire.'] },
+    clotures: {
+      def: ['Les travaux périodiques figent les périodes après contrôle. Ils remplissent les fonctions suivantes :', 'Clôture mensuelle et périodique : verrouillage d’une période.', 'À nouveau et à nouveau analytique : report des soldes à l’exercice suivant.', 'Clôture annuelle : arrêt de l’exercice et reprise du résultat.'],
+      imp: ['Protection des comptes arrêtés contre toute modification.', 'Ouverture correcte de l’exercice suivant.', 'Stabilité des états comptables et financiers.'],
+      param: [{ t: 'Options de clôture', ecran: 'cloture', etapes: [['Ouvrir', 'Paramètres de clôture.'], ['Définir', 'la reprise, les comptes de résultat et les contrôles.'], ['Enregistrer', 'le paramétrage.']] }],
+      util: [{ t: 'Clôture mensuelle', ecran: 'clotmens', etapes: [['Choisir', 'l’exercice et le mois.'], ['Clôturer', 'cliquer sur « Clôturer la période » ; « Rouvrir la période » en cas d’erreur (habilitation requise).']] }, { t: 'À nouveau', ecran: 'anouveaux', etapes: [['Générer', 'les à nouveaux provisoires.'], ['Contrôler', 'les lignes (saisie manuelle, import).'], ['Valider', 'les à nouveaux de l’exercice suivant.']] }, { t: 'Clôture annuelle', ecran: 'clotannuelle', etapes: [['Contrôler', 'tous les rapprochements et états.'], ['Clôturer', 'cliquer sur « Clôturer l’exercice ».']] }],
+      regles: ['Période clôturée : plus de saisie ni de modification.', 'Ordre : clôturer les périodes avant l’exercice.', 'Réouverture : réservée aux utilisateurs habilités.'] },
+    immo: {
+      def: ['La gestion des immobilisations tient le registre des actifs. Elle remplit les fonctions suivantes :', 'Référentiels : familles, lieux d’affectation, collaborateurs responsables.', 'Fiche d’immobilisation : désignation, compte, quantité, prix, dates, famille, emplacement.', 'Génération de l’écriture d’acquisition.', 'Réassignation, cession et sortie d’actif.'],
+      imp: ['Registre fiable rapproché de la comptabilité.', 'Amortissements calculés selon la famille.', 'Traçabilité des affectations et des cessions.'],
+      param: [{ t: 'Familles d’immobilisations', ecran: 'famimmo', etapes: [['Ajouter', 'cliquer sur le bouton Ajouter.'], ['Renseigner', 'le compte, la nature, le caractère amortissable, la méthode et la durée.'], ['Enregistrer', 'la famille.']] }, { t: 'Lieux d’affectation', ecran: 'lieuaffect', etapes: [['Ajouter', 'un lieu et son niveau.'], ['Enregistrer', 'le lieu.']] }, { t: 'Collaborateurs responsables', ecran: 'collabresp', etapes: [['Ajouter', 'un collaborateur responsable.'], ['Enregistrer', 'la fiche.']] }],
+      util: [{ t: 'Fiche d’immobilisation', ecran: 'immolist', etapes: [['Ajouter', 'une fiche : désignation, compte, quantité, prix, dates.'], ['Compléter', 'la famille, l’emplacement et le responsable.'], ['Renseigner', 'dans l’onglet Écritures, le fournisseur (collectif + auxiliaire) et la ventilation analytique.'], ['Générer l’écriture', 'cliquer sur « Générer l’écriture comptable » : la fiche passe à « Écriture générée ».']] }, { t: 'Réassignation et sortie', ecran: 'reassign', etapes: [['Nouvelle réassignation', 'choisir l’immobilisation et le nouvel emplacement ou responsable.'], ['Enregistrer', 'le mouvement : l’historique est conservé.']] }],
+      regles: ['Écriture générée : la fiche n’est plus modifiable.', 'Fournisseur : obligatoire pour générer l’écriture.', 'Cession : la VNC et la plus ou moins-value sont calculées d’après la famille.'] },
+    etatsc: {
+      def: ['Les états comptables restituent les écritures. Ils remplissent les fonctions suivantes :', 'États généraux : balance générale et auxiliaire, grands livres, journaux, échéancier et balance âgée.', 'États analytiques : balance analytique.', 'Déclarations fiscales et états personnalisés (modèles listing et récapitulatif).'],
+      imp: ['Base des contrôles, des déclarations et des états financiers.', 'Les états reflètent immédiatement toute écriture saisie ou corrigée.'],
+      param: [{ t: 'Modèles d’états personnalisés', ecran: 'listing', etapes: [['Ouvrir', 'États personnalisés › Paramètres › Modèle Listing (ou Récapitulatif).'], ['Définir', 'les colonnes, les sources et les regroupements.'], ['Enregistrer', 'le modèle.']] }],
+      util: [{ t: 'Édition d’une balance', ecran: 'balance', etapes: [['Filtrer', 'renseigner l’exercice, la période, les comptes.'], ['Lire', 'les soldes ; utiliser le filtre par colonne.'], ['Exporter', 'PDF, Excel ou CSV.']] }, { t: 'Échéancier et balance âgée', ecran: 'echeancier', etapes: [['Choisir', 'la date de référence et les tranches.'], ['Lire', 'les créances et dettes échues par ancienneté.']] }],
+      regles: ['Période non clôturée : les chiffres peuvent encore évoluer.', 'Les états ne modifient aucune donnée.'] },
+    etatsf: {
+      def: ['Les états financiers (bilan, compte de résultat, emplois et ressources, flux de trésorerie) sont produits à partir de modèles paramétrables. Ils remplissent les fonctions suivantes :', 'Modèles : lignes rattachées aux comptes ou racines.', 'Édition : critères (exercice, période) puis état.', 'Contrôles de cohérence : équilibre du bilan, résultat, flux et variation de trésorerie.'],
+      imp: ['Information financière fiable pour la direction, les bailleurs et les auditeurs.', 'Base de l’analyse financière (ratios).'],
+      param: [{ t: 'Paramétrage d’un modèle', ecran: 'bilparam', etapes: [['Ajouter', 'ou dupliquer un modèle.'], ['Rattacher', 'les comptes ou racines aux lignes du modèle.'], ['Enregistrer', 'le modèle.']] }],
+      util: [{ t: 'Édition du bilan', ecran: 'biledit', etapes: [['Critères', 'choisir l’exercice et la période.'], ['Éditer', 'lancer l’édition puis contrôler l’équilibre.'], ['Exporter', 'imprimer ou exporter.']] }],
+      regles: ['Compte non rattaché : l’état est déséquilibré.', 'Les états suivent les soldes : toute écriture les modifie.'] },
+    contrats: {
+      def: ['La gestion des contrats suit les marchés et conventions. Elle remplit les fonctions suivantes :', 'Types de passation et de marché.', 'Fiche contrat : tiers, montant, dates, rattachement.', 'Génération des reliquats.', 'Suivi et détail de l’exécution.'],
+      imp: ['Exécution financière des contrats suivie en temps réel.', 'Alimentation des états de dépense des conventions.'],
+      param: [{ t: 'Types de passation et de marché', ecran: 'passation', etapes: [['Ajouter', 'un type.'], ['Enregistrer', 'le type ; répéter pour les types de marché.']] }],
+      util: [{ t: 'Fiche contrat', ecran: 'fichecontrat', etapes: [['Ajouter', 'une fiche contrat.'], ['Renseigner', 'le tiers, le montant, les dates et la convention.'], ['Enregistrer', 'la fiche.']] }, { t: 'Suivi des contrats', ecran: 'suivicontrats', etapes: [['Critères', 'choisir la période et les contrats.'], ['Lire', 'l’exécution calculée depuis les écritures portant le numéro de contrat.']] }],
+      regles: ['Numéro de contrat : à porter sur les écritures de dépense, sinon elles ne sont pas comptées.'] },
+    projets: {
+      def: ['La comptabilité projets et bailleurs gère les procédures financières des financeurs (IDA, FIDA, FED, FM, BAD). Elle remplit les fonctions suivantes :', 'Modèles : récapitulatif et SOE par procédure.', 'Budget de la convention : par catégorie et devise.', 'États de dépense : confection guidée d’une demande.', 'Régularisation et historique des demandes ; états RFI (FIDA).'],
+      imp: ['Justification des dépenses auprès du bailleur et sécurisation des remboursements.', 'Le budget de la convention alimente le suivi budgétaire et l’utilisation de fonds.'],
+      param: [{ t: 'Modèles de la procédure', ecran: 'recap', etapes: [['Ouvrir', 'la procédure puis Paramétrages › Modèle récapitulatif.'], ['Définir', 'le modèle et, au besoin, le modèle SOE.'], ['Enregistrer', 'le modèle.']] }, { t: 'Budget de la convention', ecran: 'budgetconv', etapes: [['Choisir', 'la convention.'], ['Saisir', 'le budget par catégorie et par devise.'], ['Enregistrer', 'le budget.']] }],
+      util: [{ t: 'État de dépense', ecran: 'etatdep', etapes: [['Critères', 'choisir la convention et la période.'], ['Suivant', 'parcourir les étapes de la confection guidée.'], ['Valider', 'la demande.']] }, { t: 'Régularisation et historique', ecran: 'histdem', etapes: [['Régulariser', 'la demande si nécessaire.'], ['Consulter', 'l’historique des demandes.']] }],
+      regles: ['Procédure : doit être activée dans Personnalisation.', 'Dépenses : seules celles imputées au plan financier figurent dans les états.'] },
+    rsf: {
+      def: ['Le RSF (reporting et suivi financier) suit l’utilisation des fonds et l’exécution du budget. Il remplit les fonctions suivantes :', 'Utilisation de fonds : prévu, effectif et écart par niveau du plan d’activité.', 'Suivi budgétaire : analyse mono-critère (réalisations, budget, disponible, exécution).', 'Tableau emplois ressources : commun aux états financiers.'],
+      imp: ['Pilotage des projets : consommation des fonds et des budgets.', 'Support des rapports aux bailleurs.'],
+      param: [],
+      util: [{ t: 'Utilisation de fonds', ecran: 'rsfuf', etapes: [['Critères', 'ouvrir la fenêtre des critères (exercice, périodicité, budgets, sélections, monnaie, niveaux).'], ['Choisir', 'la source du cumulatif : le PAD ou le Budget cumulatif.'], ['Générer', 'lire l’état puis l’exporter.']] }, { t: 'Suivi budgétaire', ecran: 'rsfsb', etapes: [['Critères', 'renseigner les intervalles par plan et le PAD.'], ['Choisir', 'le critère d’analyse et ses niveaux.'], ['Générer', 'lire réalisations, budget, disponible et taux d’exécution.']] }],
+      regles: ['Plan inactif : son intervalle Du / Au est grisé.', 'Les chiffres dépendent des imputations analytiques des écritures.'] },
+    acces: {
+      def: ['La gestion des accès et des traces sécurise l’application. Elle remplit les fonctions suivantes :', 'Utilisateurs et droits : création, réinitialisation, affectation des droits.', 'Traces : création, modification et suppression tracées par fonctionnalité.', 'Journal de traces : consultation, dictionnaire, export.'],
+      imp: ['Séparation des tâches et habilitations maîtrisées.', 'Piste d’audit complète des opérations sensibles.'],
+      param: [{ t: 'Utilisateurs et droits', ecran: 'acces', etapes: [['Nouvel utilisateur', 'cliquer sur le bouton.'], ['Affecter', 'les droits et les groupes.'], ['Enregistrer', 'l’utilisateur.']] }, { t: 'Paramétrage des traces', ecran: 'traces', etapes: [['Cocher', 'par fonctionnalité les traces C (création), M (modification), S (suppression).'], ['Définir', 'la durée de conservation.'], ['Enregistrer', 'le paramétrage.']] }],
+      util: [{ t: 'Journal de traces', ecran: 'jtraces', etapes: [['Filtrer', 'par utilisateur, fonction et période.'], ['Lire', 'les opérations tracées.'], ['Exporter', 'en PDF ou Excel, avec ou sans détails.']] }],
+      regles: ['Traces désactivées : l’historique est incomplet (signalé par l’assistance comptable).', 'Revue : les habilitations doivent être revues périodiquement.'] },
+    ai: {
+      def: ['SoftAccounting AI regroupe trois assistances. Elles remplissent les fonctions suivantes :', 'Assistance comptable : contrôles, détection des anomalies, plan de correction.', 'Assistance financière : ratios, diagnostic, recommandations.', 'Assistance fonctionnelle : guides pas à pas, rôles, impacts et interdépendances.'],
+      imp: ['Détection rapide des anomalies avant la clôture.', 'Aide à la décision et à la prise en main du logiciel.'],
+      param: [],
+      util: [{ t: 'Assistance comptable', ecran: 'aicompta', etapes: [['Lancer', 'les contrôles comptables.'], ['Lire', 'le rapport et le plan de correction.'], ['Exporter', 'en Excel.']] }, { t: 'Assistance financière', ecran: 'aifin', etapes: [['Demander', 'un diagnostic financier.'], ['Lire', 'les ratios, les signaux d’alerte et les recommandations.']] }],
+      regles: ['Lecture seule : les assistances ne modifient aucune donnée.', 'Données internes uniquement : aucune IA externe.'] }
+  };
+  G.guides.forEach(function (g) { g.m = G.modele[g.id] || null; });
   G.guide = function (id) { return G.guides.filter(function (g) { return g.id === id; })[0] || null; };
   G.trouver = function (txt) { return G.guides.filter(function (g) { return g.k.test(txt); }); };
 })();
@@ -8187,7 +8369,34 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       h += '<p style="margin-top:8px"><b>Qui fait quoi</b> (R = réalise, V = valide, C = consulte) :</p><table><thead><tr><th>Module</th>' + ROLC.map(function (c) { return '<th class="r" style="font-size:12px">' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' + ks.map(function (m) { return '<tr><td>' + modLien(m) + '</td>' + GU.matrice[m].map(function (c) { return '<td class="r"' + (c === 'R' ? ' style="font-weight:700;color:#2E427B"' : c === 'V' ? ' style="font-weight:700;color:#8A5A12"' : '') + '>' + (c || '·') + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
       return h;
     }
+    function titre(n, t) { return '<p style="margin:14px 0 4px;font-size:15px;font-weight:700;color:#2E427B;border-bottom:1px solid #CAD9FB;padding-bottom:4px">' + (n ? n + '. ' : '') + esc(t) + '</p>'; }
+    function sstitre(n, t) { return '<p style="margin:10px 0 2px;font-weight:700;color:#0B1332">' + n + '. ' + esc(t) + '</p>'; }
+    function cheminDe(id) { return crumbDe(id).replace(/^softcompta\s*›\s*/i, ''); }
+    function puce(txt) { var i = txt.indexOf(' : '); return i > 0 && i < 48 ? '<b>' + esc(txt.slice(0, i)) + '</b> : ' + esc(txt.slice(i + 3)) : esc(txt); }
+    function sections(list, base, vu) {
+      return list.map(function (s2, i) {
+        var h = sstitre(base + '.' + (i + 1), s2.t) + '<p><b>Chemin :</b> ' + esc(cheminDe(s2.ecran)) + '</p>';
+        if (!vu[s2.ecran]) { vu[s2.ecran] = 1; h += capture(s2.ecran, 240); }
+        h += '<p style="margin:6px 0 0"><i>Étapes — ' + esc(s2.t.charAt(0).toLowerCase() + s2.t.slice(1)) + '</i></p><ul>' + s2.etapes.map(function (e) { return '<li><b>' + esc(e[0]) + '</b> : ' + esc(e[1]) + '</li>'; }).join('') + '</ul>';
+        if (s2.nb) h += '<p><b>N.B :</b> ' + esc(s2.nb) + '</p>';
+        return h;
+      }).join('');
+    }
     function guide(g) {
+      var m = g.m; if (!m) return guideAncien(g);
+      var n = 0, vu = {}, h = '<p style="font-size:16px"><b>GUIDE — ' + esc(g.t.toUpperCase()) + '</b></p><p style="font-size:12px;color:#5B606D">Module : ' + esc(nomMod(g.mod)) + ' — Qui intervient : ' + esc(g.roles) + '</p>';
+      h += titre(++n, 'Définition et objectif') + '<p>' + esc(m.def[0]) + '</p><ul>' + m.def.slice(1).map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>';
+      h += titre(++n, 'Importance stratégique et opérationnelle') + '<ul>' + m.imp.map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>';
+      h += '<p style="margin-top:10px"><i>Prérequis</i></p>' + liste(g.pre); var ck = GCHK[g.id] || []; if (ck.length) h += '<p style="margin:2px 0"><i>État actuel de vos paramétrages</i> : ' + puces(ck) + '</p>';
+      if (m.param.length) { var pn = ++n; h += titre(pn, 'Paramétrage') + sections(m.param, pn, vu); }
+      if (m.util.length || m.regles.length) { var un = ++n; h += titre(un, 'Utilisation et règles') + sections(m.util, un, vu) + sstitre(un + '.' + (m.util.length + 1), 'Règles') + '<ul>' + m.regles.map(function (x) { return '<li>' + puce(x) + '</li>'; }).join('') + '</ul>'; }
+      h += titre(++n, 'Rôles et responsabilités') + '<p>' + esc(g.roles) + '</p>';
+      var am = GU.amont(g.mod), av = GU.aval(g.mod);
+      h += titre(++n, 'Impacts et interdépendances') + '<p><i>Impacts</i></p>' + liste(g.impacts) + '<p style="margin-top:6px"><i>Interdépendances</i> — <b>' + esc(nomMod(g.mod)) + '</b></p><ul>' + (am.length ? '<li><b>Dépend de</b> : ' + am.map(function (l) { return modLien(l[0]) + ' (' + esc(l[2]) + ')'; }).join(' ; ') + '</li>' : '') + (av.length ? '<li><b>Alimente</b> : ' + av.map(function (l) { return modLien(l[1]) + ' (' + esc(l[2]) + ')'; }).join(' ; ') + '</li>' : '') + '</ul>';
+      if (g.erreurs && g.erreurs.length) h += titre(++n, 'Erreurs fréquentes') + liste(g.erreurs);
+      return h + L(g.l) + '<button type="button" class="aa-lien" data-aa-imp="' + esc(g.mod) + '">Impact en cascade</button><button type="button" class="aa-lien" data-aa-roles="' + esc(g.mod) + '">Rôles sur ce module</button><button type="button" class="aa-lien" data-aa-print>Imprimer le guide</button>';
+    }
+    function guideAncien(g) {
       var h = '<p><b>' + esc(g.t) + '</b></p><p>' + esc(g.but) + '</p>' + capture(g.l[0][0]) + '<p><i>Qui intervient</i> : ' + esc(g.roles) + '</p>';
       h += '<p style="margin-top:6px"><i>Prérequis</i></p>' + liste(g.pre);
       var ck = GCHK[g.id] || []; if (ck.length) h += '<p style="margin:2px 0"><i>État actuel de vos paramétrages</i> : ' + puces(ck) + '</p>';
@@ -8251,7 +8460,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function acc() { return CONF.accueilFn ? CONF.accueilFn() : CONF.accueil; }
   q('[data-aa-eff]').addEventListener('click', function () { ms.innerHTML = ''; bulle(acc()); });
   ms.addEventListener('click', function (e) {
-    var cp = e.target.closest('[data-aa-cap]'); if (cp) { e.preventDefault(); var h0 = capture(cp.dataset.aaCap); if (h0) bulle(h0); return; } var fg = e.target.closest('.aa-cap'); if (fg && !e.target.closest('a')) { agrandir(fg.dataset.aaCapid); return; } var H = CONF.hooks; if (!H) return; var b;
+    var pr = e.target.closest('[data-aa-print]'); if (pr) { var bb = pr.closest('.aa-b').cloneNode(true); [].forEach.call(bb.querySelectorAll('.aa-cap,button,.aa-ap,small,svg,.aa-fig'), function (x) { x.remove(); }); var w = window.open('', '_blank'); if (w) { w.document.write('<!doctype html><meta charset="utf-8"><title>Guide</title><style>body{font:13px/1.5 system-ui,sans-serif;color:#0B1332;margin:28px}ul{margin:4px 0 8px;padding-left:24px}a{color:#2E427B;text-decoration:none}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #E9EBF0;padding:4px 8px;text-align:left}</style>' + bb.innerHTML); w.document.close(); w.focus(); w.print(); } return; } var cp = e.target.closest('[data-aa-cap]'); if (cp) { e.preventDefault(); var h0 = capture(cp.dataset.aaCap); if (h0) bulle(h0); return; } var fg = e.target.closest('.aa-cap'); if (fg && !e.target.closest('a')) { agrandir(fg.dataset.aaCapid); return; } var H = CONF.hooks; if (!H) return; var b;
     if ((b = e.target.closest('[data-aa-xl]'))) H.xl(); else if ((b = e.target.closest('[data-aa-relancer]'))) H.relancer(); else if ((b = e.target.closest('[data-aa-run]'))) H.run(b.dataset.aaRun); else if ((b = e.target.closest('[data-aa-rap]'))) H.rap(b.dataset.aaRap); else if ((b = e.target.closest('[data-aa-ckraz]'))) H.ckraz(b); else if ((b = e.target.closest('[data-aa-xr]'))) H.xr(); else if ((b = e.target.closest('[data-aa-g]'))) H.g(b.dataset.aaG); else if ((b = e.target.closest('[data-aa-imp]'))) H.imp(b.dataset.aaImp); else if ((b = e.target.closest('[data-aa-roles]'))) H.roles(b.dataset.aaRoles);
   });
   ms.addEventListener('change', function (e) { if (CONF.hooks && e.target.matches('[data-aa-ckc]')) CONF.hooks.ck(e); });
@@ -8969,7 +9178,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   Préfixe le- / data-le. Ne pas nommer de fonction « $ » (build.cjs).
 -->
 <style>
-[data-screen] [data-le] .le-md.le-md .le-in.le-in.le-in.le-in.le-in,[data-screen] [data-le] .le-md.le-md .le-msf.le-msf input.le-msf-in.le-msf-in.le-msf-in.le-msf-in,[data-screen] [data-le] .le-md .le-in,[data-screen] [data-le] .le-md .le-msb,[data-screen] [data-le] .le-md .le-msf input{height:26px!important;min-height:26px!important;padding-top:0!important;padding-bottom:0!important;line-height:1.1!important}
+[data-screen] [data-le] .le-md.le-md .le-in.le-in.le-in.le-in.le-in,[data-screen] [data-le] .le-md.le-md .le-msf.le-msf input.le-msf-in.le-msf-in.le-msf-in.le-msf-in,[data-screen] [data-le] .le-md .le-in,[data-screen] [data-le] .le-md .le-msb,[data-screen] [data-le] .le-md .le-msf input{height:34px!important;min-height:34px!important;padding-top:0!important;padding-bottom:0!important;line-height:1.1!important}
 [data-le] .le-ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(11,19,50,.55)}[data-le] .le-ov[hidden]{display:none}
 [data-le] .le-md{display:flex;flex-direction:column;width:min(1320px,100%);max-height:calc(100vh - 32px);background:#fff;border-radius:12px;box-shadow:0 24px 60px rgba(11,19,50,.35);overflow:hidden}
 [data-le] .le-mh{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #E9EBF0}[data-le] .le-mh h2{margin:0;font-size:18px}[data-le] .le-x{width:36px;height:36px;border:0;border-radius:50%;background:#F5F7F9;cursor:pointer;font-size:14px}
@@ -9005,6 +9214,72 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 [data-le] .le-tb td.m{font-variant-numeric:tabular-nums}[data-le] .le-tb td.lb{white-space:normal;min-width:280px}[data-le] .le-vide{padding:24px;text-align:center;color:#5B606D}
 @media (max-width:1000px){[data-le] .le-g12{grid-template-columns:repeat(6,minmax(0,1fr))}[data-le] .le-g12>.c2{grid-column:span 3}[data-le] .le-g12>.c3,[data-le] .le-g12>.c4{grid-column:span 3}[data-le] .le-g12>.c6{grid-column:1/-1}[data-le] .le-g3,[data-le] .le-g4{grid-template-columns:repeat(2,minmax(0,1fr))}[data-le] .le-s2{grid-column:1/-1}}
 @media (max-width:640px){[data-le] .le-g12{grid-template-columns:1fr}[data-le] .le-g12>*{grid-column:1/-1!important}[data-le] .le-g3,[data-le] .le-g4,[data-le] .le-g2{grid-template-columns:1fr}}
+
+/* ---- Fenêtre « Filtres de recherche » (maquette filtres-recherche) ---- */
+[data-le] .le-md.lf{width:min(1240px,100%);height:min(880px,calc(100vh - 32px));max-height:none}
+[data-le] .lf-h{display:flex;align-items:flex-start;gap:16px;padding:16px 24px 12px;border-bottom:1px solid #E3EBFE}
+[data-le] .lf-ico{width:38px;height:38px;border-radius:8px;background:#F4F7FE;color:#2E427B;display:grid;place-items:center;flex:none;font-size:20px}
+[data-le] .lf-h h2{margin:0 0 2px;font-size:18px}[data-le] .lf-h p{margin:0;color:#5B606D;font-size:13px}[data-le] .lf-h .gr{flex:1}
+[data-le] .lf-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 24px;background:#F4F7FE;border-bottom:1px solid #E3EBFE;min-height:46px;max-height:92px;overflow:auto}
+[data-le] .lf-chips .lb{font-size:12px;font-weight:600;color:#5B606D;margin-right:4px}[data-le] .lf-chips .vd{font-size:13px;color:#747A88}
+[data-le] .lf-chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 4px 0 10px;border-radius:999px;background:#fff;border:1px solid #E3EBFE;font-size:12.5px;color:#243569;white-space:nowrap}
+[data-le] .lf-chip b{font-weight:600;color:#18244F;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+[data-le] .lf-chip button{width:18px;height:18px;border:0;border-radius:50%;background:#F4F7FE;color:#2E427B;cursor:pointer;display:grid;place-items:center;padding:0;font-size:12px;line-height:1}[data-le] .lf-chip button:hover{background:#2E427B;color:#fff}
+[data-le] .lf-lk{border:0;background:none;color:#2E427B;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 6px}[data-le] .lf-lk:hover{text-decoration:underline}
+[data-le] .lf-body{flex:1;display:flex;min-height:0}
+[data-le] .lf-nav{width:210px;flex:none;border-right:1px solid #E3EBFE;padding:14px 12px;overflow:auto}
+[data-le] .lf-nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:#18244F;text-decoration:none;font-weight:500;font-size:13.5px;margin-bottom:2px;cursor:pointer}
+[data-le] .lf-nav a:hover{background:#F4F7FE}[data-le] .lf-nav a.on{background:#F4F7FE;color:#2E427B}[data-le] .lf-nav a i{font-size:16px;opacity:.8}
+[data-le] .lf-nav a .n{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#2E427B;color:#fff;font-size:12px;font-weight:600;display:none;align-items:center;justify-content:center}[data-le] .lf-nav a .n.show{display:inline-flex}
+[data-le] .lf-main{flex:1;overflow:auto;overflow-x:hidden;padding:4px 28px 28px;scroll-behavior:smooth;min-width:0}
+[data-le] .lf-s{padding:20px 0 24px;border-bottom:1px solid #E3EBFE}[data-le] .lf-s:last-child{border-bottom:0}
+[data-le] .lf-sh{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}[data-le] .lf-sh h3{font-size:15px;margin:0;font-weight:700;color:#0B1332}[data-le] .lf-sh .hint{font-size:12.5px;color:#5B606D}
+[data-le] .lf-g{display:grid;gap:12px 16px;grid-template-columns:repeat(12,minmax(0,1fr))}[data-le] .lf-g>*{min-width:0}
+[data-le] .lf-g>.c3{grid-column:span 3}[data-le] .lf-g>.c4{grid-column:span 4}[data-le] .lf-g>.c6{grid-column:span 6}[data-le] .lf-g>.c12{grid-column:span 12}
+[data-le] .lf-fd>label,[data-le] .lf-fd>.lbl{display:block;font-size:12.5px;font-weight:500;color:#243569;margin:0 0 6px;text-transform:none;letter-spacing:0}
+[data-le] .lf-fd .le-in.filled,[data-le] .le-in.filled{border-color:#2E427B;background:#F4F7FE}
+[data-le] .lf-rg{display:flex;align-items:center;gap:8px}[data-le] .lf-rg .sp{color:#747A88;flex:none}
+[data-le] .lf-pre{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+[data-le] .lf-pre button{height:26px;padding:0 10px;border-radius:999px;border:1px solid #E3EBFE;background:#fff;font-size:12px;color:#5B606D;cursor:pointer}[data-le] .lf-pre button:hover{border-color:#2E427B;color:#2E427B}
+[data-le] .lf-op{display:flex;gap:8px}[data-le] .lf-op select{width:170px;flex:none;background:#F4F7FE;cursor:pointer}[data-le] .lf-op input{flex:1;min-width:0}
+[data-le] .lf-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+[data-le] .lf-card{border:1px solid #E3EBFE;border-radius:8px;padding:14px 16px 16px}[data-le] .lf-card h4{font-size:13.5px;margin:0 0 12px;display:flex;align-items:center;gap:8px}[data-le] .lf-card h4 .dt{width:8px;height:8px;border-radius:50%}
+[data-le] .lf-card .lf-fd+.lf-fd{margin-top:12px}
+[data-le] .lf-seg{display:flex;background:#F4F7FE;border:1px solid #E3EBFE;border-radius:8px;padding:4px;gap:2px}
+[data-le] .lf-seg button{flex:1;height:28px;border:0;border-radius:6px;background:transparent;font-size:12.5px;color:#5B606D;cursor:pointer;white-space:nowrap;padding:0 8px}[data-le] .lf-seg button:hover{color:#18244F}
+[data-le] .lf-seg button.on{background:#fff;color:#2E427B;font-weight:600;box-shadow:0 1px 2px rgba(11,19,50,.12)}
+[data-le] .lf-rt{width:100%;border:1px solid #E3EBFE;border-radius:8px;border-collapse:separate;border-spacing:0;table-layout:fixed}
+[data-le] .lf-rt th{background:#F4F7FE;font-size:12px;font-weight:600;color:#5B606D;text-align:left;padding:8px 14px;border-bottom:1px solid #E3EBFE}[data-le] .lf-rt thead th:first-child{border-top-left-radius:8px}[data-le] .lf-rt thead th:last-child{border-top-right-radius:8px}
+[data-le] .lf-rt td{padding:8px 14px;border-bottom:1px solid #E3EBFE;vertical-align:middle}[data-le] .lf-rt tr:last-child td{border-bottom:0}
+[data-le] .lf-rt th:first-child,[data-le] .lf-rt td:first-child{width:42%;font-weight:500}[data-le] .lf-rt th:nth-child(3),[data-le] .lf-rt td:nth-child(3){width:28px;padding:0;text-align:center;color:#747A88}
+[data-le] .lf-rt .cd{display:inline-block;min-width:38px;font-size:12px;font-weight:700;color:#2E427B;background:#F4F7FE;border-radius:6px;padding:2px 6px;margin-right:8px;text-align:center}
+[data-le] .lf-rt .sl{display:block;font-size:12px;color:#5B606D;font-weight:400;margin-top:1px;padding-left:52px}
+[data-le] .lf-rt .le-in{height:32px!important;min-height:32px!important}[data-le] .lf-rt .nm{text-align:right;font-variant-numeric:tabular-nums}
+[data-le] .lf-ft{display:flex;align-items:center;gap:12px;padding:12px 24px;border-top:1px solid #E3EBFE;background:#fff}
+[data-le] .lf-ft .gr{flex:1}[data-le] .lf-ft .st{color:#5B606D;font-size:13px}
+[data-le] .lf-ft button{height:38px;padding:0 16px;border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px solid #CAD9FB;background:#fff;color:#18244F}[data-le] .lf-ft button:hover{background:#F4F7FE}
+[data-le] .lf-ft button.gh{border-color:transparent;color:#5B606D}[data-le] .lf-ft button.gh:hover{color:#C0392B;background:#FDF2F1}
+[data-le] .lf-ft button.p{background:#2E427B;border-color:#2E427B;color:#fff}[data-le] .lf-ft button.p:hover{background:#243569}[data-le] .lf-ft button.p .b{background:rgba(255,255,255,.22);border-radius:999px;font-size:12px;padding:1px 8px}
+[data-le] .lf-res{display:inline-flex;align-items:center;gap:8px;font-size:13px}[data-le] .lf-res b{font-variant-numeric:tabular-nums;font-size:14px}
+[data-le] .lf-res .sp{width:12px;height:12px;border:2px solid #E3EBFE;border-top-color:#2E427B;border-radius:50%;animation:lfsp .7s linear infinite;display:none}[data-le] .lf-res.ld .sp{display:inline-block}[data-le] .lf-res.ld b{opacity:.4}[data-le] .lf-res.z b{color:#C0392B}
+@keyframes lfsp{to{transform:rotate(360deg)}}
+[data-le] .lf-kbd{font:inherit;font-size:12px;border:1px solid #E3EBFE;border-bottom-width:2px;border-radius:4px;padding:0 4px;color:#5B606D;background:#F4F7FE}
+[data-le] .le-md.lf{width:min(1380px,98vw);height:auto;max-height:calc(100vh - 24px)}
+[data-le] .lf-sh .hint,[data-le] .lf-rt .sl{display:none}
+[data-le] .lf-pre{flex-wrap:nowrap;gap:6px}[data-le] .lf-pre button{white-space:nowrap;padding:0 8px;font-size:12px}
+[data-le] .lf-h p,[data-le] .lf-chips,[data-le] .lf-nav,[data-le] .lf-ft .st{display:none!important}
+[data-le] .lf-h{padding:10px 24px;align-items:center}
+[data-le] .lf-main{padding:0 24px 8px}
+[data-le] .lf-main>div{display:grid;grid-template-columns:1fr 1fr;column-gap:28px;align-items:start}
+[data-le] .lf-c{display:contents}[data-le] .lf-main>div{align-items:stretch!important}[data-le] .lf-s[data-s=journal]{grid-area:1/1}[data-le] .lf-s[data-s=refs]{grid-area:2/1}[data-le] .lf-s[data-s=trait]{grid-area:3/1}[data-le] .lf-s[data-s=comptes]{grid-area:1/2}[data-le] .lf-s[data-s=infos]{grid-area:2/2}[data-le] .lf-s[data-s=montants]{grid-area:3/2}
+[data-le] .lf-s{break-inside:avoid;padding:16px 0 20px}
+[data-le] .lf-sh{margin-bottom:14px}
+[data-le] .lf-g{gap:20px 14px}
+[data-le] .lf-rt td{padding:8px 10px}[data-le] .lf-rt th{padding:6px 10px}
+[data-le] .lf-card{padding:12px 12px 16px}[data-le] .lf-card .lf-fd+.lf-fd{margin-top:20px}[data-le] .lf-seg button{padding:0 6px;font-size:12px;flex:1 1 auto;min-width:0}[data-le] .lf-seg{overflow:hidden}[data-le] .lf-card{min-width:0}
+@media (max-width:1500px){[data-le] .lf-main>div{grid-template-columns:1fr 1fr}}@media (max-width:1100px){[data-le] .lf-main>div{display:block}}
+@media (max-width:980px){[data-le] .lf-nav{display:none}[data-le] .lf-cards{grid-template-columns:1fr}[data-le] .lf-g>.c3,[data-le] .lf-g>.c4{grid-column:span 6}}
+@media (max-width:640px){[data-le] .lf-main{padding:4px 16px 20px}[data-le] .lf-h,[data-le] .lf-chips,[data-le] .lf-ft{padding-left:16px;padding-right:16px}[data-le] .lf-g>*{grid-column:span 12!important}[data-le] .lf-ft .st,[data-le] .lf-kbd{display:none}[data-le] .lf-op select{width:130px}}
 </style>
 
 <div class="bp-root" data-le>
@@ -9016,39 +9291,68 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     <button type="button" data-le-xlsx>Excel (XLSX)</button>
   </div>
 
-  <div class="le-ov" data-le-ov hidden><div class="le-md" role="dialog" aria-modal="true" aria-label="Filtres de recherche">
-    <div class="le-mh"><h2>Filtres de recherche</h2><button type="button" class="le-x" data-le-fermer aria-label="Fermer">✕</button></div>
-    <div class="le-mb"><div data-le-form>
-    <p class="le-note">Listes à cases à cocher : aucune case cochée = pas de filtre sur le champ.</p>
-    <div class="le-bloc"><div class="le-bt">Entête</div>
-      <div class="le-g12"><div class="le-l c2">Site<div data-ms="site"></div></div><div class="le-l c2">Exercice<div data-ms="exercice"></div></div><div class="le-l c2">Type de journal<div data-ms="typeJournal"></div></div><div class="le-l c6">Journal<div data-ms="journal"></div></div></div>
-      <div class="le-g12" style="margin-top:8px"><div class="le-l c3">Écriture — du / au<div class="le-mm"><input class="le-in" type="date" step="any" data-le-f="du"><input class="le-in" type="date" step="any" data-le-f="au"></div></div><div class="le-l c3">N° bordereau<input class="le-in" data-le-f="numBord"></div><div class="le-l c2">N° pièce<input class="le-in" data-le-f="piece"></div><div class="le-l c2">N° facture<input class="le-in" data-le-f="facture"></div><div class="le-l c2">Référence<input class="le-in" data-le-f="reference"></div></div>
-      <div class="le-g12" style="margin-top:8px"><div class="le-l c4">Libellé<input class="le-in" data-le-f="libelle"></div><div class="le-l c3">Tiers<input class="le-in" data-le-f="tiers"></div><div class="le-l c2">N° contrat<div data-ms="contrat"></div></div><div class="le-l c3">Échéance — du / au<div class="le-mm"><input class="le-in" type="date" step="any" data-le-f="echdu"><input class="le-in" type="date" step="any" data-le-f="echau"></div></div></div>
+  <div class="le-ov" data-le-ov hidden><div class="le-md lf" role="dialog" aria-modal="true" aria-label="Filtres de recherche">
+    <div class="lf-h"><div class="lf-ico"><i class="ti ti-filter" aria-hidden="true"></i></div><div class="gr"><h2>Filtres de recherche</h2><p>Affinez la liste des écritures. Un champ laissé vide n’applique aucun filtre.</p></div><button type="button" class="le-x" data-le-fermer aria-label="Fermer (Échap)" title="Fermer (Échap)">✕</button></div>
+    <div class="lf-chips" data-lf-chips></div>
+    <div class="lf-body">
+      <nav class="lf-nav" data-lf-nav>
+        <a data-s="journal"><i class="ti ti-calendar-event" aria-hidden="true"></i>Journal &amp; période<span class="n"></span></a>
+        <a data-s="refs"><i class="ti ti-hash" aria-hidden="true"></i>Références &amp; saisie<span class="n"></span></a>
+        <a data-s="trait"><i class="ti ti-checks" aria-hidden="true"></i>Traitement<span class="n"></span></a>
+        <a data-s="comptes"><i class="ti ti-chart-line" aria-hidden="true"></i>Plans des comptes<span class="n"></span></a>
+        <a data-s="montants"><i class="ti ti-coin" aria-hidden="true"></i>Montants<span class="n"></span></a>
+        <a data-s="infos"><i class="ti ti-notes" aria-hidden="true"></i>Informations libres<span class="n"></span></a>
+      </nav>
+      <div class="lf-main" data-lf-main><div data-le-form>
+
+      <section class="lf-s" data-s="journal"><div class="lf-sh"><h3>Journal &amp; période</h3></div>
+        <div class="lf-g">
+          <div class="lf-fd f c3" data-label="Site"><span class="lbl">Site</span><div data-ms="site"></div></div><div class="lf-fd f c3" data-label="Exercice"><span class="lbl">Exercice</span><div data-ms="exercice"></div></div><div class="lf-fd f c6" data-label="Journal"><span class="lbl">Journal</span><div data-ms="journal"></div></div>
+          <div class="lf-fd f c6" data-label="Date comptable" data-kind="date"><span class="lbl">Date comptable</span><div class="lf-rg"><input class="le-in" type="date" step="any" aria-label="Du" data-le-f="du"><span class="sp">→</span><input class="le-in" type="date" step="any" aria-label="Au" data-le-f="au"></div><div class="lf-pre"><button type="button" data-pre="month">Mois en cours</button><button type="button" data-pre="quarter">Trimestre en cours</button><button type="button" data-pre="year">Exercice en cours</button></div></div>
+          <div class="lf-fd f c6" data-label="Échéance" data-kind="date"><span class="lbl">Échéance</span><div class="lf-rg"><input class="le-in" type="date" step="any" aria-label="Du" data-le-f="echdu"><span class="sp">→</span><input class="le-in" type="date" step="any" aria-label="Au" data-le-f="echau"></div></div>
+          <div class="lf-fd f c6" data-label="Type de journal"><span class="lbl">Type de journal</span><div data-ms="typeJournal"></div></div>
+        </div></section>
+
+      <section class="lf-s" data-s="refs"><div class="lf-sh"><h3>Références, tiers &amp; saisie</h3></div>
+        <div class="lf-g">
+          <div class="lf-fd f c3" data-label="N° bordereau"><label>N° bordereau</label><input class="le-in" data-le-f="numBord"></div><div class="lf-fd f c3" data-label="N° pièce"><label>N° pièce</label><input class="le-in" data-le-f="piece"></div><div class="lf-fd f c3" data-label="N° facture"><label>N° facture</label><input class="le-in" data-le-f="facture"></div><div class="lf-fd f c3" data-label="Référence"><label>Référence</label><input class="le-in" data-le-f="reference"></div>
+          <div class="lf-fd f c6" data-label="Tiers"><label>Tiers</label><input class="le-in" data-le-f="tiers" placeholder="Code ou nom"></div><div class="lf-fd f c3" data-label="N° contrat"><span class="lbl">N° contrat</span><div data-ms="contrat"></div></div><div class="lf-fd f c3" data-label="Saisi par"><span class="lbl">Saisi par</span><div data-ms="saisiPar"></div></div>
+          <div class="lf-fd f c12" data-label="Libellé" data-kind="textop"><label>Libellé</label><div class="lf-op"><select class="le-in" data-le-op="libelle" data-no-combo aria-label="Type de recherche sur le libellé"><option value="contient">Contient</option><option value="commence par">Commence par</option><option value="se termine par">Se termine par</option><option value="égal à">Égal à</option><option value="ne contient pas">Ne contient pas</option></select><input class="le-in" data-le-f="libelle" placeholder="Saisir le texte recherché"></div></div>
+        </div></section>
+
+      <section class="lf-s" data-s="trait"><div class="lf-sh"><h3>Traitement</h3><span class="hint">État de lettrage, de pointage et de validation</span></div>
+        <div class="lf-cards">
+          <div class="lf-card"><h4><span class="dt" style="background:#5F77B9"></span>Lettrage</h4><div class="lf-fd f " data-label="Lettrage"><span class="lbl">État</span><div class="lf-seg" data-seg="lettrage"><input type="hidden" data-le-f="lettrage"><button type="button" data-v="" class="on">Tous</button><button type="button" data-v="oui">Lettrées</button><button type="button" data-v="non">Non lettrées</button></div></div><div class="lf-fd f " data-label="N° lettrage"><span class="lbl">N° lettrage</span><div data-ms="numLettrage"></div></div></div>
+          <div class="lf-card"><h4><span class="dt" style="background:#10B981"></span>Rapprochement</h4><div class="lf-fd f " data-label="Pointage"><span class="lbl">État du pointage</span><div class="lf-seg" data-seg="pointage"><input type="hidden" data-le-f="pointage"><button type="button" data-v="" class="on">Tous</button><button type="button" data-v="oui">Pointées</button><button type="button" data-v="non">Non pointées</button></div></div><div class="lf-fd f " data-label="N° relevé"><span class="lbl">N° relevé</span><div data-ms="numReleve"></div></div></div>
+          <div class="lf-card"><h4><span class="dt" style="background:#F59E0B"></span>Validation</h4><div class="lf-fd f " data-label="Étape du circuit"><span class="lbl">Étape du circuit</span><div data-ms="etape"></div></div></div>
+        </div></section>
+
+      <section class="lf-s" data-s="comptes"><div class="lf-sh"><h3>Plans des comptes</h3><span class="hint">Filtre par plage de codes. Pour un code unique, renseignez seulement « Du code » puis appuyez sur <kbd class="lf-kbd">=</kbd>.</span></div>
+        <table class="lf-rt"><thead><tr><th>Plan</th><th>Du code</th><th></th><th>Au code</th></tr></thead><tbody data-le-ana></tbody></table></section>
+
+      <section class="lf-s" data-s="montants"><div class="lf-sh"><h3>Montants</h3><span class="hint">Bornes incluses</span></div>
+        <table class="lf-rt"><thead><tr><th>Montant</th><th>Minimum</th><th></th><th>Maximum</th></tr></thead><tbody>
+          <tr class="f" data-label="Montant local" data-kind="amount"><td>Montant local</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Montant local minimum" data-le-f="lmin"></td><td>→</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Montant local maximum" data-le-f="lmax"></td></tr><tr class="f" data-label="Devise 1" data-kind="amount"><td>Devise 1</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Devise 1 minimum" data-le-f="d1min"></td><td>→</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Devise 1 maximum" data-le-f="d1max"></td></tr><tr class="f" data-label="Devise 2" data-kind="amount"><td>Devise 2</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Devise 2 minimum" data-le-f="d2min"></td><td>→</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Devise 2 maximum" data-le-f="d2max"></td></tr><tr class="f" data-label="Devise 3" data-kind="amount"><td>Devise 3</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Devise 3 minimum" data-le-f="d3min"></td><td>→</td><td><input class="le-in nm" type="number" step="any" placeholder="0,00" aria-label="Devise 3 maximum" data-le-f="d3max"></td></tr>
+        </tbody></table></section>
+
+      <section class="lf-s" data-s="infos"><div class="lf-sh"><h3>Informations libres</h3><span class="hint">Recherche partielle, sans distinction majuscule/minuscule</span></div>
+        <div class="lf-g"><div class="lf-fd f c4" data-label="Information libre 1"><label>Information libre 1</label><input class="le-in" data-le-f="info1"></div><div class="lf-fd f c4" data-label="Information libre 2"><label>Information libre 2</label><input class="le-in" data-le-f="info2"></div><div class="lf-fd f c4" data-label="Information libre 3"><label>Information libre 3</label><input class="le-in" data-le-f="info3"></div><div class="lf-fd f c4" data-label="Documents"><label>Documents</label><input class="le-in" data-le-f="documents"></div><div class="lf-fd f c4" data-label="Liens documentaires"><label>Liens documentaires</label><input class="le-in" data-le-f="liens"></div><div class="lf-fd f c4" data-label="Mode de paiement"><label>Mode de paiement</label><input class="le-in" data-le-f="modePaiement"></div></div><div class="lf-fd c12"><span class="lbl">Colonnes supplémentaires à afficher à l’édition</span><div data-ms="colsExtra"></div></div></section>
+
+      </div></div>
     </div>
-    <div class="le-bloc"><div class="le-bt">Traitement</div>
-      <div class="le-g12">
-        <div class="c4 le-stack"><div class="le-sbt">Lettrage</div><div class="le-l">État du lettrage<select class="le-in" data-le-f="lettrage" data-no-combo><option value="">Tous</option><option value="oui">Lettrées</option><option value="non">Non lettrées</option></select></div><div class="le-l ">N° lettrage<div data-ms="numLettrage"></div></div></div>
-        <div class="c4 le-stack"><div class="le-sbt">Rapprochement</div><div class="le-l">État du pointage<select class="le-in" data-le-f="pointage" data-no-combo><option value="">Tous</option><option value="oui">Pointées</option><option value="non">Non pointées</option></select></div><div class="le-l ">N° relevé<div data-ms="numReleve"></div></div></div>
-        <div class="c4 le-stack"><div class="le-sbt">Validation</div><div class="le-l ">Étape actuelle du circuit<div data-ms="etape"></div></div></div>
-      </div>
+    <div class="lf-ft">
+      <button type="button" class="gh" data-le-reinit><i class="ti ti-refresh" aria-hidden="true"></i> Réinitialiser</button><span class="st" data-lf-st></span><span class="gr"></span>
+      <span class="lf-res" data-lf-res aria-live="polite"><span class="sp"></span><b data-lf-n>0</b><span data-lf-t>ligne(s) d’écriture correspondent</span></span>
+      <button type="button" data-le-annuler>Fermer</button>
+      <button type="button" class="p" data-le-rech><i class="ti ti-search" aria-hidden="true"></i> Rechercher<span class="b" data-lf-b hidden></span></button>
+      <kbd class="lf-kbd" title="Raccourci">Ctrl + Entrée</kbd>
     </div>
-    <div class="le-bloc"><div class="le-bt">Plans des comptes</div>
-      <p class="le-note" style="margin:0 0 8px">Chaque plan se filtre par plage de codes (du code au code) ; un code seul s'obtient en saisissant la même valeur aux deux bornes.</p>
-      <div class="le-g12" data-le-ana></div>
-    </div>
-    <div class="le-bloc"><div class="le-bt">Informations libres</div>
-      <p class="le-note" style="margin:0 0 8px">Recherche partielle, sans distinction majuscule/minuscule.</p>
-      <div class="le-g12"><div class="le-l c4">Information libre 1<input class="le-in" data-le-f="info1"></div><div class="le-l c4">Information libre 2<input class="le-in" data-le-f="info2"></div><div class="le-l c4">Information libre 3<input class="le-in" data-le-f="info3"></div><div class="le-l c3">Documents<input class="le-in" data-le-f="documents"></div><div class="le-l c3">Liens documentaires<input class="le-in" data-le-f="liens"></div><div class="le-l c3">Mode de paiement<input class="le-in" data-le-f="modePaiement"></div><div class="le-l c3">Saisi par<div data-ms="saisiPar"></div></div></div>
-      <div class="le-g12" style="margin-top:8px"><div class="le-l c3">Montant local — min / max<div class="le-mm"><input class="le-in" type="number" step="any" placeholder="Min" data-le-f="lmin"><input class="le-in" type="number" step="any" placeholder="Max" data-le-f="lmax"></div></div><div class="le-l c3">Devise 1 — min / max<div class="le-mm"><input class="le-in" type="number" step="any" placeholder="Min" data-le-f="d1min"><input class="le-in" type="number" step="any" placeholder="Max" data-le-f="d1max"></div></div><div class="le-l c3">Devise 2 — min / max<div class="le-mm"><input class="le-in" type="number" step="any" placeholder="Min" data-le-f="d2min"><input class="le-in" type="number" step="any" placeholder="Max" data-le-f="d2max"></div></div><div class="le-l c3">Devise 3 — min / max<div class="le-mm"><input class="le-in" type="number" step="any" placeholder="Min" data-le-f="d3min"><input class="le-in" type="number" step="any" placeholder="Max" data-le-f="d3max"></div></div></div>
-    </div>
-  </div></div>
-    <div class="le-mf"><button type="button" class="gauche" data-le-reinit>Réinitialiser</button><button type="button" data-le-annuler>Fermer</button><button type="button" class="p" data-le-rech><i class="ti ti-search" aria-hidden="true"></i> Rechercher</button></div>
   </div></div>
   <div class="bp-grid"><section class="bp-pan" aria-label="Liste des écritures">
   <h2>Liste des écritures <small data-le-fa></small></h2>
   <div class="le-res"><span data-le-compte></span><span data-le-tot></span></div>
   <div style="overflow:auto">
-    <table class="bp-tb le-tb" style="min-width:1900px"><thead><tr><th style="width:34px"><input type="checkbox" data-le-tout aria-label="Tout cocher"></th><th>NUMBORD</th><th>Site</th><th>Journal</th><th>Date écriture</th><th>Date pièce</th><th>N° pièce</th><th>Référence</th><th>Compte</th><th>Tiers</th><th>Libellé</th><th>Sens</th><th class="r">Débit</th><th class="r">Crédit</th><th>Échéance</th><th>Étape actuelle</th><th>Mode de paiement</th></tr></thead><tbody data-le-lignes></tbody></table>
+    <table class="bp-tb le-tb" style="min-width:1900px"><thead><tr><th style="width:34px"><input type="checkbox" data-le-tout aria-label="Tout cocher"></th><th>NUMBORD</th><th>Site</th><th>Journal</th><th>Date écriture</th><th>Date pièce</th><th>N° pièce</th><th>Référence</th><th>Compte</th><th>Tiers</th><th>Libellé</th><th>Sens</th><th class="r">Débit</th><th class="r">Crédit</th><th>Échéance</th><th>Étape actuelle</th><th>Mode de paiement</th><th data-xc="exercice">Exercice</th><th data-xc="typeJournal">Type de journal</th><th data-xc="facture">N° facture</th><th data-xc="contrat">N° contrat</th><th data-xc="saisiPar">Saisi par</th><th data-xc="numLettrage">N° lettrage</th><th data-xc="numReleve">N° relevé</th><th data-xc="info1">Information libre 1</th><th data-xc="info2">Information libre 2</th><th data-xc="info3">Information libre 3</th><th data-xc="documents">Documents</th><th data-xc="liens">Liens documentaires</th><th data-xc="budget">Budget</th><th data-xc="ligneBud">Ligne budgétaire</th></tr></thead><tbody data-le-lignes></tbody></table>
     <div class="bp-vide" data-le-vide hidden>Aucune écriture ne correspond aux critères.</div>
   </div></section></div>
   <div class="bp-toast" role="status" hidden data-le-toast></div>
@@ -9130,10 +9434,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       }).join('') || '<div class="le-vide" style="padding:8px">Aucune valeur</div>';
     }
     b.addEventListener('click', function (e) { e.stopPropagation(); var o = p.hidden; fermerTout(); p.hidden = !o; if (o) { f0.value = ''; f1.value = ''; liste(); p.style.left = '0'; p.style.right = 'auto'; var md = host.closest('.le-md'), r = p.getBoundingClientRect(), lim = md ? md.getBoundingClientRect().right - 12 : window.innerWidth - 12; if (r.right > lim) { p.style.left = 'auto'; p.style.right = '0'; } } });
-    p.addEventListener('click', function (e) { e.stopPropagation(); var a = e.target.getAttribute('data-a'); if (a) { opts.forEach(function (o) { if (a === 'all') sel[o[0]] = 1; else delete sel[o[0]]; }); liste(); txt(); } });
+    p.addEventListener('click', function (e) { e.stopPropagation(); var a = e.target.getAttribute('data-a'); if (a) { opts.forEach(function (o) { if (a === 'all') sel[o[0]] = 1; else delete sel[o[0]]; }); liste(); txt(); if (typeof majModal === 'function') majModal(); } });
     p.addEventListener('change', function (e) { var v = e.target.getAttribute('data-v'); if (v !== null) { if (e.target.checked) sel[v] = 1; else delete sel[v]; txt(); } });
     f0.addEventListener('input', liste); f1.addEventListener('input', liste);
-    var api = { get: function () { return Object.keys(sel); }, reset: function () { sel = {}; txt(); }, set: function (o) { opts = o; Object.keys(sel).forEach(function (k) { if (!o.some(function (x) { return x[0] === k; })) delete sel[k]; }); txt(); }, close: function () { p.hidden = true; } };
+    var api = { get: function () { return Object.keys(sel); }, reset: function () { sel = {}; txt(); if (typeof majModal === 'function') majModal(); }, set: function (o) { opts = o; Object.keys(sel).forEach(function (k) { if (!o.some(function (x) { return x[0] === k; })) delete sel[k]; }); txt(); }, close: function () { p.hidden = true; } };
     MSS[key] = api; txt(); return api;
   }
   function fermerTout() { Object.keys(MSS).forEach(function (k) { MSS[k].close(); }); if (typeof cbFermer === 'function') cbFermer(); }
@@ -9165,7 +9469,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     mk('site', 'site', 'Tous les sites', sites); mk('exercice', 'exercice', 'Tous les exercices', ex); mk('typeJournal', 'typeJournal', 'Tous les types', Object.keys(tj).sort().map(function (v) { return [v, v]; }));
     mk('saisiPar', 'saisiPar', 'Tous les utilisateurs', uniq('saisiPar')); mk('journal', 'journal', 'Tous les journaux', jn);
     ['contrat', 'numLettrage', 'numReleve'].forEach(function (k) { mk(k, k, 'Tous', uniq(k)); });
-    mk('etape', 'etape', 'Toutes', uniq('etape'));
+    mk('etape', 'etape', 'Toutes', uniq('etape')); mk('colsExtra', 'colsExtra', 'Aucune colonne supplémentaire', EXTRA.map(function (x) { return [x[0], x[1]]; }));
     construireAna();
   }
   // Saisie d'un code de plan : panneau de la charte (composant cb-pan, deux colonnes Code | Libellé, un champ de recherche par colonne), à la place de la liste native du navigateur
@@ -9201,25 +9505,34 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   });
   document.addEventListener('mousedown', function (e) { if (cbP && !cbP.hidden && !e.target.closest('.le-cbp') && !(e.target.matches && e.target.matches('[data-cb]'))) cbFermer(); });
   function construireAna() {
-    var ana = q('[data-le-ana]'), R = regr(), P = plansEff(), prev = {}, plans = [{ k: 'pc', lib: 'PC — Plan comptable', val: (window.PLAN_COMPTABLE || []).map(function (c) { return [c.code, c.code + ' — ' + (c.libelle || c.label || '')]; }) }];
+    var ana = q('[data-le-ana]'), R = regr(), P = plansEff(), prev = {}, plans = [{ k: 'pc', cd: 'PC', nm: 'Plan comptable', sl: '', val: (window.PLAN_COMPTABLE || []).map(function (c) { return [c.code, c.code + ' — ' + (c.libelle || c.label || '')]; }) }];
     qa('[data-le-ana] [data-le-f]').forEach(function (e) { prev[e.getAttribute('data-le-f')] = e.value; });
-    if (R) plans.push({ k: 'preg', lib: R.lib, val: R.els, big: true });
-    P.forEach(function (p) { plans.push({ k: p.key, lib: p.lib, val: valeursPlan(p) }); });
+    if (R) { var rl = R.lib.replace(/^Plan de regroupement — /, ''); plans.push({ k: 'preg', cd: 'REG', nm: 'Plan de regroupement', sl: rl, val: R.els }); }
+    P.forEach(function (p) { var i = p.lib.indexOf(' — '); plans.push({ k: p.key, cd: i > 0 ? p.lib.slice(0, i) : p.key.toUpperCase(), nm: i > 0 ? p.lib.slice(i + 3) : p.lib, sl: '', val: valeursPlan(p) }); });
     ana.innerHTML = plans.map(function (p) {
       PVALS[p.k] = p.val;
-      return '<div class="le-l ' + (p.big ? 'c6' : 'c3') + '">' + esc(p.lib) + '<div class="le-mm"><input class="le-in" autocomplete="off" placeholder="Du code" data-le-f="' + p.k + 'min" data-cb="' + p.k + '" value="' + esc(prev[p.k + 'min'] || '') + '"><input class="le-in" autocomplete="off" placeholder="Au code" data-le-f="' + p.k + 'max" data-cb="' + p.k + '" value="' + esc(prev[p.k + 'max'] || '') + '"></div></div>';
-    }).join('') + (P.length ? '' : '<p class="le-note" style="grid-column:1/-1;margin:0">Aucun plan analytique activé : activez-les dans Administration de l’entité › Analytique.</p>');
+      return '<tr class="f" data-label="' + esc(p.cd) + '" data-kind="code"><td><span class="cd">' + esc(p.cd) + '</span>' + esc(p.nm) + (p.sl ? '<span class="sl">' + esc(p.sl) + '</span>' : '') + '</td><td><input class="le-in" autocomplete="off" aria-label="' + esc(p.nm) + ' — du code" data-le-f="' + p.k + 'min" data-cb="' + p.k + '" value="' + esc(prev[p.k + 'min'] || '') + '"></td><td>→</td><td><input class="le-in" autocomplete="off" aria-label="' + esc(p.nm) + ' — au code" data-le-f="' + p.k + 'max" data-cb="' + p.k + '" value="' + esc(prev[p.k + 'max'] || '') + '"></td></tr>';
+    }).join('') + (P.length ? '' : '<tr><td colspan="4" style="color:#5B606D;font-size:12px">Aucun plan analytique activé : activez-les dans Administration de l’entité › Analytique.</td></tr>');
+    if (typeof majModal === 'function') majModal();
   }
 
   // ---------- recherche ----------
   function v(k) { var e = q('[data-le-f="' + k + '"]'); return e ? e.value : ''; }
   function num(k) { var x = parseFloat(v(k)); return isNaN(x) ? null : x; }
-  var TXT = [['numBord', 'numBord'], ['piece', 'piece'], ['facture', 'facture'], ['reference', 'reference'], ['libelle', 'libelle'], ['tiers', 'tiers'], ['modePaiement', 'mode'], ['info1', 'info1'], ['info2', 'info2'], ['info3', 'info3'], ['documents', 'documents'], ['liens', 'liens']];
+  var TXT = [['numBord', 'numBord'], ['piece', 'piece'], ['facture', 'facture'], ['reference', 'reference'], ['tiers', 'tiers'], ['modePaiement', 'mode'], ['info1', 'info1'], ['info2', 'info2'], ['info3', 'info3'], ['documents', 'documents'], ['liens', 'liens']];
+  var EXTRA = [["exercice","Exercice"],["typeJournal","Type de journal"],["facture","N° facture"],["contrat","N° contrat"],["saisiPar","Saisi par"],["numLettrage","N° lettrage"],["numReleve","N° relevé"],["info1","Information libre 1"],["info2","Information libre 2"],["info3","Information libre 3"],["documents","Documents"],["liens","Liens documentaires"],["budget","Budget"],["ligneBud","Ligne budgétaire"]];
+  function colsVis() { var g = MSS.colsExtra ? MSS.colsExtra.get() : []; return EXTRA.filter(function (x) { return g.indexOf(x[0]) >= 0; }); }
+  function majCols() {
+    var tb = q('table.le-tb'), vis = colsVis().map(function (x) { return x[0]; }), base = 17;
+    [].slice.call(tb.rows).forEach(function (rw) { [].slice.call(rw.cells).forEach(function (c, k) { if (k < base) return; var key = EXTRA[k - base] && EXTRA[k - base][0]; c.style.display = vis.indexOf(key) >= 0 ? '' : 'none'; }); });
+    tb.style.minWidth = (1900 + vis.length * 160) + 'px';
+  }
   var res = [], SEL = {};
   function filtrer() {
     var S = {}; Object.keys(MSS).forEach(function (k) { S[k] = MSS[k].get(); });
     var PE = plansEff(), RG = regr(), RN = [['pc', 'compte']].concat(RG ? [['preg', RG.key]] : [], PE.map(function (p) { return [p.key, p.key]; })).map(function (x) { return [v(x[0] + 'min').trim(), v(x[0] + 'max').trim(), x[0] === 'pc' ? null : x[1]]; }).filter(function (x) { return x[0] || x[1]; }), du = v('du'), au = v('au'), ed = v('echdu'), ea = v('echau'), lt = v('lettrage'), pt = v('pointage');
     var mm = [['lmin', 'lmax', function (l) { return l.debit || l.credit; }], ['d1min', 'd1max', function (l) { return l.d1; }], ['d2min', 'd2max', function (l) { return l.d2; }], ['d3min', 'd3max', function (l) { return l.d3; }]].map(function (x) { return [num(x[0]), num(x[1]), x[2]]; });
+    var lb = norm(v('libelle')), lop = (q('[data-le-op="libelle"]') || {}).value || 'contient';
     var tx = TXT.map(function (t) { return [norm(v(t[0])), t[1]]; }).filter(function (t) { return t[0]; });
     return donnees().filter(function (l) {
       if (S.site.length && S.site.indexOf(l.site) < 0) return false; if (S.exercice.length && S.exercice.indexOf(l.exercice) < 0) return false;
@@ -9228,6 +9541,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       for (var i = 0; i < mm.length; i++) { var x = mm[i], val = Number(x[2](l)) || 0; if (x[0] !== null && val < x[0]) return false; if (x[1] !== null && val > x[1]) return false; }
       if (lt === 'oui' && !l.numLettrage) return false; if (lt === 'non' && l.numLettrage) return false; if (pt === 'oui' && !l.numReleve) return false; if (pt === 'non' && l.numReleve) return false;
       for (var j = 0; j < tx.length; j++) if (norm(l[tx[j][1]]).indexOf(tx[j][0]) < 0) return false;
+      if (lb) { var lv = norm(l.libelle); if (lop === 'commence par' ? lv.indexOf(lb) !== 0 : lop === 'se termine par' ? lv.slice(-lb.length) !== lb : lop === 'égal à' ? lv !== lb : lop === 'ne contient pas' ? lv.indexOf(lb) >= 0 : lv.indexOf(lb) < 0) return false; }
       for (var a = 0; a < RN.length; a++) { var rg = RN[a], cd = rg[2] ? String((l.ana || {})[rg[2]] || '') : String(l.compte || ''); if (!cd || (rg[0] && cd < rg[0]) || (rg[1] && cd > rg[1] && cd.indexOf(rg[1]) !== 0)) return false; }
       if (S.etape && S.etape.length && S.etape.indexOf(l.etape) < 0) return false;
       if (S.contrat.length && S.contrat.indexOf(l.contrat) < 0) return false;      if (S.numLettrage.length && S.numLettrage.indexOf(l.numLettrage) < 0) return false; if (S.numReleve.length && S.numReleve.indexOf(l.numReleve) < 0) return false;
@@ -9238,21 +9552,81 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function dessiner() {
     var n = res.length, td = 0, tc = 0; res.forEach(function (l) { td += l.debit; tc += l.credit; });
     q('[data-le-lignes]').innerHTML = res.map(function (l) {
-      return '<tr><td><input type="checkbox" data-le-ck="' + l.id + '"' + (SEL[l.id] ? ' checked' : '') + ' aria-label="Sélectionner la ligne"></td><td class="m">' + esc(l.numBord) + '</td><td>' + esc(l.site) + '</td><td>' + esc(l.journal) + '</td><td>' + dt(l.date) + '</td><td>' + dt(l.datePiece) + '</td><td>' + esc(l.piece) + '</td><td>' + T(l.reference) + '</td><td class="m">' + esc(l.compte) + '</td><td>' + T(l.tiers) + '</td><td class="lb">' + esc(l.libelle) + '</td><td>' + l.sens + '</td><td class="r">' + (l.debit ? nb(l.debit) : '—') + '</td><td class="r">' + (l.credit ? nb(l.credit) : '—') + '</td><td>' + (l.echeance ? dt(l.echeance) : '—') + '</td><td>' + T(l.etape) + '</td><td>' + T(l.mode) + '</td></tr>';
+      return '<tr><td><input type="checkbox" data-le-ck="' + l.id + '"' + (SEL[l.id] ? ' checked' : '') + ' aria-label="Sélectionner la ligne"></td><td class="m">' + esc(l.numBord) + '</td><td>' + esc(l.site) + '</td><td>' + esc(l.journal) + '</td><td>' + dt(l.date) + '</td><td>' + dt(l.datePiece) + '</td><td>' + esc(l.piece) + '</td><td>' + T(l.reference) + '</td><td class="m">' + esc(l.compte) + '</td><td>' + T(l.tiers) + '</td><td class="lb">' + esc(l.libelle) + '</td><td>' + l.sens + '</td><td class="r">' + (l.debit ? nb(l.debit) : '—') + '</td><td class="r">' + (l.credit ? nb(l.credit) : '—') + '</td><td>' + (l.echeance ? dt(l.echeance) : '—') + '</td><td>' + T(l.etape) + '</td><td>' + T(l.mode) + '</td>' + EXTRA.map(function (x) { return '<td data-xc="' + x[0] + '">' + T(l[x[0]]) + '</td>'; }).join('') + '</tr>';
     }).join('');
-    q('[data-le-tout]').checked = false; q('[data-le-vide]').hidden = n > 0; q('[data-le-compte]').innerHTML = '<b>' + n + '</b> ligne(s) d’écriture';
+    majCols(); q('[data-le-tout]').checked = false; q('[data-le-vide]').textContent = lance ? 'Aucune écriture ne correspond aux critères.' : 'Définissez vos critères dans la fenêtre de filtrage, puis cliquez sur « Rechercher ».'; q('[data-le-vide]').hidden = n > 0; q('[data-le-compte]').innerHTML = '<b>' + n + '</b> ligne(s) d’écriture';
     q('[data-le-tot]').innerHTML = 'Total débit <b>' + nb(td) + '</b> — Total crédit <b>' + nb(tc) + '</b>';
   }
-  function nbFiltres() { var n = 0; Object.keys(MSS).forEach(function (k) { if (MSS[k].get().length) n++; }); qa('[data-le-f]').forEach(function (e) { if (e.value) n++; }); return n; }
+  function nbFiltres() { return qa('.f').filter(function (f) { return valeur(f); }).length; }
   function majFa() { var n = nbFiltres(); q('[data-le-fa]').innerHTML = n ? '<span class="le-fa">' + n + ' filtre(s) actif(s)</span>' : ''; var b = q('[data-le-filtres]'); if (b) b.setAttribute('title', n ? n + ' filtre(s) actif(s)' : 'Aucun filtre actif'); }
-  function ouvrirFiltres() { q('[data-le-ov]').hidden = false; }
+  // ---------- fenêtre de filtres : puces, compteurs par section, nombre de résultats en direct ----------
+  function valeur(f) {
+    var h = f.querySelector('[data-ms]'); if (h) { var s_ = MSS[h.getAttribute('data-ms')]; var g = s_ ? s_.get() : []; return g.length ? (g.length <= 2 ? g.join(', ') : g.length + ' valeurs') : ''; }
+    var sg = f.querySelector('[data-seg]'); if (sg) { var hv = sg.querySelector('input'); var bt = hv && hv.value ? sg.querySelector('button.on') : null; return bt ? bt.textContent : ''; }
+    var ins = [].slice.call(f.querySelectorAll('input[data-le-f]'));
+    if (f.getAttribute('data-kind') === 'textop') { var tv = ins[0].value.trim(); return tv ? f.querySelector('select').value + ' « ' + tv + ' »' : ''; }
+    if (ins.length === 2) { var a = ins[0].value.trim(), b = ins[1].value.trim(), k = f.getAttribute('data-kind'); if (k === 'date') { a = dt(a); b = dt(b); } if (a && b) return a === b ? a : a + ' → ' + b; if (a) return k === 'code' ? 'à partir de ' + a : '≥ ' + a; if (b) return k === 'code' ? 'jusqu’à ' + b : '≤ ' + b; return ''; }
+    return ins[0] ? ins[0].value.trim() : '';
+  }
+  function viderChamp(f) {
+    var h = f.querySelector('[data-ms]'); if (h && MSS[h.getAttribute('data-ms')]) MSS[h.getAttribute('data-ms')].reset();
+    [].slice.call(f.querySelectorAll('input[data-le-f]')).forEach(function (i) { i.value = ''; });
+    [].slice.call(f.querySelectorAll('select[data-le-op]')).forEach(function (i) { i.selectedIndex = 0; });
+  }
+  var lcT = null;
+  function majModal() {
+    majCols(); var fs = qa('.f'), cnt = {}, html = '', n = 0;
+    fs.forEach(function (f, i) {
+      [].slice.call(f.querySelectorAll('input.le-in')).forEach(function (e) { e.classList.toggle('filled', !!e.value); });
+      var val = valeur(f); if (!val) return; n++; var sec = f.closest('[data-s]').getAttribute('data-s'); cnt[sec] = (cnt[sec] || 0) + 1;
+      html += '<span class="lf-chip">' + esc(f.getAttribute('data-label')) + ' : <b>' + esc(val) + '</b><button type="button" title="Retirer ce filtre" data-lf-x="' + i + '">×</button></span>';
+    });
+    qa('.lf-seg').forEach(function (sg) { var v_ = sg.querySelector('input').value; [].slice.call(sg.querySelectorAll('button')).forEach(function (bt) { bt.classList.toggle('on', bt.getAttribute('data-v') === v_); }); });
+    q('[data-lf-chips]').innerHTML = '<span class="lb">Filtres actifs</span>' + (n ? html + '<button type="button" class="lf-lk" data-lf-all>Tout effacer</button>' : '<span class="vd">Aucun — toutes les écritures seront affichées</span>');
+    qa('[data-lf-nav] a').forEach(function (a) { var c = cnt[a.getAttribute('data-s')] || 0, e = a.querySelector('.n'); e.textContent = c; e.classList.toggle('show', c > 0); });
+    q('[data-lf-st]').textContent = n ? n + ' filtre' + (n > 1 ? 's' : '') + ' actif' + (n > 1 ? 's' : '') : '';
+    var bb = q('[data-lf-b]'); bb.hidden = !n; bb.textContent = n;
+    var r = q('[data-lf-res]'); r.classList.add('ld'); clearTimeout(lcT);
+    lcT = setTimeout(function () { var c = filtrer().length; r.classList.remove('ld'); r.classList.toggle('z', c === 0); q('[data-lf-n]').textContent = c.toLocaleString('fr-FR'); q('[data-lf-n]').hidden = c === 0; q('[data-lf-t]').textContent = c === 0 ? 'aucune écriture ne correspond' : c === 1 ? 'ligne d’écriture correspond' : 'lignes d’écriture correspondent'; }, 250);
+  }
+  var FM = q('[data-le-form]');
+  (function () { var c1 = document.createElement('div'), c2 = document.createElement('div'), c3 = document.createElement('div'); c1.className = c2.className = c3.className = 'lf-c'; ['journal', 'refs', 'trait'].forEach(function (k) { c1.appendChild(FM.querySelector('.lf-s[data-s="' + k + '"]')); }); ['comptes', 'infos', 'montants'].forEach(function (k) { c3.appendChild(FM.querySelector('.lf-s[data-s="' + k + '"]')); }); FM.appendChild(c1); FM.appendChild(c3); })();
+  FM.addEventListener('input', function (e) { if (e.target.matches('input.le-in:not(.le-msf-in)')) majModal(); });
+  FM.addEventListener('change', function (e) { if (e.target.matches('select[data-le-op], .le-msp input[type=checkbox]')) majModal(); });
+  q('[data-lf-chips]').addEventListener('click', function (e) {
+    var x = e.target.closest('[data-lf-x]'); if (x) { viderChamp(qa('.f')[+x.getAttribute('data-lf-x')]); majModal(); return; }
+    if (e.target.closest('[data-lf-all]')) { qa('.f').forEach(viderChamp); majModal(); }
+  });
+  q('[data-lf-main]').addEventListener('click', function (e) {
+    var sb = e.target.closest('.lf-seg button'); if (sb) { var sg = sb.parentNode; sg.querySelector('input').value = sb.getAttribute('data-v'); majModal(); return; }
+    var pr = e.target.closest('[data-pre]'); if (pr) {
+      var t0 = new Date(), y = t0.getFullYear(), mo = t0.getMonth(), d1, d2, iso = function (d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1, 2) + '-' + pad(d.getDate(), 2); }, k = pr.getAttribute('data-pre');
+      if (k === 'month') { d1 = new Date(y, mo, 1); d2 = new Date(y, mo + 1, 0); } else if (k === 'quarter') { var qm = Math.floor(mo / 3) * 3; d1 = new Date(y, qm, 1); d2 = new Date(y, qm + 3, 0); } else { d1 = new Date(y, 0, 1); d2 = new Date(y, 11, 31); }
+      q('[data-le-f="du"]').value = iso(d1); q('[data-le-f="au"]').value = iso(d2); majModal();
+    }
+  });
+  // « = » dans « Du code » : code unique (recopié dans « Au code »)
+  FM.addEventListener('keydown', function (e) {
+    if (e.key !== '=' || !e.target.matches('[data-cb]')) return; var tr = e.target.closest('tr'), ins = tr ? tr.querySelectorAll('input[data-le-f]') : []; if (ins.length === 2 && ins[0] === e.target) { e.preventDefault(); ins[1].value = ins[0].value; if (window.cbFermerLe) window.cbFermerLe(); majModal(); }
+  });
+  // navigation latérale + suivi du défilement
+  var LM = q('[data-lf-main]');
+  qa('[data-lf-nav] a').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); var sec = q('.lf-s[data-s="' + a.getAttribute('data-s') + '"]'); LM.scrollTo({ top: sec.offsetTop - LM.offsetTop - 4 }); }); });
+  function espion() {
+    var ss = qa('.lf-s'), cur = ss[0]; ss.forEach(function (x) { if (x.offsetTop - LM.offsetTop - 40 <= LM.scrollTop) cur = x; });
+    if (LM.scrollTop + LM.clientHeight >= LM.scrollHeight - 2) cur = ss[ss.length - 1];
+    qa('[data-lf-nav] a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-s') === cur.getAttribute('data-s')); });
+  }
+  LM.addEventListener('scroll', espion);
+  q('[data-le-ov]').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); rechercher(true); } });
+  function ouvrirFiltres() { q('[data-le-ov]').hidden = false; LM.scrollTop = 0; majModal(); espion(); }
   function fermerFiltres() { fermerTout(); q('[data-le-ov]').hidden = true; }
-  function rechercher(msg) { fermerFiltres(); res = filtrer(); majFa(); dessiner(); if (msg) toast(res.length + ' ligne(s) trouvée(s).'); }
-  function reinit() { Object.keys(MSS).forEach(function (k) { MSS[k].reset(); }); qa('[data-le-f]').forEach(function (e) { e.value = ''; }); res = filtrer(); majFa(); dessiner(); toast('Critères réinitialisés.'); }
+  function rechercher(msg) { lance = true; fermerFiltres(); res = filtrer(); majFa(); dessiner(); if (msg) toast(res.length + ' ligne(s) trouvée(s).'); }
+  function reinit() { lance = true; Object.keys(MSS).forEach(function (k) { if (k !== 'colsExtra') MSS[k].reset(); }); qa('[data-le-f]').forEach(function (e) { e.value = ''; }); qa('[data-le-op]').forEach(function (e) { e.selectedIndex = 0; }); majModal(); res = filtrer(); majFa(); dessiner(); toast('Critères réinitialisés.'); }
   function exporter(fmt) {
     var X = window.EXPORT_TABLEAU; if (!X) { toast('Module d’export indisponible.'); return; } if (!res.length) { toast('Aucune écriture à exporter.'); return; }
-    var Tt = ['NUMBORD', 'Site', 'Journal', 'Date écriture', 'Date pièce', 'N° pièce', 'Référence', 'Compte', 'Tiers', 'Libellé', 'Sens', 'Débit', 'Crédit', 'Échéance', 'Étape actuelle', 'Mode de paiement'],
-      rows = res.map(function (l) { return [l.numBord, l.site, l.journal, dt(l.date), dt(l.datePiece), l.piece, l.reference, l.compte, l.tiers, l.libelle, l.sens, l.debit || '', l.credit || '', dt(l.echeance), l.etape, l.mode]; });
+    var Tt = ['NUMBORD', 'Site', 'Journal', 'Date écriture', 'Date pièce', 'N° pièce', 'Référence', 'Compte', 'Tiers', 'Libellé', 'Sens', 'Débit', 'Crédit', 'Échéance', 'Étape actuelle', 'Mode de paiement'].concat(colsVis().map(function (x) { return x[1]; })),
+      rows = res.map(function (l) { return [l.numBord, l.site, l.journal, dt(l.date), dt(l.datePiece), l.piece, l.reference, l.compte, l.tiers, l.libelle, l.sens, l.debit || '', l.credit || '', dt(l.echeance), l.etape, l.mode].concat(colsVis().map(function (x) { return l[x[0]] || ''; })); });
     if (fmt === 'pdf') X.pdf('liste_des_ecritures.pdf', 'Liste des écritures', res.length + ' ligne(s)', Tt, rows); else X.xlsx('liste_des_ecritures.xlsx', 'Liste des écritures', Tt, rows);
     toast('Export ' + (fmt === 'pdf' ? 'PDF' : 'Excel (XLSX)') + ' généré : ' + res.length + ' ligne(s).');
   }
@@ -9318,10 +9692,11 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   q('[data-le-reinit]').addEventListener('click', reinit);
   q('[data-le-pdf]').addEventListener('click', function () { exporter('pdf'); }); q('[data-le-xlsx]').addEventListener('click', function () { exporter('xlsx'); });
   q('[data-le-form]').addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.matches('input:not([type=search])')) { e.preventDefault(); rechercher(true); } });
-  function init() { construire(); res = filtrer(); dessiner(); }
+  var lance = false;
+  function init() { construire(); res = lance ? filtrer() : []; dessiner(); if (!lance && location.hash === '#listeecritures') ouvrirFiltres(); }
   window.addEventListener('hashchange', function () { if (location.hash === '#listeecritures') init(); });
   window.addEventListener('exercices-changed', function () { construire(); });
-  ['plans-changed', 'plans-actifs', 'regroupement-changed'].forEach(function (ev) { window.addEventListener(ev, function () { construire(); res = filtrer(); majFa(); dessiner(); }); });
+  ['plans-changed', 'plans-actifs', 'regroupement-changed'].forEach(function (ev) { window.addEventListener(ev, function () { construire(); res = lance ? filtrer() : []; majFa(); dessiner(); }); });
   window.addEventListener('load', function () { setTimeout(init, 300); }); init();
 })();
 </script>
@@ -14408,12 +14783,12 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var GROUPES = [['Administrateur', 'Administrateur'], ['ADMINOK', 'Administrateur'], ['ADMINREHETRA', 'Administrateur'], ['COMPTA2', 'Administrateur'], ['COMPTA ENTREPRISE', 'Standard'], ['CONSULTATION', 'Lecture seule'], ['TESTADM', 'Administrateur']];
   var USERS = [
-    { id: 'superadmin', nom: 'Administrateur Super', groupe: 'TESTADM', email: 'superadmin@softappli.mg', actif: true },
-    { id: 'ANDRY', nom: 'ANDRY', groupe: '', email: 'andry@gmail.com', actif: true },
-    { id: 'ANDY', nom: 'ANDY', groupe: '', email: 'Andy@gmail.com', actif: true },
-    { id: 'ANGELA', nom: 'ANGELA', groupe: '', email: 'angela@gmail.com', actif: true },
-    { id: 'ANTHONY', nom: 'ANTHONY ANTHONY', groupe: 'ADMINOK', email: 'anthony@gmail.com', actif: true },
-    { id: 'HERY', nom: 'RAKOTO Hery', groupe: 'CONSULTATION', email: 'hery@gmail.com', actif: true }
+    { id: 'superadmin', nom: 'Administrateur Super', groupe: 'TESTADM', fonction: 'Super administrateur', email: 'superadmin@softappli.mg', actif: true },
+    { id: 'ANDRY', nom: 'ANDRY', groupe: '', fonction: 'Comptable', email: 'andry@gmail.com', actif: true },
+    { id: 'ANDY', nom: 'ANDY', groupe: '', fonction: 'Responsable comptable', email: 'Andy@gmail.com', actif: true },
+    { id: 'ANGELA', nom: 'ANGELA', groupe: '', fonction: 'Trésorière', email: 'angela@gmail.com', actif: true },
+    { id: 'ANTHONY', nom: 'ANTHONY ANTHONY', groupe: 'ADMINOK', fonction: 'Contrôleur de gestion', email: 'anthony@gmail.com', actif: true },
+    { id: 'HERY', nom: 'RAKOTO Hery', groupe: 'CONSULTATION', fonction: 'Auditeur interne', email: 'hery@gmail.com', actif: true }
   ];
   window.GA_USERS = USERS;
   var MODULES = [['SoftAccounting', 'Comptabilité & pilotage financier', 'ti-cash', '#f59e0b', 1], ['SoftDocs', 'Gestion documentaire', 'ti-folder', '#A9BDEE'], ['Soft e-Paiement', 'Paiements', 'ti-credit-card', '#A9BDEE'], ['SoftSign', 'Signature électronique', 'ti-signature', '#5B606D'], ['SoftFunds', 'Avances et justificatifs', 'ti-cash-banknote', '#A9BDEE'], ['SoftPayroll', 'Paie', 'ti-users', '#ec7fb0'], ['SoftBudget', 'Budget', 'ti-stack-2', '#5F77B9'], ['SoftÉtatFi', 'États financiers', 'ti-chart-bar', '#5F77B9'], ['SoftLibrary', 'Bibliothèque', 'ti-archive', '#7ccb8a'], ['SoftShop', 'Caisse / boutique', 'ti-shopping-cart', '#f4a26b']];
@@ -14988,9 +15363,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function defaut() { var d = {}; MODULES.forEach(function (m) { m[1].forEach(function (g) { g[1].forEach(function (f) { d[f[0]] = { c: f[1].indexOf('C') >= 0, m: f[1].indexOf('M') >= 0, s: f[1].indexOf('S') >= 0, jours: 365 }; }); }); }); return d; }
   function copie(o) { return JSON.parse(JSON.stringify(o)); }
-  var SEC = [['conn', 'Tracer les connexions et échecs d’authentification', 'Ouvertures de session, déconnexions, mots de passe erronés et comptes verrouillés.'],
-             ['cons', 'Tracer les consultations d’états sensibles', 'Balances, grand livre, états financiers et déclarations fiscales : qui les a consultés ou exportés, et quand.']];
-  var secEnreg = { conn: { on: true, jours: 365 }, cons: { on: true, jours: 365 } }, sec = copie(secEnreg);
+  var SEC = [['conn', 'Tracer les connexions et échecs d’authentification', 'Ouvertures de session, déconnexions, mots de passe erronés et comptes verrouillés.']];
+  var secEnreg = { conn: { on: true, jours: 365 } }, sec = copie(secEnreg);
   var enreg = defaut(), cfg = copie(enreg), filtre = '', ferme = {};
   window.TRACES_CFG = copie(enreg); window.TRACES_SECURITE = copie(secEnreg);
   function secHtml() {
@@ -30339,7 +30713,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .cvp-code{font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-weight:600}
 .cvp-help{font-size:12px;color:#5B606D}
 .cvp-er{display:none;font-size:12px;color:#B63132}.cvp-er.show{display:block}
-.cvp-wrap{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(240px,1fr);gap:24px;align-items:start}
+.cvp-wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}.cvp-wrap>form{max-width:1400px}.cvp-row2{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(340px,1fr);gap:28px;align-items:start}.cvp-ctr{margin:0;padding:6px 16px 14px;border:1px solid #D6D9E0;border-radius:8px;background:#fff}.cvp-ctr legend{padding:0 8px;font-weight:700;font-size:14px;color:#2E427B}.cvp-cf{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 16px;align-items:center;font-size:13px;color:#474C58}.cvp-cf .cvp-chk input{width:20px;height:20px}@media(max-width:1100px){.cvp-row2{grid-template-columns:1fr}}.cvp-ub,.cvp-zub{padding:8px 14px 14px}.cvp-ut{width:100%;border-collapse:collapse;font-size:13px}.cvp-ut th{text-align:left;font-size:12px;text-transform:uppercase;color:#5B606D;padding:6px 10px;border-bottom:1px solid #E3EBFE}.cvp-ut td{padding:8px 10px;border-bottom:1px solid #F4F7FE;color:#0B1332}.cvp-ut td.c{text-align:right;width:60px}.cvp-ut td i{margin-right:6px;color:#474C58}.cvp-del{width:30px;height:30px;border:1px solid #D6D9E0;border-radius:6px;background:#fff;color:#B63132;cursor:pointer}.cvp-del:hover{background:#FDE8E8}.cvp-addbar{display:flex;gap:10px;align-items:center;margin:0 0 14px;padding:10px 12px;border:1px solid #CAD9FB;border-radius:8px;background:#F4F7FE}.cvp-addbar select{flex:1;max-width:620px;height:36px}.cvp-addbar .cb-box{flex:1;max-width:620px;height:36px}.cvp-addbar .cvp-addu{height:36px;padding:0 16px;display:inline-flex;align-items:center;gap:6px}.cvp-pick{margin:0 0 12px;padding:10px 12px;border:1px solid #CAD9FB;border-radius:8px;background:#F4F7FE}.cvp-pick b{display:block;margin-bottom:6px;font-size:12px;color:#2E427B}.cvp-addu{height:28px;padding:0 10px;border:1px solid #2E427B;border-radius:6px;background:#fff;color:#2E427B;font-weight:600;font-size:12px;cursor:pointer}.cvp-addu:hover{background:#2E427B;color:#fff}.cvp-side [data-cvp-ck]{max-width:1000px}
 @media(max-width:900px){.cvp-wrap{grid-template-columns:1fr}}
 .cvp-ti{margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid #5F77B9;color:#5F77B9;font:600 20px var(--font-heading,Outfit,sans-serif)}
 .cvp-f{display:grid;grid-template-columns:190px minmax(0,1fr);gap:12px 16px;align-items:center}
@@ -30354,7 +30728,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .cvp-us li label{display:flex;align-items:center;gap:12px;width:100%;cursor:pointer}
 .cvp-us-v{padding:20px;color:#5B606D;font-size:13px}
 .bp-in.err{border-color:#B63132}
-.cvp-side{display:grid;gap:16px;align-content:start}.cvp-ck .cvp-ckh{display:flex;align-items:center;justify-content:space-between;gap:12px}.cvp-ckh button{height:30px;padding:0 12px;border:1px solid rgba(255,255,255,.5);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-weight:600;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.cvp-ckh button:hover{background:rgba(255,255,255,.25)}.cvp-ckb{padding:12px 14px}.cvp-ck ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px;max-height:none}
+.cvp-side{display:grid;gap:16px;align-content:start}.cvp-th{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 12px 0!important}.cvp-rt{display:flex;gap:4px}.cvp-rt button{height:40px;padding:0 14px;border:0;border-bottom:3px solid transparent;background:transparent;color:#CAD9FB;font-weight:600;font-size:14px;cursor:pointer}.cvp-rt button.on{color:#fff;border-bottom-color:#fff}.cvp-n{display:inline-block;min-width:18px;padding:0 6px;margin-left:4px;border-radius:999px;background:rgba(255,255,255,.25);font-size:12px;line-height:18px;text-align:center}.cvp-th .cvp-add{height:30px;margin-bottom:4px;padding:0 12px;border:1px solid rgba(255,255,255,.5);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-weight:600;font-size:12px;cursor:pointer;align-items:center;gap:6px}.cvp-th .cvp-add:hover{background:rgba(255,255,255,.25)}.cvp-ckb{padding:12px 14px}.cvp-zl{display:flex;align-items:center;gap:10px;font-size:14px;color:#0B1332;font-weight:600}.cvp-zl input{width:18px;height:18px}.cvp-ck ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px;max-height:none}
 .cvp-ck li{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:6px 8px;border:1px solid #E3EBFE;border-radius:8px;background:#fff}.cvp-ck li .n{width:22px;height:22px;border-radius:50%;background:#E3EBFE;color:#2E427B;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .cvp-ck li .bp-in{height:30px;font-weight:400;text-transform:none;background:#fff}.cvp-ck li label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#474C58;white-space:nowrap}.cvp-ck li label input{width:16px;height:16px}
 .cvp-ck .btns{display:inline-flex;gap:4px}.cvp-ck .btns button{height:30px;min-width:30px;padding:0 8px;border:1px solid #D6D9E0;border-radius:6px;background:#fff;cursor:pointer;font-size:13px}.cvp-ck .btns button:disabled{opacity:.4;cursor:default}
@@ -30385,10 +30759,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <h2>Étapes du circuit de validation <small>Double-clic ou « Modifier » pour ouvrir la ligne en saisie</small></h2>
       <div style="overflow:auto;max-height:560px">
         <table class="bp-tb" style="min-width:960px"><thead>
-          <tr><th>Numéro</th><th>Nom</th><th>État</th><th>Action</th><th class="c">Modification impossible</th><th class="c">Suppression impossible</th><th class="c">Checklist</th><th class="c">Commentaire obligatoire</th></tr>
+          <tr><th>Numéro</th><th>Nom</th><th>État</th><th>Action</th><th class="c">Modification impossible</th><th class="c">Suppression impossible</th><th class="c">Checklist</th><th class="c">Commentaire obligatoire</th><th class="c">Validation du brouillon</th></tr>
           <tr class="flt"><th><input class="bp-in" data-fc="0" aria-label="Filtrer Numéro"></th><th><input class="bp-in" data-fc="1" aria-label="Filtrer Nom"></th><th><input class="bp-in" data-fc="2" aria-label="Filtrer État"></th><th><input class="bp-in" data-fc="3" aria-label="Filtrer Action"></th>
             <th><select class="bp-sel" data-fc="4" aria-label="Filtrer Modification impossible"><option value="">(tous)</option><option value="oui">Oui</option><option value="non">Non</option></select></th>
-            <th><select class="bp-sel" data-fc="5" aria-label="Filtrer Suppression impossible"><option value="">(tous)</option><option value="oui">Oui</option><option value="non">Non</option></select></th><th><input class="bp-in" data-fc="6" aria-label="Filtrer Checklist"></th><th><select class="bp-sel" data-fc="7" aria-label="Filtrer Commentaire obligatoire"><option value="">(tous)</option><option value="oui">Oui</option><option value="non">Non</option></select></th></tr>
+            <th><select class="bp-sel" data-fc="5" aria-label="Filtrer Suppression impossible"><option value="">(tous)</option><option value="oui">Oui</option><option value="non">Non</option></select></th><th><input class="bp-in" data-fc="6" aria-label="Filtrer Checklist"></th><th><select class="bp-sel" data-fc="7" aria-label="Filtrer Commentaire obligatoire"><option value="">(tous)</option><option value="oui">Oui</option><option value="non">Non</option></select></th><th><select class="bp-sel" data-fc="8" aria-label="Filtrer Validation du brouillon"><option value="">(tous)</option><option value="oui">Oui</option><option value="non">Non</option></select></th></tr>
         </thead><tbody data-cvp-lignes></tbody></table>
       </div>
       <div class="bp-vide" data-cvp-vide hidden>Aucune étape : utilisez « Ajouter ».</div>
@@ -30398,18 +30772,23 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <div class="cvp-wrap">
         <form data-cvp-form onsubmit="return false" novalidate>
           <h2 class="cvp-ti">Saisie</h2>
+          <div class="cvp-row2">
           <div class="cvp-f">
             <label>Numéro</label><input class="bp-in" data-f="num" readonly>
             <label for="cvp-nom">Nom <b style="color:#B63132">*</b></label><div><input class="bp-in" id="cvp-nom" data-f="nom" maxlength="40" autocomplete="off" placeholder="VALIDATION"><span class="cvp-er" data-er="nom"></span></div>
             <label for="cvp-etat">Etat <b style="color:#B63132">*</b></label><div><input class="bp-in" id="cvp-etat" data-f="etat" maxlength="40" autocomplete="off" placeholder="VALIDE"><span class="cvp-er" data-er="etat"></span></div>
             <label for="cvp-action">Action <b style="color:#B63132">*</b></label><div><input class="bp-in" id="cvp-action" data-f="action" maxlength="40" autocomplete="off" placeholder="VALIDER"><span class="cvp-er" data-er="action"></span></div>
-            <label for="cvp-mi">Modification impossible</label><span class="cvp-chk"><input type="checkbox" id="cvp-mi" data-f="mi"></span>
-            <label for="cvp-si">Suppression impossible</label><span class="cvp-chk"><input type="checkbox" id="cvp-si" data-f="si"></span>
-            <label for="cvp-cmt">Commentaire obligatoire à la validation</label><span class="cvp-chk"><input type="checkbox" id="cvp-cmt" data-f="cmt"></span>
+          </div>
+            <fieldset class="cvp-ctr"><legend>Contraintes</legend><div class="cvp-cf">
+              <label for="cvp-mi">Modification impossible</label><span class="cvp-chk"><input type="checkbox" id="cvp-mi" data-f="mi"></span>
+              <label for="cvp-si">Suppression impossible</label><span class="cvp-chk"><input type="checkbox" id="cvp-si" data-f="si"></span>
+              <label for="cvp-cmt">Commentaire obligatoire à la validation</label><span class="cvp-chk"><input type="checkbox" id="cvp-cmt" data-f="cmt"></span>
+              <label for="cvp-vb">Validation du brouillon<small class="cvp-help" style="display:block;font-weight:400">Sort les écritures du statut brouillon (étape zéro). Une seule étape.</small></label><span class="cvp-chk"><input type="checkbox" id="cvp-vb" data-f="vb"></span>
+            </div></fieldset>
           </div>
           <p class="cvp-help" style="margin-top:14px" data-cvp-note></p>
         </form>
-        <div class="cvp-side"><aside class="cvp-us" aria-label="Utilisateur(s)"><div class="cvp-us-h">Utilisateur(s)</div><ul data-cvp-users></ul></aside><aside class="cvp-us cvp-ck" aria-label="Checklist de l'étape"><div class="cvp-us-h cvp-ckh"><span>Checklist de l'étape</span><button type="button" data-ck-add><i class="ti ti-plus" aria-hidden="true"></i> Ajouter un point</button></div><div class="cvp-ckb"><p class="cvp-help">Points de contrôle présentés à l'utilisateur avant d'exécuter l'action « <span data-cvp-act>…</span> » : un point obligatoire doit être coché pour poursuivre.</p><ul data-cvp-ck></ul></div></aside></div>
+        <div class="cvp-side"><aside class="cvp-us cvp-tabs" aria-label="Utilisateurs et checklist de l'étape"><div class="cvp-us-h cvp-th"><div class="cvp-rt" role="tablist"><button type="button" role="tab" class="on" aria-selected="true" data-cvp-rt="users">Utilisateur(s)</button><button type="button" role="tab" aria-selected="false" data-cvp-rt="ck">Checklist <span class="cvp-n" data-cvp-ckn></span></button><button type="button" role="tab" aria-selected="false" data-cvp-rt="zero">Étape zéro</button></div><span style="display:inline-flex;gap:8px"><button type="button" class="cvp-add" data-ck-add style="display:none"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter un point</button></span></div><div data-cvp-rp="users" role="tabpanel"><div class="cvp-ub" data-cvp-users></div></div><div data-cvp-rp="ck" role="tabpanel" class="cvp-ck cvp-ckb" hidden><p class="cvp-help">Points de contrôle présentés à l'utilisateur avant d'exécuter l'action « <span data-cvp-act>…</span> » : un point obligatoire doit être coché pour poursuivre.</p><ul data-cvp-ck></ul></div><div data-cvp-rp="zero" role="tabpanel" class="cvp-ckb" hidden><p class="cvp-help" style="margin:0 0 10px"><b>Étape zéro — écriture en statut brouillon.</b> Les écritures sont d'abord enregistrées en statut <b>BROUILLON</b> avec leur utilisateur créateur ; elles n'entrent dans le circuit qu'après l'étape cochée « Validation du brouillon ».</p><label class="cvp-zl"><input type="checkbox" data-zero-actif> Activer le statut brouillon (étape zéro)</label><p class="cvp-help" style="margin:10px 0 4px"><b>Utilisateurs créateurs</b> (nomination des utilisateurs autorisés à créer des écritures en brouillon) :</p><div class="cvp-zub" style="padding:0" data-cvp-zusers></div><p class="cvp-help" style="margin:6px 0 0">Aucun utilisateur coché : tous les utilisateurs peuvent créer des brouillons.</p><p class="cvp-help" style="margin:6px 0 0" data-cvp-zvb></p></div></aside></div>
       </div>
     </section>
   </div>
@@ -30423,16 +30802,18 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var data = [
     { num: 1, nom: 'VALIDATION', etat: 'VALIDE', action: 'VALIDER', mi: false, si: true, cmt: false, users: ['admin'], checklist: [{ lib: 'Pièce justificative jointe et lisible', ob: true }, { lib: 'Imputation comptable et analytique contrôlée', ob: true }, { lib: 'Montant conforme au bon de commande / contrat', ob: false }] }
   ];
-  var sel = -1, mode = 'consultation', coches = [], ck = [];
+  var sel = -1, mode = 'consultation', coches = [], ck = [], zero = { actif: false, createurs: [] }, zeroUI = { actif: false, createurs: [] };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function toast(m) { var t = q('[data-cvp-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2500); }
   function err(k, m) { var e = q('[data-er="' + k + '"]'); if (e) { e.textContent = m || ''; e.classList.toggle('show', !!m); } var f = q('[data-f=' + k + ']'); if (f) f.classList.toggle('err', !!m); }
   function utilisateurs() { var L = (window.GA_USERS || []).map(function (u) { return u.id; }); if (L.indexOf('admin') < 0) L.unshift('admin'); return L; }
-  function publier() { window.CIRCUIT_ETAPES = data.map(function (d) { return { num: d.num, nom: d.nom, etat: d.etat, action: d.action, mi: d.mi, si: d.si, cmt: !!d.cmt, users: d.users.slice(), checklist: (d.checklist || []).map(function (c) { return { lib: c.lib, ob: !!c.ob }; }) }; }); window.dispatchEvent(new Event('circuit-changed')); }
+  function publier() { window.CIRCUIT_ETAPES = data.map(function (d) { return { num: d.num, nom: d.nom, etat: d.etat, action: d.action, mi: d.mi, si: d.si, cmt: !!d.cmt, vb: !!d.vb, users: d.users.slice(), checklist: (d.checklist || []).map(function (c) { return { lib: c.lib, ob: !!c.ob }; }) }; });
+    var vbe = data.filter(function (d) { return d.vb; })[0]; window.CIRCUIT_ZERO = { actif: !!zero.actif, createurs: zero.createurs.slice(), etapeValidation: vbe ? vbe.nom : '' };
+    window.dispatchEvent(new Event('circuit-changed')); }
   function oui(b) { return b ? 'oui' : 'non'; }
   function filtrer() {
     var F = []; qa('[data-fc]').forEach(function (e) { F[+e.dataset.fc] = e.value.trim().toLowerCase(); });
-    qa('[data-cvp-lignes] tr').forEach(function (tr) { tr.hidden = F.some(function (v, k) { if (!v) return false; var td = tr.children[k]; var t = (td.dataset.v || td.textContent).toLowerCase(); return (k === 4 || k === 5 || k === 7) ? t !== v : t.indexOf(v) < 0; }); });
+    qa('[data-cvp-lignes] tr').forEach(function (tr) { tr.hidden = F.some(function (v, k) { if (!v) return false; var td = tr.children[k]; var t = (td.dataset.v || td.textContent).toLowerCase(); return (k === 4 || k === 5 || k === 7 || k === 8) ? t !== v : t.indexOf(v) < 0; }); });
   }
   qa('[data-fc]').forEach(function (e) { e.addEventListener('input', filtrer); e.addEventListener('change', filtrer); });
   function coche(b) { return b ? '<i class="ti ti-square-check-filled" style="color:#5F77B9;font-size:18px" aria-label="Oui"></i>' : '<span style="color:#747A88">—</span>'; }
@@ -30441,21 +30822,50 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     q('[data-cvp-vide]').hidden = data.length > 0;
     q('[data-cvp-lignes]').innerHTML = data.map(function (d, i) {
       return '<tr data-i="' + i + '"' + (i === sel ? ' class="sel"' : '') + '><td><span class="cvp-code">' + d.num + '</span></td><td><b>' + esc(d.nom) + '</b></td><td>' + esc(d.etat) + '</td><td>' + esc(d.action) + '</td>' +
-        '<td class="c" data-v="' + oui(d.mi) + '">' + coche(d.mi) + '</td><td class="c" data-v="' + oui(d.si) + '">' + coche(d.si) + '</td><td class="c">' + (d.checklist || []).length + ' point' + ((d.checklist || []).length > 1 ? 's' : '') + ' (' + (d.checklist || []).filter(function (c) { return c.ob; }).length + ' oblig.)</td><td class="c" data-v="' + oui(d.cmt) + '">' + coche(d.cmt) + '</td></tr>';
+        '<td class="c" data-v="' + oui(d.mi) + '">' + coche(d.mi) + '</td><td class="c" data-v="' + oui(d.si) + '">' + coche(d.si) + '</td><td class="c">' + (d.checklist || []).length + ' point' + ((d.checklist || []).length > 1 ? 's' : '') + ' (' + (d.checklist || []).filter(function (c) { return c.ob; }).length + ' oblig.)</td><td class="c" data-v="' + oui(d.cmt) + '">' + coche(d.cmt) + '</td><td class="c" data-v="' + oui(d.vb) + '">' + coche(d.vb) + '</td></tr>';
     }).join(''); filtrer();
   }
-  function users(d) {
-    var ed = mode !== 'consultation', ul = q('[data-cvp-users]');
-    if (!ed) { var L = d ? d.users : []; ul.innerHTML = L.length ? L.map(function (u) { return '<li><i class="ti ti-user" aria-hidden="true"></i><span>' + esc(u) + '</span></li>'; }).join('') : '<li class="cvp-us-v">' + (d ? 'Aucun utilisateur rattaché.' : 'Sélectionnez une étape.') + '</li>'; return; }
-    ul.innerHTML = utilisateurs().map(function (u) { return '<li><label><input type="checkbox" data-u="' + esc(u) + '"' + (coches.indexOf(u) >= 0 ? ' checked' : '') + '><i class="ti ti-user" aria-hidden="true"></i><span>' + esc(u) + '</span></label></li>'; }).join('');
+  var FONC = { admin: 'Administrateur applicatif' };
+  function infoU(id) { var u = (window.GA_USERS || []).filter(function (x) { return x.id === id; })[0] || {}; return { id: id, nom: u.nom || id, fonction: u.fonction || FONC[id] || '—' }; }
+  function tableU(list, ed, att) {
+    if (!list.length) return '<p class="cvp-us-v" style="padding:10px 0">Aucun utilisateur.</p>';
+    return '<table class="cvp-ut"><thead><tr><th>Utilisateur</th><th>Nom</th><th>Fonction</th>' + (ed ? '<th></th>' : '') + '</tr></thead><tbody>' + list.map(function (u) { var i = infoU(u); return '<tr><td><i class="ti ti-user" aria-hidden="true"></i>' + esc(i.id) + '</td><td>' + esc(i.nom) + '</td><td>' + esc(i.fonction) + '</td>' + (ed ? '<td class="c"><button type="button" class="cvp-del" ' + att + '="' + esc(u) + '" aria-label="Retirer ' + esc(u) + '" title="Retirer">✕</button></td>' : '') + '</tr>'; }).join('') + '</tbody></table>';
   }
-  q('[data-cvp-users]').addEventListener('change', function (e) { var u = e.target.dataset.u; if (!u) return; var k = coches.indexOf(u); if (e.target.checked && k < 0) coches.push(u); if (!e.target.checked && k >= 0) coches.splice(k, 1); });
+  // zone d'ajout, séparée de la liste : liste déroulante des utilisateurs non encore retenus + bouton « Ajouter »
+  function addBar(dispo, id, lib) {
+    return '<div class="cvp-addbar"><select class="bp-sel" data-combo data-combo-cols="Utilisateur|Nom|Fonction" data-add-sel="' + id + '" aria-label="' + esc(lib) + '"' + (dispo.length ? '' : ' disabled') + '><option value="">' + (dispo.length ? '— ' + esc(lib) + ' —' : 'Tous les utilisateurs ont déjà été ajoutés') + '</option>' + dispo.map(function (u) { var i = infoU(u); return '<option value="' + esc(u) + '">' + esc(i.id + ' — ' + i.nom + ' — ' + i.fonction) + '</option>'; }).join('') + '</select><button type="button" class="cvp-addu" data-add-btn="' + id + '"' + (dispo.length ? '' : ' disabled') + '><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button></div>';
+  }
+  function users(d) {
+    var ed = mode !== 'consultation', box = q('[data-cvp-users]');
+    if (!ed && !d) { box.innerHTML = '<p class="cvp-us-v" style="padding:10px 0">Sélectionnez une étape.</p>'; return; }
+    var L = ed ? coches : d.users;
+    box.innerHTML = (ed ? addBar(utilisateurs().filter(function (u) { return L.indexOf(u) < 0; }), 'us', 'Sélectionner un utilisateur') : '') + tableU(L, ed, 'data-us-del');
+  }
+  q('[data-cvp-users]').addEventListener('click', function (e) {
+    var p = e.target.closest('[data-add-btn]'), x = e.target.closest('[data-us-del]');
+    if (p) { var v = q('[data-cvp-users] [data-add-sel]').value; if (!v) { toast('Sélectionnez un utilisateur dans la liste.'); return; } if (coches.indexOf(v) < 0) coches.push(v); users({ users: coches }); } else if (x) { var k = coches.indexOf(x.dataset.usDel); if (k >= 0) coches.splice(k, 1); users({ users: coches }); }
+  });
+  function zrender() {
+    var ed = mode !== 'consultation', Z = ed ? zeroUI : zero, vbe = data.filter(function (d) { return d.vb; })[0];
+    q('[data-zero-actif]').checked = !!Z.actif; q('[data-zero-actif]').disabled = !ed;
+    q('[data-cvp-zusers]').innerHTML = (ed && Z.actif ? addBar(utilisateurs().filter(function (u) { return Z.createurs.indexOf(u) < 0; }), 'zu', 'Sélectionner un utilisateur créateur') : '') + tableU(Z.createurs, ed && Z.actif, 'data-zu-del'); majAjout();
+    q('[data-cvp-zvb]').innerHTML = Z.actif ? (vbe ? 'Étape de validation du brouillon : <b>' + esc(vbe.nom) + '</b> (' + esc(vbe.action) + ').' : '<b style="color:#B63132">Aucune étape n’est marquée « Validation du brouillon » : cochez l’option sur l’étape qui valide les brouillons.</b>') : 'Statut brouillon désactivé : les écritures entrent directement dans le circuit.';
+  }
+  q('[data-zero-actif]').addEventListener('change', function () { zeroUI.actif = this.checked; zrender(); });
+  q('[data-cvp-zusers]').addEventListener('click', function (e) {
+    var p = e.target.closest('[data-add-btn]'), x = e.target.closest('[data-zu-del]');
+    if (p) { var v = q('[data-cvp-zusers] [data-add-sel]').value; if (!v) { toast('Sélectionnez un utilisateur dans la liste.'); return; } if (zeroUI.createurs.indexOf(v) < 0) zeroUI.createurs.push(v); zrender(); } else if (x) { var k = zeroUI.createurs.indexOf(x.dataset.zuDel); if (k >= 0) zeroUI.createurs.splice(k, 1); zrender(); }
+  });
+  var rtab = 'users';
+  function majAjout() { var ed = mode !== 'consultation'; q('[data-ck-add]').style.display = rtab === 'ck' && ed ? 'inline-flex' : 'none'; }
+  function ongletDroit(t) { rtab = t; qa('[data-cvp-rt]').forEach(function (b) { var on = b.dataset.cvpRt === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }); qa('[data-cvp-rp]').forEach(function (p) { p.hidden = p.dataset.cvpRp !== t; }); if (t === 'zero') zrender(); majAjout(); }
+  qa('[data-cvp-rt]').forEach(function (b) { b.addEventListener('click', function () { ongletDroit(b.dataset.cvpRt); }); });
   function renderCk() {
     var ed = mode !== 'consultation', ul = q('[data-cvp-ck]');
     ul.innerHTML = ck.length ? ck.map(function (c, i) {
       return '<li><span class="n">' + (i + 1) + '</span><input class="bp-in" data-ck-lib="' + i + '" maxlength="120" value="' + esc(c.lib) + '"' + (ed ? '' : ' disabled') + '><label><input type="checkbox" data-ck-ob="' + i + '"' + (c.ob ? ' checked' : '') + (ed ? '' : ' disabled') + '> Obligatoire</label><span class="btns"><button type="button" data-ck-up="' + i + '"' + (ed && i > 0 ? '' : ' disabled') + ' aria-label="Monter">↑</button><button type="button" data-ck-down="' + i + '"' + (ed && i < ck.length - 1 ? '' : ' disabled') + ' aria-label="Descendre">↓</button><button type="button" data-ck-del="' + i + '"' + (ed ? '' : ' disabled') + ' aria-label="Supprimer le point" style="color:#B63132">✕</button></span></li>';
     }).join('') : '<li class="cvp-ck-v" style="display:block">Aucun point de contrôle : l\u2019action s\u2019exécute sans checklist.</li>';
-    q('[data-ck-add]').style.display = ed ? '' : 'none'; q('[data-cvp-act]').textContent = q('[data-f=action]').value || 'ACTION';
+    majAjout(); q('[data-cvp-ckn]').textContent = ck.length || ''; q('[data-cvp-act]').textContent = q('[data-f=action]').value || 'ACTION';
   }
   q('[data-cvp-ck]').addEventListener('input', function (e) { var i = e.target.getAttribute('data-ck-lib'); if (i !== null) ck[+i].lib = e.target.value; });
   q('[data-cvp-ck]').addEventListener('change', function (e) { var i = e.target.getAttribute('data-ck-ob'); if (i !== null) ck[+i].ob = e.target.checked; });
@@ -30465,24 +30875,25 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (u !== null) { var i = +u, t = ck[i]; ck[i] = ck[i - 1]; ck[i - 1] = t; } else if (d !== null) { var j = +d, t2 = ck[j]; ck[j] = ck[j + 1]; ck[j + 1] = t2; } else if (x !== null) ck.splice(+x, 1);
     renderCk();
   });
-  function ajouterPoint() { ck.push({ lib: '', ob: true }); renderCk(); var f = q('[data-ck-lib="' + (ck.length - 1) + '"]'); if (f) f.focus(); }
+  function ajouterPoint() { if (rtab !== 'ck') ongletDroit('ck'); ck.push({ lib: '', ob: true }); renderCk(); var f = q('[data-ck-lib="' + (ck.length - 1) + '"]'); if (f) f.focus(); }
   q('[data-ck-add]').addEventListener('click', ajouterPoint);
   q('[data-f=action]').addEventListener('input', function () { q('[data-cvp-act]').textContent = this.value || 'ACTION'; });
   function suivant() { return data.reduce(function (m, d) { return Math.max(m, d.num); }, 0) + 1; }
   function form(d) {
-    d = d || { num: '', nom: '', etat: '', action: '', mi: false, si: false, cmt: false, users: [], checklist: [] };
-    q('[data-f=num]').value = d.num; q('[data-f=nom]').value = d.nom; q('[data-f=etat]').value = d.etat; q('[data-f=action]').value = d.action; q('[data-f=mi]').checked = !!d.mi; q('[data-f=si]').checked = !!d.si; q('[data-f=cmt]').checked = !!d.cmt; ck = (d.checklist || []).map(function (c) { return { lib: c.lib, ob: !!c.ob }; });
+    d = d || { num: '', nom: '', etat: '', action: '', mi: false, si: false, cmt: false, vb: false, users: [], checklist: [] };
+    q('[data-f=num]').value = d.num; q('[data-f=nom]').value = d.nom; q('[data-f=etat]').value = d.etat; q('[data-f=action]').value = d.action; q('[data-f=mi]').checked = !!d.mi; q('[data-f=si]').checked = !!d.si; q('[data-f=cmt]').checked = !!d.cmt; q('[data-f=vb]').checked = !!d.vb; ck = (d.checklist || []).map(function (c) { return { lib: c.lib, ob: !!c.ob }; });
     ['nom', 'etat', 'action'].forEach(function (k) { err(k); }); coches = d.users.slice(); users(sel >= 0 || mode !== 'consultation' ? d : null);
     q('[data-cvp-note]').textContent = d.mi || d.si ? 'Étape protégée : ' + [d.mi ? 'modification impossible' : '', d.si ? 'suppression impossible' : ''].filter(Boolean).join(' et ') + '.' : '';
   }
   function etat() {
+    if (mode === 'consultation') zeroUI = { actif: zero.actif, createurs: zero.createurs.slice() };
     var ed = mode !== 'consultation', d = data[sel], a = q('[data-cvp-actions]');
     qa('[data-cvp-form] input').forEach(function (e) { e.disabled = !ed; }); q('[data-f=num]').disabled = true;
     a.querySelector('[data-cvp-ajouter]').disabled = ed; a.querySelector('[data-cvp-modifier]').disabled = ed || sel < 0 || !!(d && d.mi); a.querySelector('[data-cvp-supprimer]').disabled = ed || sel < 0 || !!(d && d.si);
     a.querySelector('[data-cvp-modifier]').title = d && d.mi ? 'Étape protégée : modification impossible' : ''; a.querySelector('[data-cvp-supprimer]').title = d && d.si ? 'Étape protégée : suppression impossible' : '';
     a.querySelector('[data-cvp-enregistrer]').disabled = !ed; a.querySelector('[data-cvp-annuler]').disabled = !ed;
     ['imprimer', 'pdf', 'xlsx'].forEach(function (k) { a.querySelector('[data-cvp-' + k + ']').disabled = !data.length; });
-    users(mode === 'consultation' ? (sel >= 0 ? d : null) : { users: coches }); renderCk();
+    users(mode === 'consultation' ? (sel >= 0 ? d : null) : { users: coches }); renderCk(); zrender(); q('[data-zero-actif]').disabled = !ed;
   }
   function onglet(n) { qa('[data-cvp-pan]').forEach(function (p) { p.hidden = p.dataset.cvpPan !== n; }); qa('[data-cvp-tab]').forEach(function (t) { var on = t.dataset.cvpTab === n; t.classList.toggle('on', on); t.setAttribute('aria-selected', on); }); }
   function choisir(i) { if (mode !== 'consultation') return; sel = i; liste(); form(data[i]); etat(); }
@@ -30499,11 +30910,13 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (!act) { err('action', "L'action est obligatoire."); ok = false; }
     if (!ok) return;
     var pts = ck.map(function (c) { return { lib: String(c.lib || '').trim(), ob: !!c.ob }; }).filter(function (c) { return c.lib; });
-    var rec = { num: ancien ? ancien.num : suivant(), nom: nom, etat: etat_, action: act, mi: q('[data-f=mi]').checked, si: q('[data-f=si]').checked, cmt: q('[data-f=cmt]').checked, users: coches.slice(), checklist: pts };
+    var rec = { num: ancien ? ancien.num : suivant(), nom: nom, etat: etat_, action: act, mi: q('[data-f=mi]').checked, si: q('[data-f=si]').checked, cmt: q('[data-f=cmt]').checked, vb: q('[data-f=vb]').checked, users: coches.slice(), checklist: pts };
+    if (rec.vb) data.forEach(function (x) { if (x !== ancien) x.vb = false; });
+    zero = { actif: !!zeroUI.actif, createurs: zeroUI.createurs.slice() };
     if (mode === 'creation') { data.push(rec); sel = data.length - 1; } else data[sel] = rec;
     mode = 'consultation'; liste(); form(data[sel]); etat(); onglet('liste'); publier(); toast(ancien ? 'Étape du circuit modifiée.' : 'Étape du circuit enregistrée.');
   }
-  function table() { var L = data.filter(function (m, i) { var tr = tb.children[i]; return !tr || !tr.hidden; }); return { tete: ['Numéro', 'Nom', 'État', 'Action', 'Modification impossible', 'Suppression impossible', 'Checklist', 'Commentaire obligatoire'], lignes: L.map(function (d) { return [d.num, d.nom, d.etat, d.action, d.mi ? 'Oui' : 'Non', d.si ? 'Oui' : 'Non', (d.checklist || []).map(function (c) { return c.lib + (c.ob ? ' *' : ''); }).join(' ; '), d.cmt ? 'Oui' : 'Non']; }) }; }
+  function table() { var L = data.filter(function (m, i) { var tr = tb.children[i]; return !tr || !tr.hidden; }); return { tete: ['Numéro', 'Nom', 'État', 'Action', 'Modification impossible', 'Suppression impossible', 'Checklist', 'Commentaire obligatoire', 'Validation du brouillon'], lignes: L.map(function (d) { return [d.num, d.nom, d.etat, d.action, d.mi ? 'Oui' : 'Non', d.si ? 'Oui' : 'Non', (d.checklist || []).map(function (c) { return c.lib + (c.ob ? ' *' : ''); }).join(' ; '), d.cmt ? 'Oui' : 'Non', d.vb ? 'Oui' : 'Non']; }) }; }
   function exporter(k) {
     var X = window.EXPORT_TABLEAU, t = table(); if (!X) { toast('Module d’export indisponible.'); return; } if (!t.lignes.length) { toast('Rien à exporter.'); return; }
     if (k === 'pdf') X.pdf('parametre_circuit.pdf', 'Paramètre Circuit', t.lignes.length + ' ligne(s)', t.tete, t.lignes); else X.xlsx('parametre_circuit.xlsx', 'Paramètre Circuit', t.tete, t.lignes);
@@ -30564,6 +30977,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .cvt-cf{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
 .cvt-cf em{font-style:normal;font-size:12px;color:#5B606D}
 .cvt-ba{min-height:28px;padding:0 12px;border:1px solid #2E427B;border-radius:6px;background:#fff;color:#2E427B;font:700 11.5px var(--font-sans,sans-serif);cursor:pointer;text-transform:uppercase}.cvt-ba:hover{background:#2E427B;color:#fff}
+.cvt-br{min-height:28px;padding:0 10px;border:1px solid #B63132;border-radius:6px;background:#fff;color:#B63132;font:700 11.5px var(--font-sans,sans-serif);cursor:pointer;text-transform:uppercase}.cvt-br:hover{background:#B63132;color:#fff}.cvt-br:disabled{opacity:.4;cursor:not-allowed}
+.cvt-btns{display:inline-flex;gap:6px}
+.cvt-bd .cvt-bdh{pointer-events:none}.cvt-bd .cvt-bdl{overflow:auto;border:1px solid #E3EBFE;border-radius:8px;margin-top:12px}.cvt-bd table.cvt-bdt{border-collapse:collapse;width:100%;font-size:12.5px;min-width:1100px}.cvt-bd .cvt-bdt th{background:#F4F7FE;color:#0B1332;text-align:left;padding:8px 10px;font-size:12px;text-transform:uppercase;white-space:nowrap}.cvt-bd .cvt-bdt td{padding:8px 10px;border-top:1px solid #E9EBF0;white-space:nowrap}.cvt-bd .cvt-bdt td.r{text-align:right;font-variant-numeric:tabular-nums}
+.cvt-bd .cvt-bdt tr.cvt-bdtot td{background:#F4F7FE;font-weight:700;border-top:2px solid #CAD9FB;color:#0B1332}.cvt-bd h3{margin:14px 0 6px;font-size:13px;color:#2E427B}.cvt-bd .cvt-bdm{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:12.5px;color:#474C58;margin-bottom:8px}.cvt-bd .cvt-bdm b{color:#0B1332}
 .cvt-lock{color:#5B606D;font-size:12px;display:inline-flex;align-items:center;gap:4px}
 .cvt-vide{padding:28px 8px;text-align:center;color:#5B606D;font-size:13px}
 .cvt-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;padding:10px 20px;border-radius:8px;background:#0B1332;color:#fff;font-size:13px}
@@ -30595,7 +31012,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 
   // --- étapes du circuit (Paramètre Circuit) ---
   function etapes() { var E = window.CIRCUIT_ETAPES || [{ num: 1, nom: 'VALIDATION', etat: 'VALIDE', action: 'VALIDER', mi: false, si: true, cmt: false, users: ['admin'], checklist: [] }]; return E.slice().sort(function (a, b) { return a.num - b.num; }); }
-  function colonnes() { return [{ etat: 'SAISIS', etape: null }].concat(etapes().map(function (e) { return { etat: e.etat, etape: e }; })); }
+  function zeroActif() { return !!(window.CIRCUIT_ZERO && window.CIRCUIT_ZERO.actif); }
+  function colonnes() { return (zeroActif() ? [{ etat: 'BROUILLON', etape: null, brouillon: true }] : []).concat([{ etat: 'SAISIS', etape: null }]).concat(etapes().map(function (e) { return { etat: e.etat, etape: e }; })); }
+  function vbIndex() { var C = colonnes(), k = -1; C.forEach(function (c, i) { if (c.etape && c.etape.vb) k = i; }); return k; }   // colonne de l'étape « Validation du brouillon »
   function autorise(e) { return !e || e.users.indexOf(UTIL) >= 0 || e.users.indexOf('superadmin') >= 0; }
 
   // --- pièces : démonstration + pièces enregistrées dans la saisie d'écritures ---
@@ -30607,15 +31026,16 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       var d = new Date(base.getTime() - (i * 3 + 1) * 86400000), j = J.length ? J[(i * 7) % J.length] : '01ACHAT';
       out.push({ journal: j, piece: j + ('000' + (i + 1)).slice(-4), date: iso(d), site: '01', libelle: L[i], montant: (((i * 37) % 19) + 2) * 185000, lignes: 2, demo: true, etat: i < 5 ? 'SAISIS' : 'VALIDE' });
     }
+    [0, 1].forEach(function (k) { var d2 = new Date(base.getTime() - (k + 1) * 86400000), j2 = J.length ? J[(k * 5 + 2) % J.length] : '01ACHAT'; out.push({ journal: j2, piece: j2 + 'BR' + ('00' + (k + 1)).slice(-3), date: iso(d2), site: '01', libelle: ['Brouillon — facture fournisseur à valider', 'Brouillon — frais de déplacement'][k], montant: (k + 3) * 240000, lignes: 2, demo: true, brouillon: true, etat: 'BROUILLON', createur: ['ANDRY', 'HERY'][k] }); });
     return out;
   }
   var DEMO = demo();
   function pieces() {
-    var P = DEMO.slice(), reg = window.ECRITURES_PIECES || [];
+    var P = DEMO.filter(function (x) { return !x.brouillon || zeroActif(); }), reg = window.ECRITURES_PIECES || [];
     reg.forEach(function (p) {
       var cle = p.journal + '|' + p.piece; if (P.some(function (x) { return x.journal + '|' + x.piece === cle; })) return;
       var m = 0; (p.lignes || []).forEach(function (l) { if (l.sens === 'DEBIT') m += l.montant || 0; });
-      P.push({ journal: p.journal, piece: p.piece, date: p.date || '', site: '01', libelle: ((p.lignes || [])[0] || {}).libelle || 'Pièce saisie', montant: m, lignes: (p.lignes || []).length, etat: 'SAISIS' });
+      P.push({ journal: p.journal, piece: p.piece, date: p.date || '', site: '01', libelle: ((p.lignes || [])[0] || {}).libelle || 'Pièce saisie', montant: m, lignes: (p.lignes || []).length, etat: p.statut === 'Brouillon' && zeroActif() ? 'BROUILLON' : 'SAISIS', createur: p.createur || '' });
     });
     P.forEach(function (p) { var cle = p.journal + '|' + p.piece; if (etats[cle]) p.etat = etats[cle]; });
     return P;
@@ -30642,25 +31062,48 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function dessiner() {
     var C = colonnes(), P = visibles();
     colsEl.innerHTML = C.map(function (c, i) {
-      var L = P.filter(function (p) { return p.etat === c.etat; }), suiv = C[i + 1];
+      var L = P.filter(function (p) { return p.etat === c.etat; }), vbi = vbIndex(), suiv = c.brouillon ? C[vbi] : C[i + 1], ia = c.brouillon ? vbi - 1 : i;
       return '<section class="cvt-col" data-i="' + i + '" aria-label="' + esc(c.etat) + '"><div class="cvt-ch">' + esc(c.etat) + '<small>' + L.length + '</small></div><div class="cvt-cb">' +
         (L.length ? L.map(function (p) {
           return '<article class="cvt-card" draggable="true" data-cle="' + esc(p.journal + '|' + p.piece) + '"><div class="cvt-ct"><span>' + esc(p.journal) + ' — ' + esc(p.piece) + '</span><span>' + fmt(p.montant) + '</span></div>' +
-            (histo[p.journal + '|' + p.piece] ? '<div class="cvt-cm" title="' + esc(histo[p.journal + '|' + p.piece].map(function (h) { return h.etape + ' : ' + h.commentaire; }).join(' | ')) + '"><i class="ti ti-message" aria-hidden="true"></i> ' + esc(histo[p.journal + '|' + p.piece].slice(-1)[0].commentaire || ('Étape « ' + histo[p.journal + '|' + p.piece].slice(-1)[0].etape + ' » validée')) + '</div>' : '') +
-            '<div class="cvt-cm">' + frd(p.date) + ' · ' + p.lignes + ' ligne' + (p.lignes > 1 ? 's' : '') + (p.demo ? ' · démonstration' : '') + '</div><div class="cvt-cl">' + esc(p.libelle) + '</div>' +
+            (histo[p.journal + '|' + p.piece] ? '<div class="cvt-cm" title="' + esc(histo[p.journal + '|' + p.piece].map(function (h) { return h.etape + ' : ' + h.commentaire; }).join(' | ')) + '"><i class="ti ti-message" aria-hidden="true"></i> ' + esc((histo[p.journal + '|' + p.piece].slice(-1)[0].retour ? 'Retour — ' : '') + (histo[p.journal + '|' + p.piece].slice(-1)[0].commentaire || ('Étape « ' + histo[p.journal + '|' + p.piece].slice(-1)[0].etape + ' » validée'))) + '</div>' : '') +
+            (p.createur ? '<div class="cvt-cm"><i class="ti ti-user" aria-hidden="true"></i> Créé par ' + esc(p.createur) + '</div>' : '') + '<div class="cvt-cm">' + frd(p.date) + ' · ' + p.lignes + ' ligne' + (p.lignes > 1 ? 's' : '') + (p.demo ? ' · démonstration' : '') + '</div><div class="cvt-cl">' + esc(p.libelle) + '</div>' +
             '<div class="cvt-cf">' + (c.etape && c.etape.mi ? '<span class="cvt-lock"><i class="ti ti-lock" aria-hidden="true"></i>Modification impossible</span>' : '<em></em>') +
-            (suiv && suiv.etape ? '<button type="button" class="cvt-ba" data-act="' + i + '"' + (autorise(suiv.etape) ? '' : ' disabled title="Action réservée aux utilisateurs rattachés à l’étape"') + '>' + esc(suiv.etape.action) + '</button>' : '<em></em>') + '</div></article>';
+            '<span class="cvt-btns">' + (i > 0 && c.etape ? '<button type="button" class="cvt-br" data-ret="' + i + '"' + (autorise(c.etape) ? '' : ' disabled title="Retour réservé aux utilisateurs rattachés à l’étape"') + ' title="Renvoyer à l’étape précédente (commentaire obligatoire)">Retour</button>' : '') +
+            (suiv && suiv.etape ? '<button type="button" class="cvt-ba" data-act="' + ia + '"' + (autorise(suiv.etape) ? '' : ' disabled title="Action réservée aux utilisateurs rattachés à l’étape"') + '>' + esc(suiv.etape.action) + '</button>' : '') + '</span></div></article>';
         }).join('') : '<div class="cvt-vide">Aucune pièce</div>') + '</div></section>';
     }).join('');
   }
   function passer(cle, vers) {
     var C = colonnes(), p = pieces().filter(function (x) { return x.journal + '|' + x.piece === cle; })[0]; if (!p) return;
     var i = C.map(function (c) { return c.etat; }).indexOf(p.etat), j = vers;
-    if (j !== i + 1 || !C[j] || !C[j].etape) { toast(j < i ? 'Retour en arrière non prévu par le circuit.' : 'Passage non prévu : respectez l’ordre des étapes.'); return; }
+    if (j < i) { retourner(cle, j, p, C, i); return; }
+    if (p.etat === 'BROUILLON') {
+      var vbi = vbIndex(); if (vbi < 0) { toast('Aucune étape n’est marquée « Validation du brouillon » dans Paramètre Circuit.'); return; }
+      if (j !== vbi) { toast('Un brouillon ne peut être validé que par l’étape « Validation du brouillon » (' + C[vbi].etape.nom + ').'); return; }
+    } else if (j !== i + 1 || !C[j] || !C[j].etape) { toast(j < i ? 'Retour en arrière non prévu par le circuit.' : 'Passage non prévu : respectez l’ordre des étapes.'); return; }
     if (!autorise(C[j].etape)) { toast('Action « ' + C[j].etape.action + ' » réservée aux utilisateurs rattachés à l’étape.'); return; }
     var et = C[j].etape, ck = et.checklist || [];
     if (ck.length || et.cmt) { ouvrirControle(p, C[j], function (res) { appliquer(cle, j, p, res); }); return; }
     appliquer(cle, j, p, null);
+  }
+  // retour à l'étape précédente : commentaire obligatoire (motif du rejet), historisé
+  function retourner(cle, j, p, C, i) {
+    if (j !== i - 1) { toast('Le retour se fait vers l’étape précédente uniquement.'); return; }
+    if (!C[i].etape) { toast('Cette pièce est à la première étape : aucun retour possible.'); return; }
+    if (!autorise(C[i].etape)) { toast('Retour réservé aux utilisateurs rattachés à l’étape « ' + C[i].etape.nom + ' ».'); return; }
+    var O = window.FACTURE_OCR; if (!O || !O.fenetre) return;
+    var w = O.fenetre('Retour — pièce ' + p.piece, false, 'arrow-back-up', 'Retour à l’étape précédente');
+    w.b.innerHTML = '<p style="margin:0 0 10px;font-size:13px;color:#474C58">Pièce <b>' + esc(p.journal + ' — ' + p.piece) + '</b> (' + fmt(p.montant) + ') : renvoi de l’étape <b>' + esc(C[i].etat) + '</b> vers <b>' + esc(C[j].etat) + '</b>.</p><div class="fo-sec" style="margin-top:0">Motif du retour <b style="color:#B63132">*</b></div><textarea class="fo-in" data-rt-c rows="4" maxlength="500" style="width:100%;height:auto;padding:8px" placeholder="Commentaire obligatoire motivant le retour (anomalie constatée, pièce manquante…)"></textarea><div data-rt-e></div>';
+    w.f.innerHTML = '<button type="button" data-rt-x>Annuler</button><button type="button" class="p" data-rt-ok>Retourner la pièce</button>';
+    w.f.querySelector('[data-rt-x]').addEventListener('click', O.fermer);
+    w.f.querySelector('[data-rt-ok]').addEventListener('click', function () {
+      var com = w.b.querySelector('[data-rt-c]').value.trim(); if (!com) { w.b.querySelector('[data-rt-e]').innerHTML = '<div class="fo-ko">Le commentaire est obligatoire pour un retour.</div>'; w.b.querySelector('[data-rt-c]').focus(); return; }
+      O.fermer(); etats[cle] = C[j].etat; DEMO.forEach(function (x) { if (x.journal + '|' + x.piece === cle) x.etat = C[j].etat; });
+      (histo[cle] = histo[cle] || []).push({ etape: C[i].etape.nom, action: 'RETOUR', retour: true, utilisateur: UTIL, date: new Date().toISOString(), points: [], commentaire: com });
+      dessiner(); toast('Pièce ' + p.piece + ' renvoyée à l’étape « ' + C[j].etat + ' ».');
+    });
+    setTimeout(function () { var t = w.b.querySelector('[data-rt-c]'); if (t) t.focus(); }, 50);
   }
   function appliquer(cle, j, p, res) {
     var C = colonnes(); etats[cle] = C[j].etat; DEMO.forEach(function (x) { if (x.journal + '|' + x.piece === cle) x.etat = C[j].etat; });
@@ -30683,6 +31126,57 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       O.fermer(); ok({ points: pts, commentaire: com });
     });
   }
+  // lignes du bordereau : pièce enregistrée à la saisie, sinon écriture de démonstration à deux lignes
+  function lignesDe(p) {
+    var cle = p.journal + '|' + p.piece, reg = (window.ECRITURES_PIECES || []).filter(function (x) { return x.journal + '|' + x.piece === cle; })[0];
+    if (reg && reg.lignes && reg.lignes.length) return { facture: reg.facture || '', reference: reg.reference || '', datePiece: reg.datePiece || reg.date || '', lignes: reg.lignes.map(function (l) { var a = l.axes || {}, d = /^d/i.test(l.sens); return { compte: l.compte || '', aux: l.tiers || '', act: a.PLAN1 || a.ACT || '', bud: a.PLAN2 || a.BUD || '', fin: a.PLAN3 || a.FIN || '', geo: a.PLAN4 || a.GEO || '', lib: l.libelle || '', deb: d ? l.montant || 0 : 0, cre: d ? 0 : l.montant || 0, ech: l.echeance || '' }; }) };
+    var L = String(p.libelle || ''), cd = /vente/i.test(L) ? ['411000', 'C0001', '706000', ''] : /règlement/i.test(L) ? ['401000', 'F0001', '512100', ''] : /commission|bancaire/i.test(L) ? ['627000', '', '512100', ''] : /caisse/i.test(L) ? ['531000', '', '512100', ''] : /location|mission|honoraires/i.test(L) ? [/honoraires/i.test(L) ? '622600' : /location/i.test(L) ? '613200' : '625100', '', '401000', 'F0002'] : ['606300', '', '401000', 'F0001'];
+    return { facture: 'FA-' + p.piece.slice(-4), reference: 'REF-' + p.piece.slice(-4), datePiece: p.date, lignes: [{ compte: cd[0], aux: cd[1], act: '', bud: '', fin: '', geo: '', lib: L, deb: p.montant, cre: 0, ech: '' }, { compte: cd[2], aux: cd[3], act: '', bud: '', fin: '', geo: '', lib: L, deb: 0, cre: p.montant, ech: '' }] };
+  }
+  function bordereau(cle) {
+    var p = pieces().filter(function (x) { return x.journal + '|' + x.piece === cle; })[0]; if (!p) return;
+    var O = window.FACTURE_OCR, src = document.querySelector('[data-screen="ecritures"]'); if (!O || !O.fenetre || !src) { toast('Écran de saisie indisponible.'); return; }
+    var lab = function (t) { return [].filter.call(src.querySelectorAll('label'), function (l) { return l.textContent.replace(/\s+/g, ' ').trim().indexOf(t) === 0; })[0]; };
+    var a = lab('SITE'), b = lab('Numéro de pièce'), ent = a; while (ent && b && !ent.contains(b)) ent = ent.parentElement;
+    var tabL = [].filter.call(src.querySelectorAll('table'), function (t) { return t.tHead && /Compte/.test(t.tHead.textContent) && /Auxiliaire/.test(t.tHead.textContent); })[0], tabT = src.querySelector('table.ec-tot');
+    var D = lignesDe(p), w = O.fenetre('Bordereau ' + p.journal + ' — ' + p.piece + ' (consultation)', true, 'file-text', 'Bordereau en consultation');
+    var host = document.createElement('div'); host.className = 'cvt-bd'; host.setAttribute('data-screen', 'ecritures');   // les styles de la saisie d'écritures sont portés par [data-screen="ecritures"]
+    var hd = histo[cle] || [], etat = p.etat, meta = document.createElement('div'); meta.className = 'cvt-bdm';
+    meta.innerHTML = '<span>État : <b>' + esc(etat) + '</b></span>' + (p.createur ? '<span>Créé par : <b>' + esc(p.createur) + '</b></span>' : '') + '<span>Montant : <b>' + fmt(p.montant) + '</b></span><span><i class="ti ti-eye" aria-hidden="true"></i> Mode consultation : aucune modification possible</span>'; host.appendChild(meta);
+    // en-tête (même interface que la saisie d'écritures)
+    if (ent) {
+      var h = ent.cloneNode(true); h.classList.add('cvt-bdh'); [].forEach.call(h.querySelectorAll('[id]'), function (x) { x.removeAttribute('id'); }); [].forEach.call(h.querySelectorAll('script,style'), function (x) { x.remove(); }); [].forEach.call(h.querySelectorAll('button'), function (x) { if (x.closest('.custom-select-wrapper')) x.disabled = true; else x.remove(); });
+      var val = { 'SITE': p.site || '01', 'Code du journal': p.journal, 'Exercice': String(p.date || '').slice(0, 4), 'Date de l’écriture': p.date, 'Date de la pièce': D.datePiece, 'N° de facture': D.facture, 'Référence': D.reference, 'Numéro de pièce': p.piece };
+      [].forEach.call(h.querySelectorAll('label'), function (l) { var t = l.textContent.replace(/\s+/g, ' ').trim(), c = l.querySelector('input,select,textarea') || (l.parentElement && l.parentElement.querySelector('input,select,textarea')); if (!c) return; Object.keys(val).forEach(function (k) { if (t.indexOf(k) === 0) { c.value = val[k] == null ? '' : val[k]; c.setAttribute('value', c.value); var sp = l.parentElement && l.parentElement.querySelector('.custom-select-wrapper button span'); if (sp) sp.textContent = c.value; } }); });
+      [].forEach.call(h.querySelectorAll('input,select,textarea'), function (c) { c.disabled = true; }); host.appendChild(h);
+    }
+    // lignes d'écriture
+    if (tabL) {
+      var lt = tabL.cloneNode(true), rh = [].filter.call(lt.tHead.rows, function (r) { return r.textContent.trim(); })[0] || lt.tHead.rows[0], th = [].map.call(rh.cells, function (c) { return c.textContent.replace(/\s+/g, ' ').trim(); }); [].slice.call(lt.tHead.rows).forEach(function (r) { if (r !== rh) r.remove(); });
+      var wrap = document.createElement('div'); wrap.className = 'cvt-bdl'; lt.className = 'cvt-bdt'; lt.setAttribute('data-no-tf', ''); lt.setAttribute('data-no-pg', ''); [].forEach.call(lt.querySelectorAll('[id]'), function (x) { x.removeAttribute('id'); });
+      var tb = lt.tBodies[0] || lt.appendChild(document.createElement('tbody')); tb.innerHTML = '';
+      D.lignes.forEach(function (l) { var tr = document.createElement('tr'); th.forEach(function (t) { var td = document.createElement('td'), m = { 'Compte': l.compte, 'Auxiliaire': l.aux, 'ACT': l.act, 'BUD': l.bud, 'FIN': l.fin, 'GEO': l.geo, 'Libellé': l.lib, 'Débit': l.deb ? fmt(l.deb) : '', 'Crédit': l.cre ? fmt(l.cre) : '', 'Débit(Rep)': '', 'Crédit(Rep)': '', 'Échéance': l.ech ? frd(l.ech) : '' }; td.textContent = m[t] == null ? '' : m[t]; if (/Débit|Crédit/.test(t)) td.className = 'r'; tr.appendChild(td); }); tb.appendChild(tr); });
+      // ligne des totaux (à la place du tableau de vérification des équilibres)
+      var td0 = D.lignes.reduce(function (z, l) { return z + (l.deb || 0); }, 0), tc0 = D.lignes.reduce(function (z, l) { return z + (l.cre || 0); }, 0), sd0 = Math.round((td0 - tc0) * 100) / 100, trt = document.createElement('tr'); trt.className = 'cvt-bdtot';
+      th.forEach(function (t) { var td = document.createElement('td'); if (t === 'Libellé') { td.innerHTML = 'Totaux — solde ' + (sd0 === 0 ? '<span style="color:#1E7B4B">' + fmt(0) + ' (équilibré)</span>' : '<span style="color:#B63132">' + fmt(sd0) + ' (déséquilibré)</span>'); } else if (t === 'Débit') { td.textContent = fmt(td0); td.className = 'r'; } else if (t === 'Crédit') { td.textContent = fmt(tc0); td.className = 'r'; } trt.appendChild(td); });
+      tb.appendChild(trt);
+      wrap.appendChild(lt); host.appendChild(wrap);
+    }
+    // historique de validation
+    var hh = '<h3>Historique de validation</h3>' + (hd.length ? '<div class="cvt-bdl"><table class="cvt-bdt" style="min-width:0"><thead><tr><th>Étape</th><th>Action</th><th>Utilisateur</th><th>Date</th><th>Commentaire</th></tr></thead><tbody>' + hd.map(function (e) { return '<tr><td>' + esc(e.etape) + '</td><td>' + esc(e.action) + (e.retour ? ' <b style="color:#B63132">(retour)</b>' : '') + '</td><td>' + esc(e.utilisateur) + '</td><td>' + esc(new Date(e.date).toLocaleString('fr-FR')) + '</td><td style="white-space:normal">' + esc(e.commentaire || '—') + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<p style="font-size:12.5px;color:#5B606D;margin:0">Aucun passage d’étape enregistré pour ce bordereau.</p>');
+    var hz = document.createElement('div'); hz.innerHTML = hh; host.appendChild(hz);
+    w.b.appendChild(host);
+    // actions : Retour (grisé à la première étape) et Valider (action de l'étape suivante)
+    var C = colonnes(), ci = C.map(function (c) { return c.etat; }).indexOf(p.etat), ni = p.etat === 'BROUILLON' ? vbIndex() : ci + 1, nx = C[ni], aRet = ci > 0 && C[ci] && C[ci].etape && autorise(C[ci].etape), aVal = !!(nx && nx.etape && autorise(nx.etape));
+    w.f.innerHTML = '<button type="button" class="cvt-br" data-bd-ret' + (aRet ? '' : ' disabled') + ' style="min-height:36px;padding:0 16px;margin-right:auto" title="' + (aRet ? 'Renvoyer à l’étape précédente (commentaire obligatoire)' : 'Aucun retour possible à cette étape') + '">Retour</button>' +
+      '<button type="button" data-bd-x>Fermer</button><button type="button" class="p" data-bd-val' + (aVal ? '' : ' disabled') + ' title="' + (aVal ? '' : 'Aucune action disponible pour vous à cette étape') + '">' + esc(nx && nx.etape ? nx.etape.action : 'Valider') + '</button>';
+    w.f.querySelector('[data-bd-x]').addEventListener('click', O.fermer);
+    w.f.querySelector('[data-bd-val]').addEventListener('click', function () { if (this.disabled) return; O.fermer(); passer(cle, ni); });
+    w.f.querySelector('[data-bd-ret]').addEventListener('click', function () { if (this.disabled) return; O.fermer(); retourner(cle, ci - 1, p, C, ci); });
+    var md = w.b.parentElement; if (md) { md.style.width = 'min(1680px, 98vw)'; md.style.maxHeight = 'calc(100vh - 20px)'; }   // fenêtre agrandie
+  }
+  colsEl.addEventListener('dblclick', function (e) { var c = e.target.closest('.cvt-card'); if (c) bordereau(c.dataset.cle); });
+  colsEl.addEventListener('click', function (e) { var r = e.target.closest('[data-ret]'); if (r && !r.disabled) { var cd = r.closest('.cvt-card'), C = colonnes(), i = +r.dataset.ret, p = pieces().filter(function (x) { return x.journal + '|' + x.piece === cd.dataset.cle; })[0]; if (p) retourner(cd.dataset.cle, i - 1, p, C, i); return; } });
   colsEl.addEventListener('click', function (e) { var b = e.target.closest('[data-act]'); if (!b || b.disabled) return; var card = b.closest('.cvt-card'); passer(card.dataset.cle, +b.dataset.act + 1); });
   colsEl.addEventListener('dragstart', function (e) { var c = e.target.closest('.cvt-card'); if (!c) return; glisse = c.dataset.cle; c.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', glisse); } catch (x) { /* navigateur sans dataTransfer */ } });
   colsEl.addEventListener('dragend', function () { glisse = null; [].forEach.call(colsEl.querySelectorAll('.over,.drag'), function (n) { n.classList.remove('over', 'drag'); }); });
@@ -32279,12 +32773,14 @@ window.ECRITURES_REF = {
       if (Math.round((d - c) * 100)) { notify('Pièce déséquilibrée : écart de ' + fmt(Math.abs(d - c)) + ' entre débit et crédit.', true); return; }
       var pjE = paramJournal(journal.value.code);
       if (pjE && !pjE.auto && !pieceSaisie()) { notify('Ce journal est en numérotation manuelle : saisissez le numéro de pièce.', true); ctrl('piece').focus(); return; }
+      var Z0 = window.CIRCUIT_ZERO, uc = window.UTILISATEUR_COURANT || 'admin';
+      if (Z0 && Z0.actif && Z0.createurs.length && Z0.createurs.indexOf(uc) < 0) { notify('Étape zéro : vous n’êtes pas nommé utilisateur créateur d’écritures en brouillon (Paramètre Circuit).', true); return; }
       var manuelle = !!pieceSaisie(), p = pieceCourante(), n = lignes.length;
       if (!manuelle) { if (pjE) { if (window.JOURNAUX_AVANCER) window.JOURNAUX_AVANCER(pjE, ctxNum()); else pjE.dernier = (+pjE.dernier || 0) + 1; window.dispatchEvent(new Event('journaux-changed')); } else compteurs[journal.value.code] = (compteurs[journal.value.code] || 0) + 1; }
       ctrl('piece').value = '';
       lignes.forEach(function (l) { if (l.apure && window.ECRITURES_APURER) window.ECRITURES_APURER(l.apure, l.montant); });   // règlements : les factures apurées sont mises à jour
       // la pièce enregistrée rejoint le registre des pièces (détection des doublons à l'importation)
-      (window.ECRITURES_PIECES = window.ECRITURES_PIECES || []).push({ journal: journal.value.code, piece: p, date: dateEcriture.value, datePiece: ctrl('datePiece').value, facture: ctrl('facture').value, reference: ctrl('reference').value, source: 'saisie',
+      (window.ECRITURES_PIECES = window.ECRITURES_PIECES || []).push({ journal: journal.value.code, piece: p, date: dateEcriture.value, datePiece: ctrl('datePiece').value, facture: ctrl('facture').value, reference: ctrl('reference').value, source: 'saisie', statut: (Z0 && Z0.actif) ? 'Brouillon' : '', createur: uc,
         lignes: lignes.map(function (l) { return { compte: l.compte && l.compte.code, tiers: l.tiers && l.tiers.code, libelle: l.libelle, sens: l.sens, montant: l.montant, montant1: l.montant1 || 0, montant2: l.montant2 || 0, echeance: l.echeance, regr: l.regr, axes: l.axes, auto: !!l.auto, regle: 0 }; }) });
       // Les tiers mouvementés deviennent « Utilisés » dans le référentiel
       lignes.forEach(function (l) { if (l.tiers && window.SoftTiers && !PREF) window.SoftTiers.marquerUtilise(l.tiers.code); if (l.tiers && window.TIERS_MARQUER) window.TIERS_MARQUER(l.tiers.collectif, l.tiers.code); });
@@ -35315,7 +35811,15 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
   document.head.appendChild(st);
 
   var ouvert = null;
-  function decouper(txt, s) { if (s && s.getAttribute('data-combo-cols')) { var t = (txt || '').trim(), k = t.lastIndexOf(' — '); return k > 0 ? [t.slice(0, k), t.slice(k + 3)] : [t, '']; } var m = /^(\S+)\s+[—–-]\s+(.*)$/.exec((txt || '').trim()); return m ? [m[1], m[2]] : [(txt || '').trim(), '']; }
+  function nbCols(s) { return Math.max(2, ((s && s.getAttribute('data-combo-cols')) || 'a|b').split('|').length); }
+  function decouper(txt, s) {
+    if (s && s.getAttribute('data-combo-cols')) {
+      var t = (txt || '').trim(), n = nbCols(s);
+      if (n > 2) { var p = t.split(' — '); while (p.length < n) p.push(''); if (p.length > n) p = p.slice(0, n - 1).concat([p.slice(n - 1).join(' — ')]); return p; }
+      var k = t.lastIndexOf(' — '); return k > 0 ? [t.slice(0, k), t.slice(k + 3)] : [t, ''];
+    }
+    var m = /^(\S+)\s+[—–-]\s+(.*)$/.exec((txt || '').trim()); return m ? [m[1], m[2]] : [(txt || '').trim(), ''];
+  }
   function texte(s) { var o = s.options[s.selectedIndex]; return o ? o.textContent.trim() : ''; }
   function maj(c) {
     var s = c.sel, o = s.options[s.selectedIndex], t = c.box.querySelector('.cb-t');
@@ -35338,28 +35842,29 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
   }
   function ouvrir(c) {
     if (c.sel.disabled) return; if (ouvert) { var meme = ouvert === c; fermer(); if (meme) return; }
-    var s = c.sel, cols = (s.getAttribute('data-combo-cols') || 'Code|Libellé').split('|'), opts = [].slice.call(s.options), pan = document.createElement('div'); pan.className = 'cb-pan';
-    var r = c.box.getBoundingClientRect(), larg = Math.max(r.width, 460), bas = window.innerHeight - r.bottom - 12, haut = r.top - 12, dessous = bas >= 260 || bas >= haut, h = Math.min(380, Math.max(200, dessous ? bas : haut));
+    var s = c.sel, cols = (s.getAttribute('data-combo-cols') || 'Code|Libellé').split('|'), N = Math.max(2, cols.length), opts = [].slice.call(s.options), pan = document.createElement('div'); pan.className = 'cb-pan';
+    var r = c.box.getBoundingClientRect(), larg = Math.max(r.width, N > 2 ? 640 : 460), bas = window.innerHeight - r.bottom - 12, haut = r.top - 12, dessous = bas >= 260 || bas >= haut, h = Math.min(380, Math.max(200, dessous ? bas : haut));
     pan.style.width = Math.min(larg, window.innerWidth - 16) + 'px'; pan.style.left = Math.max(8, Math.min(r.left, window.innerWidth - larg - 8)) + 'px'; pan.style.maxHeight = h + 'px';
     if (dessous) pan.style.top = (r.bottom + 4) + 'px'; else pan.style.bottom = (window.innerHeight - r.top + 4) + 'px';
-    pan.innerHTML = '<div class="cb-sc"><table class="cb-tb"><colgroup><col style="width:34%"><col></colgroup><thead><tr><th>' + cols[0] + '</th><th>' + cols[1] + '</th></tr>' +
-      '<tr class="cb-f"><th><span class="cb-in"><i class="ti ti-search"></i><input data-cb="0" placeholder="Rechercher…" aria-label="Filtrer par code" autocomplete="off"></span></th><th><span class="cb-in"><i class="ti ti-search"></i><input data-cb="1" placeholder="Rechercher…" aria-label="Filtrer par libellé" autocomplete="off"></span></th></tr></thead><tbody></tbody></table><div class="cb-vide" hidden>Aucun résultat</div></div>';
+    var cg = N > 2 ? '<col style="width:24%"><col style="width:36%"><col>' : '<col style="width:34%"><col>', th = '', fl = '';
+    for (var ci = 0; ci < N; ci++) { th += '<th>' + (cols[ci] || '') + '</th>'; fl += '<th><span class="cb-in"><i class="ti ti-search"></i><input data-cb="' + ci + '" placeholder="Rechercher…" aria-label="Filtrer ' + (cols[ci] || '') + '" autocomplete="off"></span></th>'; }
+    pan.innerHTML = '<div class="cb-sc"><table class="cb-tb"><colgroup>' + cg + '</colgroup><thead><tr>' + th + '</tr><tr class="cb-f">' + fl + '</tr></thead><tbody></tbody></table><div class="cb-vide" hidden>Aucun résultat</div></div>';
     var tb = pan.querySelector('tbody');
     opts.forEach(function (o) {
       var tr = document.createElement('tr'), vide = o.value === '' || /^[—–-]/.test(o.textContent.trim()), d = vide ? ['', o.textContent.trim()] : decouper(o.textContent, s);
       tr.dataset.v = o.value; tr.dataset.vide = vide ? '1' : ''; if (o.disabled || o.hidden) { tr.hidden = true; tr.dataset.off = '1'; }
       if (o.value === s.value) tr.className = 'cb-sel';
-      var a = document.createElement('td'), b = document.createElement('td'); a.textContent = d[0]; b.textContent = d[1]; a.title = d[0]; b.title = d[1];
-      if (vide) { a.colSpan = 2; a.textContent = d[1]; a.style.color = '#5B606D'; tr.appendChild(a); } else { tr.appendChild(a); tr.appendChild(b); }
+      if (vide) { var a0 = document.createElement('td'); a0.colSpan = N; a0.textContent = d[1]; a0.style.color = '#5B606D'; tr.appendChild(a0); }
+      else for (var k = 0; k < N; k++) { var td = document.createElement('td'); td.textContent = d[k] || ''; td.title = d[k] || ''; tr.appendChild(td); }
       tb.appendChild(tr);
     });
     function filtrer() {
-      var f = [].slice.call(pan.querySelectorAll('[data-cb]')).map(function (i) { return i.value.trim().toLowerCase(); }), n = 0;
+      var f = [].slice.call(pan.querySelectorAll('[data-cb]')).map(function (i) { return i.value.trim().toLowerCase(); }), n = 0, actif = f.some(function (v) { return v; });
       [].slice.call(tb.rows).forEach(function (tr) {
-        var ok = !tr.dataset.off && (tr.dataset.vide ? !f[0] && !f[1] : (!f[0] || tr.cells[0].textContent.toLowerCase().indexOf(f[0]) >= 0) && (!f[1] || tr.cells[1].textContent.toLowerCase().indexOf(f[1]) >= 0));
+        var ok = !tr.dataset.off && (tr.dataset.vide ? !actif : f.every(function (v, k) { return !v || (tr.cells[k] && tr.cells[k].textContent.toLowerCase().indexOf(v) >= 0); }));
         tr.hidden = !ok; if (ok && !tr.dataset.vide) n++;
       });
-      pan.querySelector('.cb-vide').hidden = n > 0 || !(f[0] || f[1]);
+      pan.querySelector('.cb-vide').hidden = n > 0 || !actif;
     }
     pan.addEventListener('input', filtrer);
     tb.addEventListener('click', function (e) { var tr = e.target.closest('tr'); if (tr) choisir(c, tr.dataset.v); });
@@ -36250,7 +36755,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
   var PROFIL = { exclus: ['contrats', 'projets-bailleurs'], nom: 'SoftAccounting Entreprise', desc: 'Comptabilité d’entreprise', cleLS: 'softcompta.produit' };
   var TEXTES = [['SoftAccounting', PROFIL.nom], ['Comptabilité & pilotage financier', PROFIL.desc]];
   var cssEnt = document.createElement('style');
-  cssEnt.textContent = 'html.prod-entreprise [data-nav="dp"],html.prod-entreprise [data-nav="procfin"],html.prod-entreprise [data-nav="pl_financier"],html.prod-entreprise [data-group-toggle="financiers"],html.prod-entreprise [data-group="financiers"],html.prod-entreprise [data-tab="personnalisation"],html.prod-entreprise [data-proc],html.prod-entreprise .le-l:has(>[data-ms="contrat"]){display:none!important}';
+  cssEnt.textContent = 'html.prod-entreprise [data-nav="dp"],html.prod-entreprise [data-nav="procfin"],html.prod-entreprise [data-nav="pl_financier"],html.prod-entreprise [data-group-toggle="financiers"],html.prod-entreprise [data-group="financiers"],html.prod-entreprise [data-tab="personnalisation"],html.prod-entreprise [data-proc],html.prod-entreprise .le-l:has(>[data-ms="contrat"]),html.prod-entreprise [data-nav="ecritures"],html:not(.prod-entreprise) [data-nav="ecritures_ent"]{display:none!important}';
   document.head.appendChild(cssEnt);
   function textes(ent) {
     var cibles = [document.querySelector('.app-switcher-trigger'), document.querySelector('[data-sidebar-level="root"]') && document.querySelector('[data-sidebar-level="root"]').parentElement && document.querySelector('[data-sidebar-level="root"]').parentElement.parentElement];
@@ -36275,6 +36780,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
     window.PRODUIT = ent ? 'entreprise' : 'accounting'; window.PRODUIT_EXCLUS = ent ? PROFIL.exclus.slice() : [];
     textes(ent); try { if (retenir) localStorage.setItem(PROFIL.cleLS, window.PRODUIT); } catch (e) {}
     if (ent) { var cur = location.hash.replace('#', ''); if (ecransExclus()[cur]) location.hash = '#dashboard'; }
+    { var c2 = location.hash.replace('#', ''); if (ent && c2 === 'ecritures') location.hash = '#ecritures_ent'; else if (!ent && c2 === 'ecritures_ent') location.hash = '#ecritures'; }   // la saisie « Entreprise » est la version de saisie du produit Entreprise
     window.dispatchEvent(new Event('produit-changed'));
   }
   window.PRODUIT_API = { appliquer: appliquerProduit, profil: PROFIL };
