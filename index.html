@@ -17304,6 +17304,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   // id unique par lieu ; code complet recalculé à partir des parents
   var data = [];
   var nextId = 1, sel = 0, mode = 'consultation', ouverts = {}, parentFixe = 0;
+  // persistance locale : les données saisies survivent au rechargement et aux nouvelles publications (localStorage « softcompta.immo.lieux »)
+  var CLE = 'softcompta.immo.lieux';
+  try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (sv && typeof sv === 'object') { if (sv.niveaux !== undefined) niveaux = sv.niveaux; if (sv.data !== undefined) data = sv.data; if (sv.nextId !== undefined) nextId = sv.nextId; } } catch (e) {}
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ niveaux: niveaux, data: data, nextId: nextId })); } catch (e) {} }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function toast(m) { var t = q('[data-la-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2500); }
   function err(k, m) { var e = q('[data-er="' + k + '"]'); e.textContent = m || ''; e.classList.toggle('show', !!m); var f = q('[data-f="' + k + '"]'); if (f) f.classList.toggle('err', !!m); }
@@ -17313,6 +17317,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function descendants(id) { var r = []; enfants(id).forEach(function (e) { r.push(e); r = r.concat(descendants(e.id)); }); return r; }
   function nivLib(n) { return niveaux[n - 1] ? niveaux[n - 1].lib : 'Niveau ' + n; }
   function publier() {
+    sauver();
     window.LIEUX_AFFECTATION = data.filter(function (l) { return l.actif; }).map(function (l) { return { code: code(l), libelle: l.lib, niveau: nivLib(l.n) }; });
     window.dispatchEvent(new Event('lieux-affectation-changed'));
   }
@@ -17697,6 +17702,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   // id unique par collaborateur ; code complet recalculé à partir des parents
   var data = [];
   var nextId = 1, sel = 0, mode = 'consultation', ouverts = {}, parentFixe = 0;
+  // persistance locale : les données saisies survivent au rechargement et aux nouvelles publications (localStorage « softcompta.immo.collaborateurs »)
+  var CLE = 'softcompta.immo.collaborateurs';
+  try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (sv && typeof sv === 'object') { if (sv.niveaux !== undefined) niveaux = sv.niveaux; if (sv.data !== undefined) data = sv.data; if (sv.nextId !== undefined) nextId = sv.nextId; } } catch (e) {}
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ niveaux: niveaux, data: data, nextId: nextId })); } catch (e) {} }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function toast(m) { var t = q('[data-cor-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2500); }
   function err(k, m) { var e = q('[data-er="' + k + '"]'); e.textContent = m || ''; e.classList.toggle('show', !!m); var f = q('[data-f="' + k + '"]'); if (f) f.classList.toggle('err', !!m); }
@@ -17706,6 +17715,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function descendants(id) { var r = []; enfants(id).forEach(function (e) { r.push(e); r = r.concat(descendants(e.id)); }); return r; }
   function nivLib(n) { return niveaux[n - 1] ? niveaux[n - 1].lib : 'Niveau ' + n; }
   function publier() {
+    sauver();
     window.COLLABORATEURS_RESPONSABLES = data.filter(function (l) { return l.actif; }).map(function (l) { return { code: code(l), libelle: l.lib, niveau: nivLib(l.n) }; });
     window.dispatchEvent(new Event('collaborateurs-responsables-changed'));
   }
@@ -18092,6 +18102,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.querySelector('[data-fi]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   var data = [], sel = -1, mode = 'consultation';
+  // persistance locale : les données saisies survivent au rechargement et aux nouvelles publications (localStorage « softcompta.immo.familles »)
+  var CLE = 'softcompta.immo.familles';
+  try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (sv && typeof sv === 'object') { if (sv.data !== undefined) data = sv.data; } } catch (e) {}
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ data: data })); } catch (e) {} }
   var CPT = ['c_immo', 'c_amort', 'c_dot', 'c_sortie', 'c_plus', 'c_moins'];
   var CHAMPS = ['code', 'lib', 'nature', 'desc', 'c_immo', 'c_amort', 'c_dot', 'c_sortie', 'c_plus', 'c_moins', 'methode', 'duree', 'unite', 'taux', 'prorata', 'pbase', 'debut', 'period', 'coef'];
   var AMORT = ['methode', 'duree', 'unite', 'taux', 'auto', 'prorata', 'pbase', 'debut', 'period'];
@@ -18244,6 +18258,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     mode = 'consultation'; liste(); form(data[sel]); etat(); onglet('liste'); publier(); toast(ancien ? 'Famille modifiée.' : 'Famille enregistrée.');
   }
   function publier() {
+    sauver();
     window.FAMILLES_IMMOBILISATION = data.filter(function (r) { return r.actif; }).map(function (r) { return { code: r.code, libelle: r.lib, nature: r.nature, compte: r.c_immo, amortissable: r.amortissable, methode: r.methode, duree: r.duree, unite: r.unite, taux: r.taux, coef: r.coef, prorata: r.prorata, pbase: r.pbase, debut: r.debut }; });
     window.dispatchEvent(new Event('familles-immobilisation-changed'));
   }
@@ -18488,6 +18503,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.querySelector('[data-fim]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   var data = [], sel = -1, mode = 'consultation', nextId = 1, genere = [];
+  // persistance locale : les données saisies survivent au rechargement et aux nouvelles publications (localStorage « softcompta.immo.fiches »)
+  var CLE = 'softcompta.immo.fiches';
+  try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (sv && typeof sv === 'object') { if (sv.data !== undefined) data = sv.data; if (sv.nextId !== undefined) nextId = sv.nextId; if (sv.genere !== undefined) genere = sv.genere; } } catch (e) {}
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ data: data, nextId: nextId, genere: genere })); } catch (e) {} }
   var SIMPLES = ['annee', 'site', 'ref', 'desig', 'compte', 'qte', 'pu', 'dacq', 'dms', 'damort', 'num', 'etat', 'famille', 'empl', 'resp', 'coll', 'aux', 'c_type', 'c_date', 'c_val', 'c_ref', 'c_tiers', 'c_motif'];
   var LISTES = ['annee', 'site', 'compte', 'famille', 'empl', 'resp', 'coll', 'aux'];
   var ERR = ['annee', 'site', 'ref', 'desig', 'compte', 'qte', 'pu', 'dacq', 'dms', 'damort', 'num', 'etat', 'empl', 'resp', 'coll', 'aux', 'c_type', 'c_date', 'c_val', 'c_tiers'];
@@ -18719,6 +18738,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     mode = 'consultation'; liste(); form(data[sel]); etat(); onglet('liste'); publier(); toast(ancien ? 'Fiche modifiée.' : 'Fiche enregistrée.');
   }
   function publier() {
+    sauver();
     window.FICHES_IMMOBILISATION = data.map(function (r) { return { num: r.num, designation: r.desig, famille: r.famille, emplacement: r.empl, responsable: r.resp, compte: r.compte, valeur: r.qte * r.pu, dateAcquisition: r.dacq, statut: r.genere ? 'Écriture générée' : 'Brouillon', sortie: r.cede ? { type: r.c_type, date: r.c_date, valeurCession: r.c_val === '' ? 0 : r.c_val, cessionnaire: r.c_tiers, reference: r.c_ref, motif: r.c_motif } : null }; });
     window.dispatchEvent(new Event('fiches-immobilisation-changed'));
   }
@@ -18997,6 +19017,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.querySelector('[data-ras]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   var mvts = [], sel = -1, mode = 'consultation', nextId = 1, fiche = null, ouvert = {}, histoOuvert = false;
+  // persistance locale : les données saisies survivent au rechargement et aux nouvelles publications (localStorage « softcompta.immo.reassignations »)
+  var CLE = 'softcompta.immo.reassignations';
+  try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (sv && typeof sv === 'object') { if (sv.mvts !== undefined) mvts = sv.mvts; if (sv.nextId !== undefined) nextId = sv.nextId; } } catch (e) {}
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ mvts: mvts, nextId: nextId })); } catch (e) {} }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function f(k) { return q('[data-f=' + k + ']'); }
   function toast(m) { var t = q('[data-ras-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 3400); }
@@ -19143,8 +19167,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     a.querySelector('[data-ras-supprimer]').disabled = ed || !m; a.querySelector('[data-ras-historique]').disabled = ed || !m;
     ['imprimer', 'pdf', 'xlsx'].forEach(function (k) { a.querySelector('[data-ras-' + k + ']').disabled = !mvts.length; });
   }
-  function publier() { window.REASSIGNATIONS_IMMOBILISATION = mvts.map(function (m) { return { date: m.date, num: m.num, designation: m.desig, ancien: m.a, nouveau: m.n, motif: m.motif }; }); window.dispatchEvent(new Event('reassignations-immobilisation-changed')); }
+  function publier() { sauver(); window.REASSIGNATIONS_IMMOBILISATION = mvts.map(function (m) { return { date: m.date, num: m.num, designation: m.desig, ancien: m.a, nouveau: m.n, motif: m.motif }; }); window.dispatchEvent(new Event('reassignations-immobilisation-changed')); }
   function reinit() { fiche = null; selection(''); ancienne(null); q('[data-ras-attente]').hidden = false; q('[data-ras-nouvelle]').hidden = true; f('date').value = ''; f('motif').value = ''; err('s_num'); err('date'); err('chg'); histoSaisie(); }
+
 
   function enregistrer() {
     if (!fiche) return;
