@@ -17318,7 +17318,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function nivLib(n) { return niveaux[n - 1] ? niveaux[n - 1].lib : 'Niveau ' + n; }
   function publier() {
     sauver();
-    window.LIEUX_AFFECTATION = data.filter(function (l) { return l.actif; }).map(function (l) { return { code: code(l), libelle: l.lib, niveau: nivLib(l.n) }; });
+    window.LIEUX_AFFECTATION = data.filter(function (l) { return l.actif && l.n === niveaux.length; })   /* seuls les derniers niveaux sont proposés dans les listes */.map(function (l) { return { code: code(l), libelle: l.lib, niveau: nivLib(l.n) }; });
     window.dispatchEvent(new Event('lieux-affectation-changed'));
   }
   function kpis() {
@@ -17716,7 +17716,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function nivLib(n) { return niveaux[n - 1] ? niveaux[n - 1].lib : 'Niveau ' + n; }
   function publier() {
     sauver();
-    window.COLLABORATEURS_RESPONSABLES = data.filter(function (l) { return l.actif; }).map(function (l) { return { code: code(l), libelle: l.lib, niveau: nivLib(l.n) }; });
+    window.COLLABORATEURS_RESPONSABLES = data.filter(function (l) { return l.actif && l.n === niveaux.length; })   /* seuls les derniers niveaux sont proposés dans les listes */.map(function (l) { return { code: code(l), libelle: l.lib, niveau: nivLib(l.n) }; });
     window.dispatchEvent(new Event('collaborateurs-responsables-changed'));
   }
   function kpis() {
@@ -18397,12 +18397,12 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <h2>Fiches d'immobilisation <small>Double-clic ou « Modifier » pour ouvrir la fiche en saisie</small></h2>
       <div style="overflow:auto;max-height:560px">
         <table class="bp-tb" style="min-width:900px"><thead>
-          <tr><th>N° d'identification</th><th>Désignation du bien</th><th>Famille</th><th>Emplacement</th><th>Date d'acquisition</th><th class="r">Valeur d'acquisition</th><th>Statut</th></tr>
+          <tr><th>N° d'identification</th><th>Désignation du bien</th><th>Famille</th><th>Lieu d'affectation</th><th>Date d'acquisition</th><th class="r">Valeur d'acquisition</th><th>Statut</th></tr>
           <tr class="flt">
             <th><input class="bp-in" data-fc="0" aria-label="Filtrer N°"></th>
             <th><input class="bp-in" data-fc="1" aria-label="Filtrer Désignation"></th>
             <th><input class="bp-in" data-fc="2" aria-label="Filtrer Famille"></th>
-            <th><input class="bp-in" data-fc="3" aria-label="Filtrer Emplacement"></th>
+            <th><input class="bp-in" data-fc="3" aria-label="Filtrer Lieu d'affectation"></th>
             <th><input class="bp-in" data-fc="4" aria-label="Filtrer Date"></th>
             <th><input class="bp-in" data-fc="5" aria-label="Filtrer Valeur"></th>
             <th><select class="bp-sel" data-fc="6" aria-label="Filtrer Statut"><option value=""></option><option value="brouillon">Brouillon</option><option value="généré">Écriture générée</option></select></th>
@@ -18433,7 +18433,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
               <label class="bp-champ"><span>Valeur d'acquisition</span><input class="bp-in fim-ro" data-f="val" readonly tabindex="-1"></label>
               <label class="bp-champ"><span>Date d'acquisition <b>*</b></span><input class="bp-in" type="date" data-f="dacq"><span class="fim-er" data-er="dacq"></span></label>
               <label class="bp-champ"><span>Date de mise en service <b>*</b></span><input class="bp-in" type="date" data-f="dms"><span class="fim-er" data-er="dms"></span></label>
-              <label class="bp-champ"><span>Date de début d'amortissement</span><input class="bp-in" type="date" data-f="damort"><span class="fim-help" data-fim-damort-aide></span><span class="fim-er" data-er="damort"></span></label>
+              <label class="bp-champ"><span>Date de début d'amortissement</span><input class="bp-in" type="date" data-f="damort"><span class="fim-er" data-er="damort"></span></label>
             </div>
             <div class="fim-g4" data-fim-devs style="margin-top:12px"></div>
           </div>
@@ -18444,7 +18444,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
               <label class="bp-champ"><span>Numéro d'identification <b>*</b></span><input class="bp-in fim-code" data-f="num" maxlength="24" autocomplete="off" placeholder="IMM-2026-001"><span class="fim-er" data-er="num"></span></label>
               <label class="bp-champ"><span>État du bien <b>*</b></span><select class="bp-sel" data-f="etat"><option value="">— Sélectionner —</option><option>Neuf</option><option>Bon</option><option>Moyen</option><option>Mauvais</option><option>Hors service</option></select><span class="fim-er" data-er="etat"></span></label>
               <label class="bp-champ"><span>Famille d'immobilisation</span><select class="bp-sel" data-f="famille"></select></label>
-              <label class="bp-champ"><span>Emplacement <b>*</b></span><select class="bp-sel" data-f="empl"></select><span class="fim-er" data-er="empl"></span></label>
+              <label class="bp-champ"><span>Lieu d'affectation <b>*</b></span><select class="bp-sel" data-f="empl"></select><span class="fim-er" data-er="empl"></span></label>
               <label class="bp-champ"><span>Responsable <b>*</b></span><select class="bp-sel" data-f="resp"></select><span class="fim-er" data-er="resp"></span></label>
             </div>
             <p class="fim-help" data-fim-aide style="margin:8px 0 0"></p>
@@ -18612,7 +18612,6 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var m = damortModifiable(), fam = famCourante();
     if (!m || !f('damort').value) f('damort').value = f('dacq').value;
     f('damort').disabled = !(mode !== 'consultation' && m && !(sel >= 0 && data[sel] && data[sel].genere));
-    q('[data-fim-damort-aide]').textContent = !fam ? 'Date d’acquisition (aucune famille choisie).' : !fam.amortissable ? 'Famille non amortissable.' : m ? 'Modifiable (paramétrage de la famille ' + fam.code + ').' : 'Date d’acquisition (paramétrage de la famille ' + fam.code + ').';
   }
   ['dacq', 'famille'].forEach(function (k) { f(k).addEventListener('input', majAmort); f(k).addEventListener('change', majAmort); });
   f('num').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
@@ -18712,7 +18711,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     function exige(k, m) { if (!r[k] && r[k] !== 0) { err(k, m); ok = false; } }
     exige('annee', 'L’année est obligatoire.'); exige('site', 'Le site est obligatoire.'); exige('ref', 'La référence facture / pièce est obligatoire.'); exige('desig', 'La désignation du bien est obligatoire.');
     exige('compte', 'Le compte général est obligatoire.'); exige('dacq', 'La date d’acquisition est obligatoire.'); exige('dms', 'La date de mise en service est obligatoire.');
-    exige('num', 'Le numéro d’identification est obligatoire.'); exige('etat', 'L’état du bien est obligatoire.'); exige('empl', 'L’emplacement est obligatoire.'); exige('resp', 'Le responsable est obligatoire.');
+    exige('num', 'Le numéro d’identification est obligatoire.'); exige('etat', 'L’état du bien est obligatoire.'); exige('empl', 'Le lieu d’affectation est obligatoire.'); exige('resp', 'Le responsable est obligatoire.');
     if (!(r.qte >= 1 && r.qte === Math.floor(r.qte))) { err('qte', 'La quantité est un entier supérieur ou égal à 1.'); ok = false; }
     if (!(r.pu >= 0) || r.pu === '') { err('pu', 'Le prix unitaire est obligatoire (0 ou plus).'); ok = false; }
     if (r.num && data.some(function (x) { return x.num === r.num && x.num !== ancien; })) { err('num', 'Ce numéro d’identification existe déjà.'); ok = false; }
@@ -18780,7 +18779,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   // ---------- exports ----------
   function table() {
     var L = data.filter(function (m, i) { var tr = tb.children[i]; return !tr || !tr.hidden; });
-    return { tete: ['N° d’identification', 'Désignation du bien', 'Famille', 'Emplacement', 'Date d’acquisition', 'Valeur d’acquisition', 'Statut'], lignes: L.map(function (r) { return [r.num, r.desig, famLib(r), r.empl, dFR(r.dacq), nb(r.qte * r.pu), (r.genere ? 'Écriture générée' : 'Brouillon') + (r.cede ? ' — ' + r.c_type : '')]; }) };
+    return { tete: ['N° d’identification', 'Désignation du bien', 'Famille', 'Lieu d’affectation', 'Date d’acquisition', 'Valeur d’acquisition', 'Statut'], lignes: L.map(function (r) { return [r.num, r.desig, famLib(r), r.empl, dFR(r.dacq), nb(r.qte * r.pu), (r.genere ? 'Écriture générée' : 'Brouillon') + (r.cede ? ' — ' + r.c_type : '')]; }) };
   }
   function exporter(k) {
     var X = window.EXPORT_TABLEAU, t = table(); if (!X) { toast('Module d’export indisponible.'); return; } if (!t.lignes.length) { toast('Rien à exporter.'); return; }
@@ -18872,7 +18871,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 })();
 </script>
 </div><div data-screen="reassign" style="display:none"><!--
-  Écran « Réassignation » (Immobilisations › Saisies › Réassignation) — changer le site, l'emplacement, le responsable ou la ventilation analytique d'une
+  Écran « Réassignation » (Immobilisations › Saisies › Réassignation) — changer le site, le lieu d'affectation, le responsable ou la ventilation analytique d'une
   immobilisation existante. Chaque mouvement est historisé de manière immuable (on ne supprime que le dernier mouvement d'une immobilisation, ce qui rétablit
   l'affectation précédente). Onglets de page Saisie / Liste :
   - Liste : date, n° d'identification, libellé, ancien / nouveau site, emplacement, responsable et analytique de chaque mouvement ; bouton « Historique » (détail des
@@ -18926,7 +18925,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     <button type="button" data-ras-xlsx>Excel (XLSX)</button>
   </div>
 
-  <p class="ras-help" style="margin:0 0 12px">Changer le site, l'emplacement, le responsable ou la ventilation analytique d'une immobilisation existante. Chaque mouvement est historisé de manière immuable.</p>
+  <p class="ras-help" style="margin:0 0 12px">Changer le site, le lieu d'affectation, le responsable ou la ventilation analytique d'une immobilisation existante. Chaque mouvement est historisé de manière immuable.</p>
 
   <div class="bp-tabs" role="tablist">
     <button type="button" role="tab" class="on" data-ras-tab="saisie">Saisie</button>
@@ -18938,15 +18937,15 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <h2>Réassignations <small>Clic sur une ligne pour la sélectionner, puis « Historique » pour le détail de l'immobilisation</small></h2>
       <div style="overflow:auto;max-height:520px">
         <table class="bp-tb" style="min-width:1100px"><thead>
-          <tr><th>Date</th><th>N° identification</th><th>Libellé</th><th>Anc. site</th><th>Nouv. site</th><th>Anc. emplacement</th><th>Nouv. emplacement</th><th>Anc. resp.</th><th>Nouv. resp.</th><th>Analytique</th></tr>
+          <tr><th>Date</th><th>N° identification</th><th>Libellé</th><th>Anc. site</th><th>Nouv. site</th><th>Anc. lieu d'affectation</th><th>Nouv. lieu d'affectation</th><th>Anc. resp.</th><th>Nouv. resp.</th><th>Analytique</th></tr>
           <tr class="flt">
             <th><input class="bp-in" data-fc="0" aria-label="Filtrer Date"></th>
             <th><input class="bp-in" data-fc="1" aria-label="Filtrer N°"></th>
             <th><input class="bp-in" data-fc="2" aria-label="Filtrer Libellé"></th>
             <th><input class="bp-in" data-fc="3" aria-label="Filtrer Ancien site"></th>
             <th><input class="bp-in" data-fc="4" aria-label="Filtrer Nouveau site"></th>
-            <th><input class="bp-in" data-fc="5" aria-label="Filtrer Ancien emplacement"></th>
-            <th><input class="bp-in" data-fc="6" aria-label="Filtrer Nouvel emplacement"></th>
+            <th><input class="bp-in" data-fc="5" aria-label="Filtrer Ancien lieu d'affectation"></th>
+            <th><input class="bp-in" data-fc="6" aria-label="Filtrer Nouveau lieu d'affectation"></th>
             <th><input class="bp-in" data-fc="7" aria-label="Filtrer Ancien responsable"></th>
             <th><input class="bp-in" data-fc="8" aria-label="Filtrer Nouveau responsable"></th>
             <th></th>
@@ -18976,7 +18975,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
             <div class="ras-ro"><span>Compte général</span><b data-ras-a="compte">—</b></div>
             <div class="ras-ro"><span>Site</span><b data-ras-a="site">—</b></div>
             <div class="ras-ro"><span>Date d'acquisition</span><b data-ras-a="dacq">—</b></div>
-            <div class="ras-ro"><span>Emplacement</span><b data-ras-a="empl">—</b></div>
+            <div class="ras-ro"><span>Lieu d'affectation</span><b data-ras-a="empl">—</b></div>
             <div class="ras-ro"><span>Responsable</span><b data-ras-a="resp">—</b></div>
             <div class="ras-ro"><span>Valeur d'acquisition</span><b data-ras-a="val">—</b></div>
           </div>
@@ -18993,7 +18992,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
             <div class="ras-g4">
               <label class="bp-champ"><span>Date de réassignation <b>*</b></span><input class="bp-in" type="date" data-f="date"><span class="ras-er" data-er="date"></span></label>
               <label class="bp-champ"><span>Nouveau site</span><select class="bp-sel" data-f="site"></select></label>
-              <label class="bp-champ"><span>Nouvel emplacement</span><select class="bp-sel" data-f="empl"></select></label>
+              <label class="bp-champ"><span>Nouveau lieu d'affectation</span><select class="bp-sel" data-f="empl"></select></label>
               <label class="bp-champ"><span>Nouveau responsable</span><select class="bp-sel" data-f="resp"></select></label>
             </div>
             <div class="ras-h4" style="margin-top:16px">Ventilation analytique</div>
@@ -19114,7 +19113,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function detailHtml(m) {
     var L = [];
     if (m.a.site !== m.n.site) L.push('Site : ' + esc(nomSite(m.a.site)) + ' → ' + esc(nomSite(m.n.site)));
-    if (m.a.empl !== m.n.empl) L.push('Emplacement : ' + esc(m.a.empl || '—') + ' → ' + esc(m.n.empl || '—'));
+    if (m.a.empl !== m.n.empl) L.push('Lieu d’affectation : ' + esc(m.a.empl || '—') + ' → ' + esc(m.n.empl || '—'));
     if (m.a.resp !== m.n.resp) L.push('Responsable : ' + esc(m.a.resp || '—') + ' → ' + esc(m.n.resp || '—'));
     var codes = {}; Object.keys(m.a.ana || {}).concat(Object.keys(m.n.ana || {})).forEach(function (c) { codes[c] = 1; });
     Object.keys(codes).forEach(function (c) { var o = (m.a.ana || {})[c] || '', n = (m.n.ana || {})[c] || ''; if (o !== n) L.push(esc(libPlan(c)) + ' : ' + esc(o || '—') + ' → ' + esc(n || '—')); });
@@ -19124,7 +19123,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function histoHtml(num) {
     var H = mvts.filter(function (m) { return m.num === num; }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : b.id - a.id; });
     if (!H.length) return '<p class="ras-help" style="text-align:center;margin:12px 0">Aucune réassignation enregistrée pour cette immobilisation.</p>';
-    return '<table class="bp-tb"><thead><tr><th>Date</th><th>Site</th><th>Emplacement</th><th>Responsable</th><th>Analytique</th></tr></thead><tbody>' + H.map(function (m) {
+    return '<table class="bp-tb"><thead><tr><th>Date</th><th>Site</th><th>Lieu d’affectation</th><th>Responsable</th><th>Analytique</th></tr></thead><tbody>' + H.map(function (m) {
       return '<tr data-ras-h="' + m.id + '" style="cursor:pointer"><td>' + dFR(m.date) + '</td><td>' + esc(m.a.site || '—') + ' → ' + esc(m.n.site || '—') + '</td><td>' + esc(m.a.empl || '—') + ' → ' + esc(m.n.empl || '—') + '</td><td>' + esc(m.a.resp || '—') + ' → ' + esc(m.n.resp || '—') + '</td><td>' + esc(nbAna(m)) + '</td></tr>' + (ouvert[m.id] ? '<tr><td colspan="5">' + detailHtml(m) + '</td></tr>' : '');
     }).join('') + '</tbody></table>';
   }
@@ -19183,7 +19182,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     else if (dernier && d < dernier) { err('date', 'Une réassignation plus récente existe déjà (' + dFR(dernier) + ').'); ok = false; }
     var a = { site: cur.site, empl: cur.empl, resp: cur.resp, ana: cur.ana || {} }, aa = JSON.stringify(a.ana), na = JSON.stringify(n.ana);
     n.site = n.site || a.site; n.empl = n.empl || a.empl; n.resp = n.resp || a.resp;
-    if (n.site === a.site && n.empl === a.empl && n.resp === a.resp && aa === na) { err('chg', 'Aucun changement : modifiez au moins le site, l’emplacement, le responsable ou une imputation analytique.'); ok = false; }
+    if (n.site === a.site && n.empl === a.empl && n.resp === a.resp && aa === na) { err('chg', 'Aucun changement : modifiez au moins le site, le lieu d’affectation, le responsable ou une imputation analytique.'); ok = false; }
     if (!ok) return;
     if (!window.FICHES_API.reaffecter(cur.num, n)) { toast('La fiche est en cours de modification dans « Liste d’immobilisations » : terminez la saisie puis recommencez.'); return; }
     mvts.push({ id: nextId++, date: d, num: cur.num, desig: cur.desig, a: a, n: n, motif: f('motif').value.trim() });
@@ -19201,7 +19200,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   // ---------- exports ----------
   function table() {
     var L = mvts.filter(function (m, i) { var tr = tb.children[i]; return !tr || !tr.hidden; });
-    return { tete: ['Date', 'N° identification', 'Libellé', 'Anc. site', 'Nouv. site', 'Anc. emplacement', 'Nouv. emplacement', 'Anc. resp.', 'Nouv. resp.', 'Analytique'], lignes: L.map(function (m) { return [dFR(m.date), m.num, m.desig, m.a.site || '—', changeTxt(m.a.site, m.n.site), m.a.empl || '—', changeTxt(m.a.empl, m.n.empl), m.a.resp || '—', changeTxt(m.a.resp, m.n.resp), resumeAna(m.n.ana)]; }) };
+    return { tete: ['Date', 'N° identification', 'Libellé', 'Anc. site', 'Nouv. site', 'Anc. lieu d’affectation', 'Nouv. lieu d’affectation', 'Anc. resp.', 'Nouv. resp.', 'Analytique'], lignes: L.map(function (m) { return [dFR(m.date), m.num, m.desig, m.a.site || '—', changeTxt(m.a.site, m.n.site), m.a.empl || '—', changeTxt(m.a.empl, m.n.empl), m.a.resp || '—', changeTxt(m.a.resp, m.n.resp), resumeAna(m.n.ana)]; }) };
   }
   function exporter(k) {
     var X = window.EXPORT_TABLEAU, t = table(); if (!X) { toast('Module d’export indisponible.'); return; } if (!t.lignes.length) { toast('Rien à exporter.'); return; }
