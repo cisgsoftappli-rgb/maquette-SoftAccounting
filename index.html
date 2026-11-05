@@ -17984,7 +17984,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .fi-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
 .fi-stack{display:flex;flex-direction:column;gap:12px}
 .fi-row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
-.fi-taux{display:flex;align-items:center;gap:8px}.fi-taux .bp-in{flex:1}
+.fi-nb{font-size:12px;color:#64748b;margin-top:2px}.fi-nb[hidden]{display:none}.fi-taux{display:flex;align-items:center;gap:8px}.fi-taux .bp-in{flex:1}
 .fi-taux label{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:13px}
 [data-fi] [hidden]{display:none!important}
 [data-fi] .bp-champ>span:first-child{text-transform:uppercase;letter-spacing:.04em;font-size:12px;font-weight:600}
@@ -18064,6 +18064,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
             <div class="fi-stack">
               <div class="bp-chk"><label><input type="checkbox" data-f="amortissable" checked>Immobilisation amortissable</label></div>
               <label class="bp-champ"><span>Méthode d'amortissement <b>*</b></span><select class="bp-sel" data-f="methode"><option>Linéaire</option><option>Dégressif</option></select></label>
+              <label class="bp-champ" data-fi-coefw hidden><span>Coefficient dégressif</span><input class="bp-in" data-f="coef" readonly aria-label="Coefficient dégressif"><span class="fi-nb">Fixé selon la durée (normes comptables) : 1,25 jusqu'à 4 ans ; 1,75 pour 5 à 6 ans ; 2,25 au-delà.</span></label>
               <div class="bp-champ"><span>Durée d'amortissement <b>*</b></span>
                 <div class="fi-row2"><input class="bp-in" type="number" min="1" step="1" data-f="duree" aria-label="Durée d'amortissement"><select class="bp-sel" data-f="unite" aria-label="Unité de durée"><option>Ans</option><option>Mois</option></select></div>
                 <span class="fi-er" data-er="duree"></span>
@@ -18073,7 +18074,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
                 <span class="fi-er" data-er="taux"></span>
               </div>
               <label class="bp-champ"><span>Prorata temporis</span><select class="bp-sel" data-f="prorata"><option>Oui</option><option>Non</option></select></label>
-              <label class="bp-champ"><span>Date de début d'amortissement</span><input class="bp-in" type="date" data-f="debut"></label>
+              <label class="bp-champ" data-fi-pbasew><span>Base de calcul du prorata</span><select class="bp-sel" data-f="pbase"><option>Jour réel</option><option>12 mois</option><option>360 jours</option><option>365 jours</option></select></label>
+              <div class="fi-nb" data-fi-pnon hidden>Sans prorata temporis, l'amortissement est calculé sur la période complète.</div>
+              <label class="bp-champ"><span>Date de début d'amortissement</span><select class="bp-sel" data-f="debut"><option>Date d'acquisition</option><option>Modifiable</option></select></label>
               <label class="bp-champ"><span>Périodicité <b>*</b></span><select class="bp-sel" data-f="period"><option>Annuel</option><option>Semestriel</option><option>Trimestriel</option><option>Mensuel</option></select></label>
             </div>
           </div>
@@ -18090,8 +18093,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   var data = [], sel = -1, mode = 'consultation';
   var CPT = ['c_immo', 'c_amort', 'c_dot', 'c_sortie', 'c_plus', 'c_moins'];
-  var CHAMPS = ['code', 'lib', 'nature', 'desc', 'c_immo', 'c_amort', 'c_dot', 'c_sortie', 'c_plus', 'c_moins', 'methode', 'duree', 'unite', 'taux', 'prorata', 'debut', 'period'];
-  var AMORT = ['methode', 'duree', 'unite', 'taux', 'auto', 'prorata', 'debut', 'period'];
+  var CHAMPS = ['code', 'lib', 'nature', 'desc', 'c_immo', 'c_amort', 'c_dot', 'c_sortie', 'c_plus', 'c_moins', 'methode', 'duree', 'unite', 'taux', 'prorata', 'pbase', 'debut', 'period', 'coef'];
+  var AMORT = ['methode', 'duree', 'unite', 'taux', 'auto', 'prorata', 'pbase', 'debut', 'period'];
+  function coefNorme(a) { return a <= 4 ? 1.25 : a <= 6 ? 1.75 : 2.25; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function f(k) { return q('[data-f=' + k + ']'); }
   function toast(m) { var t = q('[data-fi-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2500); }
@@ -18116,8 +18120,15 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function tauxAuto() {
     if (!f('auto').checked) return;
     var a = annees(); if (!(a > 0)) { f('taux').value = ''; return; }
-    var t = 100 / a; if (f('methode').value === 'Dégressif') t *= a <= 4 ? 1.25 : a <= 6 ? 1.75 : 2.25;
+    var t = 100 / a; if (f('methode').value === 'Dégressif') t *= coefNorme(a);
     f('taux').value = Math.min(100, Math.round(t * 100) / 100);
+  }
+  function majCoef() {
+    var deg = f('methode').value === 'Dégressif', a = annees();
+    var c = deg && a > 0 ? (f('auto').checked ? coefNorme(a) : (+f('taux').value > 0 ? Math.round(+f('taux').value * a) / 100 : '')) : '';
+    f('coef').value = c === '' ? '' : String(c).replace('.', ',');
+    q('[data-fi-coefw]').hidden = !deg;
+    var pr = f('prorata').value === 'Oui'; q('[data-fi-pbasew]').hidden = !pr; q('[data-fi-pnon]').hidden = pr;
   }
   function filtrer() {
     var F = []; qa('[data-fc]').forEach(function (e) { F[+e.dataset.fc] = e.value.trim().toLowerCase(); });
@@ -18134,19 +18145,20 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     }).join(''); filtrer();
   }
   function form(r) {
-    r = r || { code: '', lib: '', nature: 'Corporel', actif: true, desc: '', c_immo: '', c_amort: '', c_dot: '', c_sortie: '', c_plus: '', c_moins: '', amortissable: true, methode: 'Linéaire', duree: '', unite: 'Ans', taux: '', auto: true, prorata: 'Oui', debut: '', period: 'Annuel' };
+    r = r || { code: '', lib: '', nature: 'Corporel', actif: true, desc: '', c_immo: '', c_amort: '', c_dot: '', c_sortie: '', c_plus: '', c_moins: '', amortissable: true, methode: 'Linéaire', duree: '', unite: 'Ans', taux: '', auto: true, prorata: 'Oui', pbase: 'Jour réel', debut: "Date d'acquisition", period: 'Annuel', coef: '' };
     comptes();
     CHAMPS.forEach(function (k) { f(k).value = r[k] == null ? '' : r[k]; });
+    if (!f('pbase').value) f('pbase').value = 'Jour réel'; if (!f('debut').value) f('debut').value = "Date d'acquisition";
     f('actif').checked = r.actif !== false; f('amortissable').checked = r.amortissable !== false; f('auto').checked = r.auto !== false;
     if (r.auto !== false) tauxAuto();
-    effacerErreurs();
+    majCoef(); effacerErreurs();
   }
   function etat() {
     var ed = mode !== 'consultation', am = f('amortissable').checked;
     qa('[data-fi-form] input,[data-fi-form] select,[data-fi-form] textarea').forEach(function (e) { e.disabled = !ed; });
     f('code').disabled = mode !== 'creation';
     AMORT.forEach(function (k) { f(k).disabled = !ed || !am; });
-    f('taux').disabled = !ed || !am || f('auto').checked;
+    f('taux').disabled = !ed || !am || f('auto').checked; f('coef').disabled = true; f('pbase').disabled = !ed || !am || f('prorata').value !== 'Oui'; majCoef();
     qa('[data-fi-req]').forEach(function (b) { b.style.visibility = am ? '' : 'hidden'; });
     var a = q('[data-fi-actions]');
     a.querySelector('[data-fi-ajouter]').disabled = ed; a.querySelector('[data-fi-modifier]').disabled = ed || sel < 0; a.querySelector('[data-fi-supprimer]').disabled = ed || sel < 0;
@@ -18162,7 +18174,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   tb.addEventListener('dblclick', function (e) { var tr = e.target.closest('tr[data-i]'); if (tr) { choisir(+tr.dataset.i); onglet('saisie'); } });
   f('code').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
   ['duree', 'unite', 'methode', 'auto'].forEach(function (k) { f(k).addEventListener('input', function () { tauxAuto(); etat(); }); f(k).addEventListener('change', function () { tauxAuto(); etat(); }); });
+  ['prorata', 'taux'].forEach(function (k) { f(k).addEventListener('change', etat); f(k).addEventListener('input', majCoef); });
   f('amortissable').addEventListener('change', etat);
+
 
   function lire() {
     var r = { actif: f('actif').checked, amortissable: f('amortissable').checked, auto: f('auto').checked };
@@ -18198,7 +18212,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       if (!(du !== '' && +du >= 1 && +du === Math.floor(+du))) er.push('Durée : entier supérieur ou égal à 1 obligatoire');
       if (ta !== '' && !(+ta > 0 && +ta <= 100)) er.push('Taux : nombre compris entre 0 et 100 (vide = calcul automatique)');
     }
-    var r = { code: c, lib: lb, nature: nature || 'Corporel', desc: g('Description'), actif: st !== 'Inactif', amortissable: am !== false, c_immo: cpt.c_immo, c_amort: am !== false ? cpt.c_amort : '', c_dot: am !== false ? cpt.c_dot : '', c_sortie: cpt.c_sortie, c_plus: cpt.c_plus, c_moins: cpt.c_moins, methode: me || 'Linéaire', unite: un || 'Ans', prorata: pr || 'Oui', debut: '', period: pe || 'Annuel', duree: '', taux: '', auto: true };
+    var r = { code: c, lib: lb, nature: nature || 'Corporel', desc: g('Description'), actif: st !== 'Inactif', amortissable: am !== false, c_immo: cpt.c_immo, c_amort: am !== false ? cpt.c_amort : '', c_dot: am !== false ? cpt.c_dot : '', c_sortie: cpt.c_sortie, c_plus: cpt.c_plus, c_moins: cpt.c_moins, methode: me || 'Linéaire', unite: un || 'Ans', prorata: pr || 'Oui', pbase: 'Jour réel', debut: "Date d'acquisition", coef: '', period: pe || 'Annuel', duree: '', taux: '', auto: true };
     if (am !== false && !er.length) {
       r.duree = +du; r.auto = ta === '';
       if (r.auto) { var a = r.unite === 'Mois' ? r.duree / 12 : r.duree, t = 100 / a; if (r.methode === 'Dégressif') t *= a <= 4 ? 1.25 : a <= 6 ? 1.75 : 2.25; r.taux = Math.min(100, Math.round(t * 100) / 100); } else r.taux = +ta;
@@ -18230,7 +18244,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     mode = 'consultation'; liste(); form(data[sel]); etat(); onglet('liste'); publier(); toast(ancien ? 'Famille modifiée.' : 'Famille enregistrée.');
   }
   function publier() {
-    window.FAMILLES_IMMOBILISATION = data.filter(function (r) { return r.actif; }).map(function (r) { return { code: r.code, libelle: r.lib, nature: r.nature, compte: r.c_immo, amortissable: r.amortissable, methode: r.methode, duree: r.duree, unite: r.unite, taux: r.taux }; });
+    window.FAMILLES_IMMOBILISATION = data.filter(function (r) { return r.actif; }).map(function (r) { return { code: r.code, libelle: r.lib, nature: r.nature, compte: r.c_immo, amortissable: r.amortissable, methode: r.methode, duree: r.duree, unite: r.unite, taux: r.taux, coef: r.coef, prorata: r.prorata, pbase: r.pbase, debut: r.debut }; });
     window.dispatchEvent(new Event('familles-immobilisation-changed'));
   }
 
@@ -18403,6 +18417,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
               <label class="bp-champ"><span>Valeur d'acquisition</span><input class="bp-in fim-ro" data-f="val" readonly tabindex="-1"></label>
               <label class="bp-champ"><span>Date d'acquisition <b>*</b></span><input class="bp-in" type="date" data-f="dacq"><span class="fim-er" data-er="dacq"></span></label>
               <label class="bp-champ"><span>Date de mise en service <b>*</b></span><input class="bp-in" type="date" data-f="dms"><span class="fim-er" data-er="dms"></span></label>
+              <label class="bp-champ"><span>Date de début d'amortissement</span><input class="bp-in" type="date" data-f="damort"><span class="fim-help" data-fim-damort-aide></span><span class="fim-er" data-er="damort"></span></label>
             </div>
             <div class="fim-g4" data-fim-devs style="margin-top:12px"></div>
           </div>
@@ -18473,9 +18488,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.querySelector('[data-fim]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   var data = [], sel = -1, mode = 'consultation', nextId = 1, genere = [];
-  var SIMPLES = ['annee', 'site', 'ref', 'desig', 'compte', 'qte', 'pu', 'dacq', 'dms', 'num', 'etat', 'famille', 'empl', 'resp', 'coll', 'aux', 'c_type', 'c_date', 'c_val', 'c_ref', 'c_tiers', 'c_motif'];
+  var SIMPLES = ['annee', 'site', 'ref', 'desig', 'compte', 'qte', 'pu', 'dacq', 'dms', 'damort', 'num', 'etat', 'famille', 'empl', 'resp', 'coll', 'aux', 'c_type', 'c_date', 'c_val', 'c_ref', 'c_tiers', 'c_motif'];
   var LISTES = ['annee', 'site', 'compte', 'famille', 'empl', 'resp', 'coll', 'aux'];
-  var ERR = ['annee', 'site', 'ref', 'desig', 'compte', 'qte', 'pu', 'dacq', 'dms', 'num', 'etat', 'empl', 'resp', 'coll', 'aux', 'c_type', 'c_date', 'c_val', 'c_tiers'];
+  var ERR = ['annee', 'site', 'ref', 'desig', 'compte', 'qte', 'pu', 'dacq', 'dms', 'damort', 'num', 'etat', 'empl', 'resp', 'coll', 'aux', 'c_type', 'c_date', 'c_val', 'c_tiers'];
   var CESSION = ['cede', 'c_type', 'c_date', 'c_val', 'c_ref', 'c_tiers', 'c_motif'];   // champs de cession : modifiables même après la génération de l'écriture d'acquisition
   var REFPLAN = { PLAN1: 'activite', PLAN2: 'budget', PLAN4: 'geo' };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -18570,7 +18585,18 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var fam = (window.FAMILLES_IMMOBILISATION || []).filter(function (x) { return x.code === f('famille').value; })[0];
     if (fam && !f('compte').value) { if (![].some.call(f('compte').options, function (o) { return o.value === fam.compte; })) { var o = document.createElement('option'); o.value = fam.compte; o.textContent = fam.compte; f('compte').appendChild(o); } f('compte').value = fam.compte; }
   });
+  // date de début d'amortissement : date d'acquisition, ou saisissable ici si la famille est paramétrée « Modifiable »
+  function famCourante() { return (window.FAMILLES_IMMOBILISATION || []).filter(function (x) { return x.code === f('famille').value; })[0] || null; }
+  function damortModifiable() { var fam = famCourante(); return !!(fam && fam.amortissable && fam.debut === 'Modifiable'); }
+  function majAmort() {
+    var m = damortModifiable(), fam = famCourante();
+    if (!m || !f('damort').value) f('damort').value = f('dacq').value;
+    f('damort').disabled = !(mode !== 'consultation' && m && !(sel >= 0 && data[sel] && data[sel].genere));
+    q('[data-fim-damort-aide]').textContent = !fam ? 'Date d’acquisition (aucune famille choisie).' : !fam.amortissable ? 'Famille non amortissable.' : m ? 'Modifiable (paramétrage de la famille ' + fam.code + ').' : 'Date d’acquisition (paramétrage de la famille ' + fam.code + ').';
+  }
+  ['dacq', 'famille'].forEach(function (k) { f(k).addEventListener('input', majAmort); f(k).addEventListener('change', majAmort); });
   f('num').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''); });
+
 
   // ---------- cession / sortie : amortissements cumulés, VNC, plus-value ou moins-value (calcul indicatif d'après la famille) ----------
   function amortCumule(valeur, famCode, debut, fin) {
@@ -18622,7 +18648,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     listes(r);
     SIMPLES.forEach(function (k) { if (LISTES.indexOf(k) < 0) f(k).value = r[k] == null ? '' : r[k]; });
     f('cede').checked = !!r.cede;
-    effacer(); majValeur(); majCessionEtat();
+    effacer(); majValeur(); majCessionEtat(); majAmort();
     var v = q('[data-fim-verrou]');
     v.hidden = !(r.genere); v.textContent = r.genere ? 'Écriture générée sous le n° de pièce ' + r.e_piece + ' (journal ' + r.e_journal + ') : les données d’acquisition ne sont plus modifiables ; seules les informations de cession / sortie restent modifiables.' : '';
   }
@@ -18635,7 +18661,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     ['c_type', 'c_date', 'c_ref', 'c_motif'].forEach(function (k) { f(k).disabled = !ed || !f('cede').checked; });
     var act = window.PLANS_ACTIFS ? window.PLANS_ACTIFS() : [];
     qa('[data-ana]').forEach(function (s) { if (act.indexOf(s.dataset.ana) < 0) s.disabled = true; });
-    f('aux').disabled = !ed || gen || !f('coll').value;
+    f('aux').disabled = !ed || gen || !f('coll').value; majAmort();
     var a = q('[data-fim-actions]'), peutGen = !ed && !!cur && !gen;
     a.querySelector('[data-fim-ajouter]').disabled = ed; a.querySelector('[data-fim-modifier]').disabled = ed || sel < 0; a.querySelector('[data-fim-supprimer]').disabled = ed || sel < 0 || gen || !!(cur && cur.cede);
     a.querySelector('[data-fim-enregistrer]').disabled = !ed; a.querySelector('[data-fim-annuler]').disabled = !ed;
@@ -18670,6 +18696,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (!(r.qte >= 1 && r.qte === Math.floor(r.qte))) { err('qte', 'La quantité est un entier supérieur ou égal à 1.'); ok = false; }
     if (!(r.pu >= 0) || r.pu === '') { err('pu', 'Le prix unitaire est obligatoire (0 ou plus).'); ok = false; }
     if (r.num && data.some(function (x) { return x.num === r.num && x.num !== ancien; })) { err('num', 'Ce numéro d’identification existe déjà.'); ok = false; }
+    if (!damortModifiable()) r.damort = r.dacq;
+    else if (!r.damort) { err('damort', 'La date de début d’amortissement est obligatoire.'); ok = false; }
+    else if (r.dacq && r.damort < r.dacq) { err('damort', 'Le début d’amortissement ne peut pas précéder l’acquisition.'); ok = false; }
     if (r.dacq && r.dms && r.dms < r.dacq) { err('dms', 'La mise en service ne peut pas précéder l’acquisition.'); ok = false; }
     var ex = (window.EXERCICES_API ? window.EXERCICES_API.liste() : []).filter(function (x) { return x.annee === r.annee; })[0];
     if (ex && r.dacq && iso(ex.debut) && (r.dacq < iso(ex.debut) || r.dacq > iso(ex.fin))) { err('dacq', 'La date d’acquisition doit être dans l’exercice ' + r.annee + ' (' + ex.debut + ' – ' + ex.fin + ').'); ok = false; }
@@ -18697,7 +18726,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   // ---------- API pour l'écran « Réassignation » (Immobilisations › Saisies) ----------
   // liste() : copie des fiches ; reaffecter(num, { site, empl, resp, ana }) : applique une nouvelle affectation (refusé pour une fiche cédée ou pendant une saisie).
   window.FICHES_API = {
-    liste: function () { return data.map(function (r) { return { num: r.num, desig: r.desig, compte: r.compte, site: r.site, dacq: r.dacq, empl: r.empl, resp: r.resp, qte: r.qte, pu: r.pu, famille: r.famille, ana: JSON.parse(JSON.stringify(r.ana || {})), cede: !!r.cede, genere: !!r.genere, dms: r.dms, c_type: r.cede ? r.c_type : '', c_date: r.cede ? r.c_date : '', c_val: r.cede ? r.c_val : '' }; }); },
+    liste: function () { return data.map(function (r) { return { num: r.num, desig: r.desig, compte: r.compte, site: r.site, dacq: r.dacq, empl: r.empl, resp: r.resp, qte: r.qte, pu: r.pu, famille: r.famille, ana: JSON.parse(JSON.stringify(r.ana || {})), cede: !!r.cede, genere: !!r.genere, dms: r.dms, damort: r.damort || r.dacq, c_type: r.cede ? r.c_type : '', c_date: r.cede ? r.c_date : '', c_val: r.cede ? r.c_val : '' }; }); },
     reaffecter: function (num, v) {
       var r = data.filter(function (x) { return x.num === num; })[0]; if (!r || r.cede || mode !== 'consultation') return false;
       r.site = v.site; r.empl = v.empl; r.resp = v.resp; r.ana = JSON.parse(JSON.stringify(v.ana || {}));
