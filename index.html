@@ -26318,6 +26318,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
           <label class="bp-champ"><span>NIF</span><input class="bp-in" data-f="nif" maxlength="30" autocomplete="off"></label>
           <label class="bp-champ"><span>STAT</span><input class="bp-in" data-f="stat" maxlength="30" autocomplete="off"></label>
           <label class="bp-champ"><span>RCS</span><input class="bp-in" data-f="rcs" maxlength="30" autocomplete="off"></label>
+          <label class="bp-champ"><span>CIN</span><input class="bp-in" data-f="cin" maxlength="12" inputmode="numeric" autocomplete="off" placeholder="12 chiffres, sans espace"><span class="ti-er" data-er="cin"></span></label>
+          <label class="bp-champ"><span>Date CIN</span><input class="bp-in" type="date" data-f="dcin"><span class="ti-er" data-er="dcin"></span></label>
+          <label class="bp-champ"><span>Lieu de délivrance CIN</span><input class="bp-in" data-f="lcin" maxlength="60" autocomplete="off"></label>
         </div></div>
         </div>
         <div class="ti-sp" data-ti-sp="banc" hidden>
@@ -26355,7 +26358,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var ABR = { 'Fournisseur': 'FR', 'Client': 'CL', 'Salarié': 'SA' };
   // type déduit du compte collectif (fournisseurs 401-409, personnel 421 et avances de mission 463, ONG / partenaires 466-467)
   function sousDe(c) { return /^40[1-9]/.test(c) ? 'Fournisseur' : /^(41|46[67])/.test(c) ? 'Client' : /^(42|463)/.test(c) ? 'Salarié' : ''; }
-  var CHAMPS = ['adr', 'reg', 'pays', 'tel', 'web', 'geo', 'nif', 'stat', 'rcs', 'banque', 'cb', 'ca', 'num', 'cle', 'swift', 'adrb', 'paysb', 'c_banque', 'c_cb', 'c_ca', 'c_num', 'c_cle', 'c_swift', 'c_adrb', 'c_paysb', 'modalite', 'site'];
+  var CHAMPS = ['adr', 'reg', 'pays', 'tel', 'web', 'geo', 'nif', 'stat', 'rcs', 'cin', 'dcin', 'lcin', 'banque', 'cb', 'ca', 'num', 'cle', 'swift', 'adrb', 'paysb', 'c_banque', 'c_cb', 'c_ca', 'c_num', 'c_cle', 'c_swift', 'c_adrb', 'c_paysb', 'modalite', 'site'];
   // Saisie de plusieurs comptes par tiers : coordonnées bancaires (bq) et correspondances bancaires (cr), chacune sous forme de cartes ajoutables et détachables.
   var BF = ['banque', 'cb', 'ca', 'num', 'cle', 'swift', 'adrb', 'paysb'], MAXL = { banque: 60, cb: 10, ca: 10, num: 30, cle: 4, swift: 11, adrb: 200, paysb: 40 }, W = { '': [], 'c_': [] };
   function cleListe(pre) { return pre ? 'cr' : 'bq'; }
@@ -26487,7 +26490,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     CHAMPS.forEach(function (k) { q('[data-f=' + k + ']').value = r[k] || ''; });
     q('[data-f=actif]').checked = r.actif !== false;
     W[''] = copier(r.bq || []); W['c_'] = copier(r.cr || []); dessinerComptes(); majLiens();
-    ['code', 'nom', 'compte', 'web', 'geo'].forEach(function (k) { err(k); });
+    ['code', 'nom', 'compte', 'web', 'geo', 'cin', 'dcin'].forEach(function (k) { err(k); });
   }
   function etat() {
     var ed = mode !== 'consultation', r = rows[sel], verrou = mode === 'edition' && r && r.utilise;
@@ -26508,7 +26511,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 
   // ---- importation Excel (étapes communes : import_assistant.js) ----
   var SOUS_TYPES = ['Client', 'Fournisseur', 'Salarié'], MODALITES = ['Aucune', 'Virement', 'Chèque', 'Espèces', 'Mobile money'];
-  var IMP = [['Adresse', 'adr'], ['Région', 'reg'], ['Pays', 'pays'], ['Téléphone', 'tel'], ['Adresse web', 'web'], ['Géolocalisation', 'geo'], ['NIF', 'nif'], ['STAT', 'stat'], ['RCS', 'rcs'], ['Banque', 'banque'], ['Code banque', 'cb'], ['Code agence', 'ca'], ['Numéro de compte', 'num'], ['Clé', 'cle'], ['SWIFT', 'swift'], ['Adresse de la banque', 'adrb'], ['Pays de la banque', 'paysb'], ['Correspondance — Banque', 'c_banque'], ['Correspondance — Code banque', 'c_cb'], ['Correspondance — Code agence', 'c_ca'], ['Correspondance — Numéro de compte', 'c_num'], ['Correspondance — Clé', 'c_cle'], ['Correspondance — SWIFT', 'c_swift'], ['Correspondance — Adresse de la banque', 'c_adrb'], ['Correspondance — Pays de la banque', 'c_paysb']];
+  var IMP = [['Adresse', 'adr'], ['Région', 'reg'], ['Pays', 'pays'], ['Téléphone', 'tel'], ['Adresse web', 'web'], ['Géolocalisation', 'geo'], ['NIF', 'nif'], ['STAT', 'stat'], ['RCS', 'rcs'], ['CIN', 'cin'], ['Date CIN', 'dcin'], ['Lieu de délivrance CIN', 'lcin'], ['Banque', 'banque'], ['Code banque', 'cb'], ['Code agence', 'ca'], ['Numéro de compte', 'num'], ['Clé', 'cle'], ['SWIFT', 'swift'], ['Adresse de la banque', 'adrb'], ['Pays de la banque', 'paysb'], ['Correspondance — Banque', 'c_banque'], ['Correspondance — Code banque', 'c_cb'], ['Correspondance — Code agence', 'c_ca'], ['Correspondance — Numéro de compte', 'c_num'], ['Correspondance — Clé', 'c_cle'], ['Correspondance — SWIFT', 'c_swift'], ['Correspondance — Adresse de la banque', 'c_adrb'], ['Correspondance — Pays de la banque', 'c_paysb']];
   function ech(s) { return String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
   function modeleImp() {
     var c0 = D.collectifs[0] ? D.collectifs[0][0] : '401000';
@@ -26556,9 +26559,12 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (mal) { toast(mal); ok = false; }
     r.bq = copier(W['']); r.cr = copier(W['c_']);
     BF.forEach(function (f) { r[f] = r.bq[0] ? r.bq[0][f] : ''; r['c_' + f] = r.cr[0] ? r.cr[0][f] : ''; });
-    ['code', 'nom', 'compte', 'web', 'geo'].forEach(function (k) { err(k); });
+    ['code', 'nom', 'compte', 'web', 'geo', 'cin', 'dcin'].forEach(function (k) { err(k); });
     if (r.web && !RE_WEB.test(r.web)) { err('web', 'Adresse web invalide (ex. https://www.exemple.mg).'); ok = false; }
     if (r.geo && !coordGeo(r.geo)) { err('geo', 'Géolocalisation invalide : latitude (-90 à 90), longitude (-180 à 180), ex. -18.8792, 47.5079.'); ok = false; }
+    if (r.cin && !/^[0-9]{12}$/.test(r.cin)) { err('cin', 'Le CIN doit contenir 12 chiffres, sans espace ni point.'); ok = false; }
+    if (r.dcin && (isNaN(Date.parse(r.dcin)) || r.dcin > new Date().toISOString().slice(0, 10))) { err('dcin', 'Date de CIN invalide ou postérieure à aujourd’hui.'); ok = false; }
+    if ((r.dcin || r.lcin) && !r.cin) { err('cin', 'Renseignez le CIN avant sa date ou son lieu de délivrance.'); ok = false; }
     if (!r.code) { err('code', 'Le code est obligatoire.'); ok = false; }
     if (!r.nom) { err('nom', "L'intitulé est obligatoire."); ok = false; }
     if (!r.compte) { err('compte', 'Le compte collectif est obligatoire.'); ok = false; }
@@ -30617,7 +30623,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var out = [], els = document.querySelectorAll('[data-screen="modfisc"] [data-mf-item]');
     Array.prototype.forEach.call(els, function (el) {
       var t = el.querySelector('[data-mf-title]'), sec = el.closest('[data-mf-sec]');
-      if (t) out.push({ nom: t.textContent.trim(), annexe: sec ? sec.dataset.mfSec === 'ANNEXE' : /annexe/i.test(t.textContent) });
+      var mt = el.querySelector('.mf-meta'), cd = mt ? mt.textContent.split('·')[0].replace('N°', '').trim() : '';
+      if (t) out.push({ nom: t.textContent.trim(), code: cd, annexe: sec ? sec.dataset.mfSec === 'ANNEXE' : /annexe/i.test(t.textContent) });
     });
     if (!out.length) out = [{ nom: 'Annexes', annexe: true }, { nom: 'Déclaration', annexe: false }];
     if (!out.some(function (m) { return m.nom === model; })) model = (out.filter(function (m) { return !m.annexe; })[0] || out[0]).nom;
@@ -30643,13 +30650,65 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       '<table style="border-collapse:collapse;width:690px;margin:32px 0 0 392px"><tr><th style="' + td + '">Type</th><th style="' + td + '">Montant dû</th><th style="' + td + '">Montant Payé</th><th style="' + td + '">Reste à payer</th></tr>' + t2('Principal', nf2(tot), nf2(tot), '', 'color:#18244F;') + t2('Pénalité si retard', '', '', '', 'color:#18244F;') + t2('Intérêt 1% par mois de retard', '', '', '', 'color:#18244F;') + t2('&nbsp;', '', '', '', '') + t2('Total dû pour la période', nf2(tot), nf2(tot), '', 'font-weight:700;color:#18244F;') + '</table>' +
       '<p style="margin:32px 0 0 392px;line-height:2;color:#18244F">Date :<br>Nom et titre :<br>Signature :</p></div>';
   }
+  // ----- Annexes « Droit de communication » : impression / export conformes au modèle d'état (colonnes et totaux du canevas DGI) -----
+  function codeModele() { var m = models().filter(function (x) { return x.nom === model; })[0]; return m ? m.code : ''; }
+  function nfa(v) { var p = Math.round(+v || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); return p; }
+  var TCACHE = {};
+  function tiersPlan(nom) {
+    var k = String(nom || '').toUpperCase(); if (!k || k === '—') return null; if (k in TCACHE) return TCACHE[k];
+    var L = window.TIERS_PLAN || [], t = L.filter(function (x) { return String(x.nom || '').toUpperCase() === k; })[0] || (k.length > 2 ? L.filter(function (x) { return x.actif !== false && (' ' + String(x.nom || '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ') + ' ').indexOf(' ' + k.replace(/[^A-Z0-9]+/g, ' ') + ' ') === 0; })[0] : null) || null;
+    TCACHE[k] = t; return t;
+  }
+  function dcomValeur(c, r) {
+    var n = c.f.slice(1, -1), t = tiersPlan(r.fourn), v = function (x) { return x == null || x === '—' ? '' : x; };
+    switch (n) {
+      case 'NIF': return v(r.nif) || (t ? String(t.nif || '').replace(/\D/g, '') : '');
+      case 'Numéro statistique': return t ? String(t.stat || '').replace(/\D/g, '') : '';
+      case 'CIN': return t ? String(t.cin || '') : '';
+      case 'Date CIN': return t && t.dcin ? t.dcin.split('-').reverse().join('/') : '';
+      case 'Lieu délivrance CIN': return t ? t.lcin || '' : '';
+      case 'Référence': return v(r.fact) || v(r.piece);
+      case 'Raison sociale': case 'Nom ou raison sociale': case 'Nom commercial': return t ? t.nom : v(r.fourn);
+      case 'Adresse': return t ? t.adr || '' : '';
+      case 'Ex-province': return t ? t.reg || '' : '';
+      case 'Pays': return t ? t.pays || '' : '';
+      case 'Mode de paiement': return String(v(r.mode)).toUpperCase();
+      case 'Sommes comptabilisées': case 'Montant hors TVA': return +r.mt || 0;
+      case 'Sommes versées': return r.paye != null ? +r.paye : (+r.mt || 0);
+      case 'TVA': return +r.tva || 0;
+    }
+    if (/^Nature des/.test(n)) return v(r.lib);
+    return '';
+  }
+  function dcomEtat() {
+    var code = codeModele(); if (!/^DCOM_/.test(code) || !window.__DCOM) return null;
+    var key = code.replace(/^DCOM_/, ''), M = window.__DCOM[key]; if (!M) return null;
+    var L = key === 'PLP' ? M.sample.map(function (a) { return a.slice(0, 3).concat([0, 0, 0, 0]); }) : sel().map(function (r) { return M.cols.map(function (c) { return dcomValeur(c, r); }); });
+    var S = M.cols.map(function (c, j) { return c.n ? L.reduce(function (a, x) { return a + (+x[j] || 0); }, 0) : null; });
+    return { key: key, M: M, L: L, S: S };
+  }
+  function dcomHtml(E) {
+    var tw = E.M.cols.reduce(function (a, c) { return a + c.w; }, 0) || 1, bd = 'border:1px solid #747A88;padding:2px 4px;font-size:12px;';
+    return '<p style="font-size:12px;margin:0 0 6px;color:#2E427B">' + esc(E.M.grp) + '</p><table style="border-collapse:collapse;width:100%;table-layout:fixed"><colgroup>' + E.M.cols.map(function (c) { return '<col style="width:' + (c.w * 100 / tw) + '%">'; }).join('') + '</colgroup>' +
+      '<thead><tr>' + E.M.cols.map(function (c) { return '<th style="' + bd + 'background:#2E427B;color:#fff;text-align:center;vertical-align:middle">' + esc(c.h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      E.L.map(function (x) { return '<tr>' + x.map(function (v, j) { var num = E.M.cols[j].n; return '<td style="' + bd + (num ? 'text-align:right;' : '') + 'word-break:break-word">' + esc(num ? nfa(v) : v) + '</td>'; }).join('') + '</tr>'; }).join('') +
+      '<tr>' + E.M.cols.map(function (c, j) { return '<td style="' + bd + 'font-weight:700;background:#F4F7FE;' + (c.n ? 'text-align:right;' : '') + '">' + (j === 0 ? 'Totaux' : c.n ? nfa(E.S[j]) : '') + '</td>'; }).join('') + '</tr></tbody></table>';
+  }
+  function dcomXls(E) {
+    return '<table><tr>' + E.M.cols.map(function (c) { return '<th>' + esc(c.h) + '</th>'; }).join('') + '</tr>' +
+      E.L.map(function (x) { return '<tr>' + x.map(function (v, j) { var c = E.M.cols[j]; return '<td' + (c.n ? '' : ' style="mso-number-format:\'@\'"') + '>' + esc(c.n ? Math.round(+v || 0) : v) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>';
+  }
   function doPrint() {
+    var E = dcomEtat();
+    if (E) { window.__printMask(dcomHtml(E), { titre: 'Droit de communication — ' + E.M.nom + ' (' + E.key + ') — ' + crit.type + ' n° ' + crit.sel, sousTitre: 'Déclarant : Version partenaire SOFTWELL — Exercice ' + crit.ex + ' · ' + fmtD(crit.du) + ' au ' + fmtD(crit.au) + ' · ' + E.L.length + ' ligne(s)', paysage: true }); return; }
     if (/TMP/i.test(model)) { window.__printMask(tmpHtml(total()), { titre: 'Déclaration TMP', paysage: false }); return; }
     
     var tr = sel().map(function (r) { return '<tr><td>' + r.date + '</td><td>' + esc(r.jnl) + '</td><td>' + esc(r.lib) + '</td><td>' + esc(r.fourn) + '</td><td style="text-align:right">' + nf(r.mt) + '</td></tr>'; }).join('');
     window.__printMask('<table><tr><th>Date</th><th>Journal</th><th>Libellé</th><th>Fournisseur</th><th>Montant</th></tr>' + tr + '</table>', { titre: model + ' — ' + crit.type + ' n° ' + crit.sel, sousTitre: 'Exercice ' + crit.ex + ' · ' + fmtD(crit.du) + ' au ' + fmtD(crit.au) + ' · Base imposable : ' + nf(total()) });
   }
   function doXls() {
+    var E = dcomEtat();
+    if (E) { var a0 = document.createElement('a'); a0.href = URL.createObjectURL(new Blob(['\ufeff<html><meta charset="utf-8"><body>' + dcomXls(E) + '</bo' + 'dy></ht' + 'ml>'], { type: 'application/vnd.ms-excel' })); a0.download = 'DCOM_' + E.key + '_' + crit.type + '_' + crit.sel + '.xls'; document.body.appendChild(a0); a0.click(); a0.remove(); return; }
     var h = '<table><tr><th>Date</th><th>Journal</th><th>Libellé</th><th>Fournisseur</th><th>Montant déclaration</th></tr>' + sel().map(function (r) { return '<tr><td>' + r.date + '</td><td>' + esc(r.jnl) + '</td><td>' + esc(r.lib) + '</td><td>' + esc(r.fourn) + '</td><td>' + r.mt + '</td></tr>'; }).join('') + '</table>';
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff<html><meta charset="utf-8"><body>' + h + '</bo' + 'dy></ht' + 'ml>'], { type: 'application/vnd.ms-excel' })); a.download = 'declaration_' + crit.type + '_' + crit.sel + '.xls'; document.body.appendChild(a); a.click(); a.remove();
   }
