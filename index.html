@@ -36658,12 +36658,12 @@ window.ECRITURES_REF = {
   };
   window.__ecEntete.journalCourant = function () { return journal.value ? journal.value.code : ''; };
   window.__ecEntete.setJournal = function (code) { var it = REF.journaux.filter(function (j) { return j.code === code; })[0]; if (it && (!journal.value || journal.value.code !== code)) { journal.set(it); } };
-  window.__ecEntete.ajouterLignes = function (L) {
+  window.__ecEntete.ajouterLignes = function (L, msg) {
     var vides = $$('[data-info]', corpsInfos).map(function () { return ''; });
     L.forEach(function (x) {
       lignes.push({ compte: x.compte, tiers: x.tiers || null, contrat: x.contrat || null, libelle: x.libelle, regr: '', montant: x.montant, montant1: x.montant1 || 0, montant2: x.montant2 || 0, sens: x.sens, echeance: x.echeance || '', axes: x.axes || {}, budget: x.budget || '', mode: '', infos: vides.slice(), docs: [], apure: x.apure || null });
     });
-    selection = -1; edition = -1; majContrepartie(); notify(L.length + ' ligne(s) ajoutée(s) à la pièce depuis la facture.');
+    selection = -1; edition = -1; majContrepartie(); notify(msg || (L.length + ' ligne(s) ajoutée(s) à la pièce depuis la facture.'));
   };
 
   // « Annuler » en bas de page : abandon de la pièce en cours
@@ -36871,7 +36871,7 @@ window.ECRITURES_REF = {
   /* ---------- style ---------- */
   var css = document.createElement('style');
   css.textContent = '.fo-ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(11,19,50,.55)}' +
-    '.fo-md{display:flex;flex-direction:column;width:min(1180px,100%);max-height:calc(100vh - 32px);border-radius:12px;background:#fff;box-shadow:0 28px 70px rgba(11,19,50,.35);font-family:var(--font-sans,Inter,system-ui,sans-serif);color:#353944}' +
+    '.fo-md{display:flex;flex-direction:column;width:min(1560px,100%);max-height:calc(100vh - 32px);border-radius:12px;background:#fff;box-shadow:0 28px 70px rgba(11,19,50,.35);font-family:var(--font-sans,Inter,system-ui,sans-serif);color:#353944}' +
     '.fo-md.s{width:min(620px,100%)}.fo-md h2{margin:0;padding:14px 20px;border-bottom:1px solid #E9EBF0;font:600 18px var(--font-heading,Outfit,Inter,sans-serif);color:#0B1332;display:flex;align-items:center;gap:10px}' +
     '.fo-b{padding:16px 20px;overflow:auto}.fo-f{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;padding:12px 20px;border-top:1px solid #E9EBF0}' +
     '.fo-f button,.fo-bt{min-height:36px;padding:0 16px;border:1px solid #2E427B;border-radius:8px;background:#fff;color:#2E427B;font-weight:600;font-size:13px;cursor:pointer}.fo-f button:hover{background:#F4F7FE}.fo-f button.p{background:#2E427B;color:#fff}.fo-f button.p:hover{background:#243569}.fo-f button:disabled{opacity:.45;cursor:not-allowed}' +
@@ -36880,7 +36880,7 @@ window.ECRITURES_REF = {
     '.fo-bar{height:10px;margin:8px 0 4px;border-radius:6px;background:#E3EBFE;overflow:hidden}.fo-bar i{display:block;height:100%;width:0;border-radius:6px;background:repeating-linear-gradient(135deg,#E1C340 0 8px,#A9BDEE 8px 16px);transition:width 200ms}.fo-prog small{color:#5B606D;font-size:12px}' +
     '.fo-file{display:flex;align-items:center;gap:10px;margin:12px 0;padding:10px 14px;border-radius:8px;background:#F4F7FE;font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-size:13px}.fo-st{padding:1px 8px;border-radius:4px;background:#FFC107;color:#0B1332;font:700 11px var(--font-sans,sans-serif)}.fo-st.ok{background:#1E7B4B;color:#fff}.fo-st.ko{background:#B63132;color:#fff}' +
     '.fo-prev{text-align:center}.fo-prev .sd-doc{text-align:left}.fo-prev img,.fo-prev canvas{max-width:100%;max-height:60vh;border:1px solid #E9EBF0;border-radius:6px}' +
-    '.fo-g{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:20px}@media(max-width:900px){.fo-g{grid-template-columns:1fr}}' +
+    '.fo-g{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,9fr);gap:20px}@media(max-width:900px){.fo-g{grid-template-columns:1fr}}' +
     '.fo-fl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}.fo-fl .w{grid-column:1/-1}.fo-fl label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:#474C58}' +
     '.fo-in{height:34px;box-sizing:border-box;width:100%;border:1px solid #D6D9E0;border-radius:6px;background:#fff;padding:0 10px;font:inherit;font-size:12.5px;color:#353944}.fo-in:focus{outline:none;border-color:#2E427B;box-shadow:0 0 0 3px rgba(46,66,123,.12)}.fo-in.r{text-align:right}' +
     '.fo-sec{margin:14px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#2E427B}' +
@@ -37142,12 +37142,12 @@ window.ECRITURES_REF = {
       '<label>N° de facture<input class="fo-in" data-fo="num" value="' + esc(d.numero) + '"></label><label>Référence<input class="fo-in" data-fo="ref" value="' + esc(d.numero) + '"></label>' +
       '<label>Date de la facture (date de la pièce)<input class="fo-in" type="date" data-fo="date" value="' + esc(d.date) + '"></label><label>Date de l’écriture<input class="fo-in" type="date" data-fo="dateEcr" value="' + esc(d.date) + '"></label>' +
       '<label>Échéance<input class="fo-in" type="date" data-fo="ech" value="' + esc(d.echeance) + '"></label><label>Compte de TVA déductible<select class="fo-in" data-fo="tvaC">' + opt(tvaC, (tvaC[0] || {}).code, '— Aucun —') + '</select></label>' + (IA ? '<label class="w">Contrat (reprise des imputations)<select class="fo-in" data-fo="contrat"><option value="">— Aucun contrat —</option>' + REFC.map(function (ct) { return '<option value="' + esc(ct.code) + '">' + esc(ct.code + ' — ' + ct.label) + '</option>'; }).join('') + '</select></label>' : '') + '</div>' +
-      (IA ? '<div class="fo-sec">Montants</div><div class="fo-fl" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"><div class="fo-rg"><b>Montant HT</b><label><input type="radio" name="fo-mht" value="total"> Montant total</label><label><input type="radio" name="fo-mht" value="ventile" checked> Ventilé ligne par ligne</label></div><div class="fo-rg"><b>Taxes</b><label><input type="radio" name="fo-mtx" value="total" checked> Montant total</label><select class="fo-in" data-fo="taxeT" style="width:auto;min-width:230px"><option value="">— Saisie manuelle (montant lu sur la facture) —</option>' + typesTaxe().map(function (ty) { var tx = tauxNum(ty.code); return '<option value="' + esc(ty.code) + '"' + (ty.code === etat.taxeT ? ' selected' : '') + '>' + esc(ty.code) + (tx > 0 ? ' — ' + String(tx).replace('.', ',') + ' %' : forfaitNum(ty.code) > 0 ? ' — forfait ' + forfaitNum(ty.code) : '') + '</option>'; }).join('') + '</select><label><input type="radio" name="fo-mtx" value="ventile"> Ventilé ligne par ligne</label></div></div>' : '') + '<div class="fo-sec">Lignes de charge (débit)' + (IA ? ' <button type="button" class="fo-bt" data-fo-reia style="margin-left:10px;min-height:28px"><i class="ti ti-sparkles"></i> Relancer la suggestion IA</button>' : '') + '</div>' + (IA ? '<div class="fo-iab" data-fo-iab></div>' : '') + '<table class="fo-t"><thead data-fo-th><tr><th>Libellé</th><th style="width:230px">Compte de charge</th>' + AX.map(function (n) { return '<th>' + AXL[n] + '</th>'; }).join('') + (IA ? '<th style="width:150px">Budget</th>' : '') + '<th style="width:120px">Montant HT</th><th style="width:34px"></th></tr></thead><tbody data-fo-l></tbody></table>' +
+      (IA ? '<div class="fo-sec">Comptabilisation</div><div class="fo-rg" style="margin-bottom:8px"><label><input type="radio" name="fo-cpt" value="detail" checked> Détaillée : HT par ligne et taxes</label><label><input type="radio" name="fo-cpt" value="ttc"> Sur le montant total de la facture (TTC) : une seule ligne de charge, sans ligne de taxe</label></div><div data-fo-mont><div class="fo-sec">Montants</div><div class="fo-fl" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"><div class="fo-rg"><b>Montant HT</b><label><input type="radio" name="fo-mht" value="total"> Montant total</label><label><input type="radio" name="fo-mht" value="ventile" checked> Ventilé ligne par ligne</label></div><div class="fo-rg"><b>Taxes</b><label><input type="radio" name="fo-mtx" value="total" checked> Montant total</label><select class="fo-in" data-fo="taxeT" style="width:auto;min-width:230px"><option value="">— Saisie manuelle (montant lu sur la facture) —</option>' + typesTaxe().map(function (ty) { var tx = tauxNum(ty.code); return '<option value="' + esc(ty.code) + '"' + (ty.code === etat.taxeT ? ' selected' : '') + '>' + esc(ty.code) + (tx > 0 ? ' — ' + String(tx).replace('.', ',') + ' %' : forfaitNum(ty.code) > 0 ? ' — forfait ' + forfaitNum(ty.code) : '') + '</option>'; }).join('') + '</select><label><input type="radio" name="fo-mtx" value="ventile"> Ventilé ligne par ligne</label></div></div></div>' : '') + '<div class="fo-sec">Lignes de charge (débit)' + (IA ? ' <button type="button" class="fo-bt" data-fo-reia style="margin-left:10px;min-height:28px"><i class="ti ti-sparkles"></i> Relancer la suggestion IA</button>' : '') + '</div>' + (IA ? '<div class="fo-iab" data-fo-iab></div>' : '') + '<table class="fo-t"><thead data-fo-th><tr><th>Libellé</th><th style="width:230px">Compte de charge</th>' + AX.map(function (n) { return '<th>' + AXL[n] + '</th>'; }).join('') + (IA ? '<th style="width:150px">Budget</th>' : '') + '<th style="width:120px">Montant HT</th><th style="width:34px"></th></tr></thead><tbody data-fo-l></tbody></table>' +
       '<div style="margin-top:6px"><button type="button" class="fo-bt" data-fo-add>+ Ajouter une ligne</button></div>' +
       '<div class="fo-fl" style="margin-top:12px"><label>Total HT<input class="fo-in r" data-fo="ht" value="' + fmt(d.ht) + '" readonly></label><label>TVA' + (d.taux ? ' (' + d.taux + ' %)' : '') + '<input class="fo-in r" data-fo="tva" value="' + fmt(d.tva) + '"></label><label>Total TTC (crédit du tiers)<input class="fo-in r" data-fo="ttc" value="' + fmt(d.ttc) + '"></label></div>' +
       '</div><div class="fo-pn" data-fo-pn="c" hidden><div class="fo-sec" style="margin-top:0">Schéma comptable (avant génération de l’écriture)</div><div data-fo-sch></div></div>' +
       '<div data-fo-ctl></div></div></div>';
-    w.f.innerHTML = '<button type="button" data-fo-x>Annuler</button><button type="button" data-fo-r>' + (o.autre || 'Lire une autre facture') + '</button><button type="button" class="p" data-fo-g><i class="ti ti-wand"></i> Générer l’écriture</button>';
+    w.f.innerHTML = '<button type="button" data-fo-x>Annuler</button><button type="button" data-fo-r>' + (o.autre || 'Lire une autre facture') + '</button><button type="button" class="p" data-fo-g><i class="ti ti-pencil"></i> Préremplir la saisie</button>';
     var Q = function (s) { return w.b.querySelector(s); }, QA = function (s) { return [].slice.call(w.b.querySelectorAll(s)); }, F = function (k) { return Q('[data-fo="' + k + '"]'); };
     function num(k) { return nombre(F(k).value); }
     function taxCell(x) { return '<td><select class="fo-in" data-l="taxe"><option value="">— Sans taxe —</option>' + typesTaxe().map(function (ty) { var tx = tauxNum(ty.code); return '<option value="' + esc(ty.code) + '"' + (x.taxe === ty.code ? ' selected' : '') + '>' + esc(ty.code) + (tx > 0 ? ' (' + String(tx).replace('.', ',') + ' %)' : '') + '</option>'; }).join('') + '</select><span class="fo-tmm" data-fo-tm></span></td>'; }
@@ -37203,6 +37203,7 @@ window.ECRITURES_REF = {
         '<tr style="font-weight:700"><td colspan="' + (anal ? 3 + ACOL.length + (bud ? 1 : 0) : 3) + '">Total' + (Math.round((dT - cT) * 100) ? ' — écart ' + fmt(Math.abs(dT - cT)) : ' — équilibré') + '</td><td style="text-align:right">' + fmt(dT) + '</td><td style="text-align:right">' + fmt(cT) + '</td></tr></tbody></table>';
     }
     function controle() {
+      if (IA && etat.compta === 'ttc') { etat.htTotal = num('ttc'); F('tva').value = fmt(0); F('tva').readOnly = true; F('ht').value = fmt(etat.htTotal); }
       var ht = htVal(); if (!(IA && etat.mht === 'total')) F('ht').value = fmt(ht); calculerTaxes(ht);
       if (autoTax()) { F('ttc').readOnly = true; F('ttc').value = fmt(rnd2(ht + etat.tvaNet)); } else if (IA) F('ttc').readOnly = false;
       var ecart = Math.round((ht + tvaVal() - num('ttc')) * 100) / 100;
@@ -37244,6 +37245,19 @@ window.ECRITURES_REF = {
       F('ht').addEventListener('input', function () { if (etat.mht === 'total') { etat.htTotal = nombre(F('ht').value); controle(); } });
       F('ht').addEventListener('change', function () { if (etat.mht === 'total') { F('ht').value = fmt(etat.htTotal); } });
       modes();
+      // Comptabilisation : détaillée (état courant) ou sur le montant total de la facture (une ligne de charge = TTC, aucune ligne de taxe)
+      etat.compta = 'detail'; var sauve = null;
+      QA('[name="fo-cpt"]').forEach(function (r) { r.addEventListener('change', function () {
+        if (!r.checked) return;
+        if (r.value === 'ttc' && etat.compta !== 'ttc') {
+          sauve = { mht: etat.mht, mtx: etat.mtx, htTotal: etat.htTotal, taxeT: F('taxeT').value, m0: etat.lignes[0] ? etat.lignes[0].montant : 0, tva: F('tva').value, ttc: F('ttc').value };
+          etat.compta = 'ttc'; etat.mht = 'total'; etat.mtx = 'total'; F('taxeT').value = ''; etat.taxeT = ''; Q('[data-fo-mont]').hidden = true; F('ttc').readOnly = false; modes();
+        } else if (r.value === 'detail' && etat.compta === 'ttc') {
+          etat.compta = 'detail'; Q('[data-fo-mont]').hidden = false;
+          if (sauve) { etat.mht = sauve.mht; etat.mtx = sauve.mtx; etat.htTotal = sauve.htTotal; F('taxeT').value = sauve.taxeT; etat.taxeT = sauve.taxeT; if (etat.lignes[0]) etat.lignes[0].montant = sauve.m0; F('tva').value = sauve.tva; F('ttc').value = sauve.ttc; F('tva').readOnly = false; }
+          modes();
+        }
+      }); });
       function lierBudget(i) {
         var x = etat.lignes[i], ov2 = document.createElement('div'); ov2.className = 'fo-ov fo-ov2';
         ov2.innerHTML = '<div class="fo-sub" role="dialog" aria-modal="true" aria-label="Lier une ligne budgétaire"><h3><i class="ti ti-link"></i> Lier une ligne budgétaire</h3><div class="fo-b"><div style="margin-bottom:8px;font-size:13px">Ligne : <b>' + esc(x.libelle || '—') + '</b> · montant HT <b>' + fmt(x.montant) + '</b></div><table><thead><tr><th></th><th>Code</th><th>Ligne budgétaire</th><th class="r">Budget</th><th class="r">Engagé</th><th class="r">Disponible</th><th class="r">Après cette ligne</th></tr></thead><tbody>' +
@@ -37298,7 +37312,7 @@ window.ECRITURES_REF = {
     if (!ouvert) return false;   // date hors exercice : message de l'en-tête
     var k1 = nombre(c('cours1') && c('cours1').value), k2 = nombre(c('cours2') && c('cours2').value);
     var L = constituer(h, function (m) { return { montant1: k1 > 0 ? Math.round(m / k1 * 100) / 100 : 0, montant2: k2 > 0 ? Math.round(m / k2 * 100) / 100 : 0 }; });
-    A.ajouterLignes(L);
+    A.ajouterLignes(L, "Saisie préremplie depuis la facture : vérifiez les lignes, complétez si besoin puis validez la pièce.");
     return true;
   }
   // Écriture automatique (écart de règlement du lettrage…) : renseigne l'en-tête de la saisie d'écritures puis ajoute les lignes à la pièce.
@@ -37529,13 +37543,13 @@ window.ECRITURES_REF = {
     w.b.innerHTML = '<div class="fo-fl"><label class="w">Modèle<select class="fo-in" data-mo="modele"><option value="">— Sélectionner un modèle —</option>' + M.map(function (m) { return '<option value="' + esc(m.code) + '">' + esc(m.code + ' — ' + m.libelle) + '</option>'; }).join('') + '</select></label>' +
       '<label class="w">Journal<select class="fo-in" data-mo="journal" disabled><option value="">—</option></select></label>' +
       '<label>Date comptable<input class="fo-in" type="date" data-mo="date" value="' + esc(dEcr) + '"></label><label>Date pièce<input class="fo-in" type="date" data-mo="datep" value="' + esc(dPie) + '"></label>' +
-      '<label>Numéro de pièce<input class="fo-in" data-mo="piece" readonly placeholder="Proposé à la génération" style="background:#E9EBF0"></label><label data-mo-tiers hidden>Tiers<select class="fo-in" data-mo="tiers"></select></label>' +
+      '<label>Numéro de pièce<input class="fo-in" data-mo="piece" readonly placeholder="Proposé par la saisie" style="background:#E9EBF0"></label><label data-mo-tiers hidden>Tiers<select class="fo-in" data-mo="tiers"></select></label>' +
       '<label class="w">Libellé au débit<input class="fo-in" data-mo="libD"></label><label class="w">Libellé au crédit<input class="fo-in" data-mo="libC"></label>' +
       '<label>Montant en <b>' + esc(mn.m1) + '</b><input class="fo-in r" data-mo="m1" inputmode="decimal" placeholder="0,00"></label>' +
-      (mn.m2 ? '<label>Cours Rap. <b>' + esc(mn.m2) + '</b><input class="fo-in r" data-mo="k2" inputmode="decimal"></label><label>Montant en <b>' + esc(mn.m2) + '</b><input class="fo-in r" data-mo="m2" readonly style="background:#E9EBF0"></label>' : '') +
-      (mn.m3 ? '<label>Cours Rap. <b>' + esc(mn.m3) + '</b><input class="fo-in r" data-mo="k3" inputmode="decimal"></label><label>Montant en <b>' + esc(mn.m3) + '</b><input class="fo-in r" data-mo="m3" readonly style="background:#E9EBF0"></label>' : '') + '</div>' +
+      (mn.m2 ? '<label>Cours Rap. <b>' + esc(mn.m2) + '</b><input class="fo-in r" data-mo="k2" inputmode="decimal"></label><label>Montant Rap. <b>' + esc(mn.m2) + '</b><input class="fo-in r" data-mo="m2" readonly style="background:#E9EBF0"></label>' : '') +
+      (mn.m3 ? '<label>Cours Rap. <b>' + esc(mn.m3) + '</b><input class="fo-in r" data-mo="k3" inputmode="decimal"></label><label>Montant Rap. <b>' + esc(mn.m3) + '</b><input class="fo-in r" data-mo="m3" readonly style="background:#E9EBF0"></label>' : '') + '</div>' +
       '<div class="fo-sec">Schéma de l\'écriture</div><div data-mo-sch style="font-size:12.5px;color:#5B606D">Sélectionnez un modèle.</div><div data-mo-er class="fo-ko"></div>';
-    w.f.innerHTML = '<button type="button" data-fo-x>Annuler</button><button type="button" class="p" data-mo-ok disabled><i class="ti ti-wand"></i> Générer l\'écriture</button>';
+    w.f.innerHTML = '<button type="button" data-fo-x>Annuler</button><button type="button" class="p" data-mo-ok disabled><i class="ti ti-pencil"></i> Préremplir la saisie</button>';
     var Q = function (s) { return w.b.querySelector(s); }, F = function (k) { return Q('[data-mo="' + k + '"]'); }, cur = null;
     function majCours() { [['k2', mn.m2], ['k3', mn.m3]].forEach(function (x) { if (F(x[0])) { var k = cours(x[1], F('date').value); F(x[0]).value = k ? String(k).replace('.', ',') : ''; } }); conv(); }
     function conv() {
@@ -37584,7 +37598,7 @@ window.ECRITURES_REF = {
       var dc = compteDe(cur.D), cc = compteDe(cur.C);
       A.ajouterLignes([
         Object.assign({ compte: dc, tiers: td, libelle: F('libD').value.trim(), montant: m, sens: 'DEBIT', echeance: '' }, cv),
-        Object.assign({ compte: cc, tiers: tc, libelle: F('libC').value.trim(), montant: m, sens: 'CREDIT', echeance: '' }, cv)]);
+        Object.assign({ compte: cc, tiers: tc, libelle: F('libC').value.trim(), montant: m, sens: 'CREDIT', echeance: '' }, cv)], 'Saisie préremplie depuis le modèle « ' + cur.code + ' » : vérifiez les lignes, complétez si besoin puis validez la pièce.');
       return true;
     }
     majCours();
