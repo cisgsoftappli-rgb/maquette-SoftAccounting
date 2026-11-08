@@ -14073,7 +14073,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       var c = L[selCat], i = selCat;
       q('[data-rp-cats]').innerHTML = '<div class="rp-cat" data-i="' + i + '"><div class="rp-ch"><label class="bp-champ"><span>Code</span><input class="bp-in" value="' + esc(c.code) + '" data-f="code" maxlength="6"></label><label class="bp-champ"><span>Libellé <b>*</b></span><input class="bp-in" value="' + esc(c.libelle) + '" data-f="libelle"></label><button type="button" class="rp-ib dng" data-delcat title="Supprimer la catégorie" aria-label="Supprimer la catégorie"><i class="ti ti-trash"></i></button></div>' +
         '<div class="rp-cl rp-clh"><span>Convention</span><span>Catégories du plan</span><span></span></div>' +
-        (c.lignes || []).map(function (l, j) { return '<div class="rp-cl" data-j="' + j + '"><select class="bp-sel" data-f="conv">' + convOpts(l.conv) + '</select><input class="bp-in" data-f="cat" autocomplete="off" value="' + esc(l.cat) + '" placeholder="Ex : 01 - 1 ; 01 - 3"><button type="button" class="rp-ib dng" data-delligne title="Supprimer la ligne" aria-label="Supprimer la ligne"><i class="ti ti-x"></i></button></div>'; }).join('') +
+        (c.lignes || []).map(function (l, j) { return '<div class="rp-cl" data-j="' + j + '"><select class="bp-sel" data-f="conv">' + convOpts(l.conv) + '</select><input class="bp-in" data-f="cat" autocomplete="off" value="' + esc(l.cat) + '" placeholder="Ex : 0101 ; 0103"><button type="button" class="rp-ib dng" data-delligne title="Supprimer la ligne" aria-label="Supprimer la ligne"><i class="ti ti-x"></i></button></div>'; }).join('') +
         '<div class="rp-cl"><button type="button" class="rp-ib" data-addligne title="Ajouter un rattachement" aria-label="Ajouter un rattachement"><i class="ti ti-plus"></i></button></div></div>';
     }
     qa('[data-rp-cats] select').forEach(maj);
@@ -23610,7 +23610,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 </div><div data-screen="pl_financier" style="display:none"><!--
   Gabarit des écrans « Plan » (Paramétrages › Gestion des plans › Saisie des plans › Plan comptable, Activité, Budget, Géographique, Financier,
   Plan 5 à Plan 10, Tiers, Journaux). Instancié par build.cjs pour chaque plan : pl_financier (identifiant d'écran), Plan Financier (nom du plan),
-  {"extra":{"label":"Bailleur","options":["IDA","FIDA","FED","FM","BAD","ASAP","Gouvernement malagasy","Bénéficiaires"]},"lignes":[["01","Prêt FIDA","","FIDA"],["01 - 1","Travaux","01","FIDA"],["01 - 2","Équipements et matériels","01","FIDA"],["01 - 3","Formation et accompagnement","01","FIDA"],["01 - 4","Prestations de services","01","FIDA"],["01 - 5","Subventions","01","FIDA"],["01 - 6","Coûts opérationnels","01","FIDA"],["02","Fonds fiduciaires ASAP","","ASAP"],["02 - 1","ASAP — catégorie 1","02","ASAP"],["03","Gouvernement malagasy","","Gouvernement malagasy"],["03 - 1","Contrepartie de l'État","03","Gouvernement malagasy"],["04","Apport bénéficiaires","","Bénéficiaires"],["05","Crédit IDA","","IDA"],["05 - 1","IDA — catégorie 1 (travaux)","05","IDA"],["05 - 2","IDA — catégorie 2 (biens et services)","05","IDA"]]} (JSON : extra, lignes). Onglets Saisie / Liste, liste filtrable, hiérarchie par code parent. Données en mémoire.
+  {"extra":null,"lignes":[["01","Prêt FIDA",""],["0101","Travaux","01"],["0102","Équipements et matériels","01"],["0103","Formation et accompagnement","01"],["0104","Prestations de services","01"],["0105","Subventions","01"],["0106","Coûts opérationnels","01"],["02","Fonds fiduciaires ASAP",""],["0201","ASAP — catégorie 1","02"],["03","Gouvernement malagasy",""],["0301","Contrepartie de l’État","03"],["04","Apport bénéficiaires",""],["0401","Apport bénéficiaires","04"],["05","Crédit IDA",""],["0501","IDA — catégorie 1 (travaux)","05"],["0502","IDA — catégorie 2 (biens et services)","05"]]} (JSON : extra, lignes). Onglets Saisie / Liste, liste filtrable, hiérarchie par code parent. Données en mémoire.
   Niveau : liste des niveaux paramétrés dans « Configuration des plans » ; le code parent est limité au niveau précédent.
   Plan comptable uniquement : racine de compte rattachée (comptes de niveau 1), comportements du dernier niveau (sans analytique, tiers,
   immobilisations, lettrage) et comportements analytiques (axes ouverts par la racine de compte, parmi les plans activés).
@@ -23685,7 +23685,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 (function () {
   var root = document.querySelector('[data-pl="pl_financier"]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
-  var CFG = {"extra":{"label":"Bailleur","options":["IDA","FIDA","FED","FM","BAD","ASAP","Gouvernement malagasy","Bénéficiaires"]},"lignes":[["01","Prêt FIDA","","FIDA"],["01 - 1","Travaux","01","FIDA"],["01 - 2","Équipements et matériels","01","FIDA"],["01 - 3","Formation et accompagnement","01","FIDA"],["01 - 4","Prestations de services","01","FIDA"],["01 - 5","Subventions","01","FIDA"],["01 - 6","Coûts opérationnels","01","FIDA"],["02","Fonds fiduciaires ASAP","","ASAP"],["02 - 1","ASAP — catégorie 1","02","ASAP"],["03","Gouvernement malagasy","","Gouvernement malagasy"],["03 - 1","Contrepartie de l'État","03","Gouvernement malagasy"],["04","Apport bénéficiaires","","Bénéficiaires"],["05","Crédit IDA","","IDA"],["05 - 1","IDA — catégorie 1 (travaux)","05","IDA"],["05 - 2","IDA — catégorie 2 (biens et services)","05","IDA"]]};
+  var CFG = {"extra":null,"lignes":[["01","Prêt FIDA",""],["0101","Travaux","01"],["0102","Équipements et matériels","01"],["0103","Formation et accompagnement","01"],["0104","Prestations de services","01"],["0105","Subventions","01"],["0106","Coûts opérationnels","01"],["02","Fonds fiduciaires ASAP",""],["0201","ASAP — catégorie 1","02"],["03","Gouvernement malagasy",""],["0301","Contrepartie de l’État","03"],["04","Apport bénéficiaires",""],["0401","Apport bénéficiaires","04"],["05","Crédit IDA",""],["0501","IDA — catégorie 1 (travaux)","05"],["0502","IDA — catégorie 2 (biens et services)","05"]]};
   var COMPTABLE = 'pl_financier' === 'pl_comptable';
   var rows = CFG.lignes.map(function (r) { return { code: r[0], libelle: r[1], parent: r[2] || '', extra: r[3] || '', actif: r[4] !== 0, racine: '', comp: [], ana: [] }; });
   var sel = -1, mode = 'consultation', filt = {}, draft = { racine: '', comp: [], ana: [] };
@@ -36297,6 +36297,16 @@ window.ECRITURES_REF = {
 //  Pièce     - totaux débit / crédit en monnaie locale et écart ; « Enregistrer » n'accepte qu'une
 //              pièce équilibrée et non nulle, puis passe à la pièce suivante.
 (function () {
+  // Axe FINANCEMENT branché sur « Gestion des plans › Saisie des plans › Financier » : lu à chaque ouverture de liste (seuls les codes actifs du dernier niveau, la catégorie)
+  (function () {
+    var A = window.ECRITURES_AXES; if (!A || A.__finPlan) return; var statique = A['FINANCEMENT'] || [];
+    Object.defineProperty(A, '__finPlan', { value: 1, enumerable: false });
+    Object.defineProperty(A, 'FINANCEMENT', { enumerable: true, configurable: true, set: function (v) { statique = v; }, get: function () {
+      var pl = window.PLANS_LIGNES && window.PLANS_LIGNES['PLAN3']; if (!pl) return statique;
+      var rows = pl.rows || [], cfg = (window.PLANS_CFG || []).filter(function (x) { return x.code === 'PLAN3'; })[0], dernier = cfg && cfg.niveaux ? cfg.niveaux.length : 2;
+      return rows.filter(function (r) { return r.actif !== false && pl.niveau(r.code) === dernier; }).map(function (r) { return { code: r.code, label: r.libelle }; });
+    } });
+  })();
   var R = document.querySelector('[data-screen="ecritures"] app-jour-entry-form');
   if (!R || !window.ECRITURES_REF) return;
   var NG = '_ngcontent-ng-c868432638';
