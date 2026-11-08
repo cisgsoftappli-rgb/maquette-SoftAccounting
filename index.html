@@ -6131,7 +6131,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       </div>
       <p class="aa-info" data-aa-info></p>
     </div>
-    <div class="aa-tot" data-aa-totbox hidden><table><thead><tr><th>Type de dépense</th><th>Lignes</th><th>Total Débit</th><th>Total Crédit</th></tr></thead><tbody data-aa-tot></tbody></table></div></div>
+    <div class="aa-tot" data-aa-totbox hidden><table data-no-pg><thead><tr><th>Type de dépense</th><th>Lignes</th><th>Total Débit</th><th>Total Crédit</th></tr></thead><tbody data-aa-tot></tbody></table></div></div>
 
     <div data-aa-conso hidden>
       <div class="aa-tools"><span class="aa-q"><i class="ti ti-search" aria-hidden="true"></i><input data-aa-q placeholder="Recherche (compte, axe, type…)" autocomplete="off"></span></div>
@@ -6146,14 +6146,14 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     <h2>Saisie manuelle d'une ligne</h2>
     <div class="aa-mb">
       <div class="aa-mg">
-        <label>Compte <b>*</b><select class="bp-sel" data-aa-f="compte" data-no-combo></select></label>
-        <label>Type de dépense <b>*</b><select class="bp-sel" data-aa-f="type" data-no-combo><option value="">— Sélectionner —</option><option>Décaissement</option><option>Engagement</option></select></label>
-        <label>Activité (ACT) <b>*</b><select class="bp-sel" data-aa-f="ACTIVITE" data-no-combo></select></label>
-        <label>Poste budgétaire (BUD) <b>*</b><select class="bp-sel" data-aa-f="POSTE BUDGETAIRE" data-no-combo></select></label>
-        <label>Financement (FIN) <b>*</b><select class="bp-sel" data-aa-f="FINANCEMENT" data-no-combo></select></label>
-        <label>Géographique (GEO) <b>*</b><select class="bp-sel" data-aa-f="GEOGRAPHIQUE" data-no-combo></select></label>
-        <label>Sens <b>*</b><select class="bp-sel" data-aa-f="sens" data-no-combo><option value="D">Débit</option><option value="C">Crédit</option></select></label>
-        <label>Montant en monnaie locale <b>*</b><input class="bp-in" type="number" min="0" step="0.01" data-aa-f="montant"></label>
+        <label><span>Compte <b>*</b></span><select class="bp-sel" data-aa-f="compte" data-combo></select></label>
+        <label><span>Type de dépense <b>*</b></span><select class="bp-sel" data-aa-f="type" data-no-combo><option value="">— Sélectionner —</option><option>Décaissement</option><option>Engagement</option></select></label>
+        <label><span>Activité (ACT) <b>*</b></span><select class="bp-sel" data-aa-f="ACTIVITE" data-combo></select></label>
+        <label><span>Poste budgétaire (BUD) <b>*</b></span><select class="bp-sel" data-aa-f="POSTE BUDGETAIRE" data-combo></select></label>
+        <label><span>Financement (FIN) <b>*</b></span><select class="bp-sel" data-aa-f="FINANCEMENT" data-combo></select></label>
+        <label><span>Géographique (GEO) <b>*</b></span><select class="bp-sel" data-aa-f="GEOGRAPHIQUE" data-combo></select></label>
+        <label><span>Sens <b>*</b></span><select class="bp-sel" data-aa-f="sens" data-no-combo><option value="D">Débit</option><option value="C">Crédit</option></select></label>
+        <label><span>Montant en monnaie locale <b>*</b></span><input class="bp-in" type="number" min="0" step="0.01" data-aa-f="montant"></label>
       </div>
       <p class="aa-er" data-aa-er></p>
     </div>
