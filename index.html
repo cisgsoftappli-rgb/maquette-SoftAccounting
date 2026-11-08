@@ -2149,7 +2149,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.currentScript.parentElement.querySelector('[data-tt-root]');
   var q = function (s) { return root.querySelector(s); };
   var TYPES = [
-    { code: 'IR', lib: 'IR', cpt: [{ compte: '447100', lib: 'État — IR retenu à la source', sens: 'Crédit' }] }, { code: 'IRSA', lib: 'IRSA', cpt: [{ compte: '447200', lib: 'État — IRSA retenu', sens: 'Crédit' }] }, { code: 'TVA', lib: 'TVA', alerte: { actif: true, freq: 'mensuel', debut: '2026-11-15', fin: 'jamais', nb: 12, finDate: '', pre: 3 }, cpt: [{ compte: '445660', compteFin: '445669', lib: 'TVA déductible sur achats', sens: 'Débit' }] }
+    { code: 'IR', lib: 'IR', cpt: [{ compte: '447100', lib: 'État — IR retenu à la source', sens: 'Crédit' }] }, { code: 'IRSA', lib: 'IRSA', cpt: [{ compte: '447200', lib: 'État — IRSA retenu', sens: 'Crédit' }] }, { code: 'TVA', lib: 'TVA', alerte: { actif: true, freq: 'mensuel', debut: '2026-11-15', fin: 'jamais', nb: 12, finDate: '', pre: 3 }, cpt: [{ compte: '445660', compteFin: '445669', lib: 'TVA déductible sur achats', sens: 'Débit' }] },
+    { code: 'DCOM', lib: 'Droit de communication', cpt: [{ compte: '401000', lib: 'Fournisseurs — droit de communication', sens: 'Crédit' }, { compte: '600000', compteFin: '699999', lib: 'Charges soumises au droit de communication', sens: 'Débit' }] }
   ];
   window.__taxTypes = TYPES;
   var cur = null, saved = false, selI = -1, editing = null; // editing = {i, row} (i=-1 → ajout)
