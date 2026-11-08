@@ -2105,6 +2105,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
         <div class="tt-fg">
           <div><label>Numéro <i>*</i></label><input class="tt-in" data-tt-code maxlength="20" autocomplete="off" placeholder="Ex. : 01"><p class="tt-er" data-tt-ecode>Le code est obligatoire.</p></div>
           <div><label>Libellé <i>*</i></label><input class="tt-in" data-tt-lib maxlength="100" placeholder="Ex. : TVA"><p class="tt-er" data-tt-elib>Le libellé est obligatoire.</p></div>
+          <div><label>Type <i>*</i></label><select class="tt-in" data-tt-type><option value="">Sélectionner un type</option><option value="IR">IR — Impôt sur le revenu</option><option value="IRSA">IRSA — Impôt sur les salaires</option><option value="IMP">IMP — Impôt sur les marchés publics</option><option value="TVA">TVA — Taxe sur la valeur ajoutée</option><option value="DCOM">DCOM — Droit de communication</option><option value="AUTRE">Autre</option></select><p class="tt-er" data-tt-etype>Le type est obligatoire.</p><p style="margin:4px 0 0;font-size:12px;color:#747A88">Filtre les modèles d’état applicables à ce type de taxe.</p></div>
         </div>
         <section class="tt-al" data-tt-al>
           <div class="tt-al-h">
@@ -2149,10 +2150,11 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.currentScript.parentElement.querySelector('[data-tt-root]');
   var q = function (s) { return root.querySelector(s); };
   var TYPES = [
-    { code: 'IR', lib: 'IR', cpt: [{ compte: '447100', lib: 'État — IR retenu à la source', sens: 'Crédit' }] }, { code: 'IRSA', lib: 'IRSA', cpt: [{ compte: '447200', lib: 'État — IRSA retenu', sens: 'Crédit' }] }, { code: 'TVA', lib: 'TVA', alerte: { actif: true, freq: 'mensuel', debut: '2026-11-15', fin: 'jamais', nb: 12, finDate: '', pre: 3 }, cpt: [{ compte: '445660', compteFin: '445669', lib: 'TVA déductible sur achats', sens: 'Débit' }] },
-    { code: 'DCOM', lib: 'Droit de communication', cpt: [{ compte: '401000', lib: 'Fournisseurs — droit de communication', sens: 'Crédit' }, { compte: '600000', compteFin: '699999', lib: 'Charges soumises au droit de communication', sens: 'Débit' }] }
+    { code: 'IR', lib: 'IR', type: 'IR', cpt: [{ compte: '447100', lib: 'État — IR retenu à la source', sens: 'Crédit' }] }, { code: 'IRSA', lib: 'IRSA', type: 'IRSA', cpt: [{ compte: '447200', lib: 'État — IRSA retenu', sens: 'Crédit' }] }, { code: 'TVA', lib: 'TVA', type: 'TVA', alerte: { actif: true, freq: 'mensuel', debut: '2026-11-15', fin: 'jamais', nb: 12, finDate: '', pre: 3 }, cpt: [{ compte: '445660', compteFin: '445669', lib: 'TVA déductible sur achats', sens: 'Débit' }] },
+    { code: 'DCOM', lib: 'Droit de communication', type: 'DCOM', cpt: [{ compte: '401000', lib: 'Fournisseurs — droit de communication', sens: 'Crédit' }, { compte: '600000', compteFin: '699999', lib: 'Charges soumises au droit de communication', sens: 'Débit' }] }
   ];
   window.__taxTypes = TYPES;
+  window.__taxFamilles = [['IR', 'IR — Impôt sur le revenu'], ['IRSA', 'IRSA — Impôt sur les salaires'], ['IMP', 'IMP — Impôt sur les marchés publics'], ['TVA', 'TVA — Taxe sur la valeur ajoutée'], ['DCOM', 'DCOM — Droit de communication'], ['AUTRE', 'Autre']];
   var cur = null, saved = false, selI = -1, editing = null; // editing = {i, row} (i=-1 → ajout)
   var SENS = ['Débit', 'Crédit', 'Débit et crédit'];
   // Comptes proposés : référence des plans (PLANS_REF) + comptes de détail actifs du plan comptable de la maquette
@@ -2215,7 +2217,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 
   function drawList() {
     q('[data-tt-list]').innerHTML = TYPES.length ? TYPES.map(function (t, i) {
-      return '<article class="tt-row" data-tt-open="' + i + '"><div style="min-width:0"><h2>' + esc(t.code) + ' — ' + esc(t.lib) + '</h2><p>' + t.cpt.length + ' compte(s) rattaché(s)' + (t.alerte && t.alerte.actif ? ' · Alerte ' + FREQ[t.alerte.freq].toLowerCase() + ' à partir du ' + fr(t.alerte.debut) : '') + '</p></div>' +
+      return '<article class="tt-row" data-tt-open="' + i + '"><div style="min-width:0"><h2>' + esc(t.code) + ' — ' + esc(t.lib) + '</h2><p>Type ' + esc(t.type || '—') + ' · ' + t.cpt.length + ' compte(s) rattaché(s)' + (t.alerte && t.alerte.actif ? ' · Alerte ' + FREQ[t.alerte.freq].toLowerCase() + ' à partir du ' + fr(t.alerte.debut) : '') + '</p></div>' +
         '<div class="tt-act"><button type="button" class="tt-b t" data-tt-open="' + i + '">Modifier</button><button type="button" class="tt-b i" data-tt-rm="' + i + '" aria-label="Supprimer le type de taxe ' + esc(t.code) + '">' + TRASH + '</button></div></article>';
     }).join('') : '<div class="tt-empty">Aucun type de taxe.</div>';
   }
@@ -2251,8 +2253,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     selI = -1; editing = null;
     if (i == null) { cur = { code: '', lib: '', cpt: [] }; saved = false; q('[data-tt-title]').textContent = 'Nouveau type de taxe'; }
     else { cur = TYPES[i]; cur._i = i; saved = true; q('[data-tt-title]').textContent = 'Modifier le type de taxe'; }
-    q('[data-tt-code]').value = cur.code; q('[data-tt-lib]').value = cur.lib;
-    ['code', 'lib'].forEach(function (k) { q('[data-tt-e' + k + ']').style.display = 'none'; q('[data-tt-' + k + ']').classList.remove('bad'); });
+    q('[data-tt-code]').value = cur.code; q('[data-tt-lib]').value = cur.lib; q('[data-tt-type]').value = cur.type || '';
+    ['code', 'lib', 'type'].forEach(function (k) { q('[data-tt-e' + k + ']').style.display = 'none'; q('[data-tt-' + k + ']').classList.remove('bad'); });
     monterListeComptes(); remplirAlerte(cur.alerte); drawRows(); vue('saisie'); q(i == null ? '[data-tt-code]' : '[data-tt-lib]').focus();
   }
   function close() { cur = null; drawList(); vue('liste'); }
@@ -2260,11 +2262,12 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var c = q('[data-tt-code]').value.trim(), l = q('[data-tt-lib]').value.trim(), ok = true;
     q('[data-tt-ecode]').style.display = c ? 'none' : 'block'; q('[data-tt-code]').classList.toggle('bad', !c);
     q('[data-tt-elib]').style.display = l ? 'none' : 'block'; q('[data-tt-lib]').classList.toggle('bad', !l);
-    if (!c || !l) return;
+    var ty = q('[data-tt-type]').value; q('[data-tt-etype]').style.display = ty ? 'none' : 'block'; q('[data-tt-type]').classList.toggle('bad', !ty);
+    if (!c || !l || !ty) return;
     if (!saved && TYPES.some(function (t) { return t.code.toLowerCase() === c.toLowerCase(); })) { q('[data-tt-ecode]').textContent = 'Ce numéro existe déjà.'; q('[data-tt-ecode]').style.display = 'block'; q('[data-tt-code]').classList.add('bad'); return; }
     q('[data-tt-ecode]').textContent = 'Le code est obligatoire.';
     var al = validerAlerte(); if (!al) { var bad = q('[data-tt-al] .tt-in.bad'); if (bad) bad.focus(); return; }
-    cur.code = c; cur.lib = l; cur.alerte = al;
+    cur.code = c; cur.lib = l; cur.type = ty; cur.alerte = al;
     if (!saved) { TYPES.push(cur); cur._i = TYPES.length - 1; saved = true; }
     drawRows(); drawList();
   }
@@ -28510,11 +28513,11 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
               <label><input type="radio" name="tp-nature" value="formule">Formule</label><label><input type="radio" name="tp-nature" value="titre">Titre</label>
             </div></fieldset>
           <fieldset class="bp-box"><legend>Style</legend>
-            <div class="bp-chk"><label><input type="checkbox" data-c="gras">Gras</label><label><input type="checkbox" data-c="italique">Italique</label><label><input type="checkbox" data-c="vide">Ligne vide</label></div></fieldset>
+            <div class="bp-chk"><label><input type="checkbox" data-c="gras">Gras</label><label><input type="checkbox" data-c="italique">Italique</label><label><input type="checkbox" data-c="vide">Ligne vide</label><label><input type="checkbox" data-c="afficher">À afficher</label></div></fieldset>
         </div>
         <div class="tp-r2">
-          <label class="bp-champ"><span>Type</span><select class="bp-sel" data-f="type"><option value=""></option><option>Flux d'exploitation</option><option>Flux d'investissement</option><option>Flux de financement</option></select></label>
-          <label class="bp-champ"><span>Type de mouvement</span><select class="bp-sel" data-f="mouvement"><option value=""></option><option>Débit</option><option>Crédit</option><option>Solde</option><option>Variation</option></select></label>
+          <label class="bp-champ"><span>Type</span><select class="bp-sel" data-f="type"><option value=""></option><option>D - C</option><option>C - D</option><option>D</option><option>C</option><option>Solde D</option><option>Solde C</option></select></label>
+          <label class="bp-champ"><span>Type de mouvement</span><select class="bp-sel" data-f="mouvement"><option value=""></option><option>Variation (N et N-1)</option><option>Solde Début (N)</option><option>Solde Fin (N)</option></select></label>
         </div>
         <div class="bp-chk"><label><input type="checkbox" data-c="rupture">Ajout d'une ligne de rupture contenant le montant total du regroupement</label></div>
       </form>
@@ -28538,15 +28541,15 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var root = document.querySelector('[data-tp]'); if (!root) return;
   function q(s) { return root.querySelector(s); } function qa(s) { return [].slice.call(root.querySelectorAll(s)); }
   var NAT = { grille: 'Grille', regroupement: 'Regroupement', formule: 'Formule', titre: 'Titre' };
-  function L(code, tri, libelle, nature, type, mouvement, rupture) { return { code: code, tri: tri, libelle: libelle, nature: nature, type: type || '', mouvement: mouvement || '', rupture: !!rupture, gras: nature === 'titre' || nature === 'regroupement', italique: false, vide: false }; }
+  function L(code, tri, libelle, nature, type, mouvement, rupture) { return { code: code, tri: tri, libelle: libelle, nature: nature, type: type || '', mouvement: mouvement || '', rupture: !!rupture, gras: nature === 'titre' || nature === 'regroupement', italique: false, vide: false, afficher: true }; }
   var modeles = [{ id: '1', libelle: 'Modèle N° 1', lignes: [
     L('F1', 10, "Flux de trésorerie liés à l'activité", 'titre'),
-    L('F11', 20, 'Encaissements reçus des clients', 'grille', "Flux d'exploitation", 'Débit'),
-    L('F12', 30, 'Décaissements aux fournisseurs', 'grille', "Flux d'exploitation", 'Crédit'),
-    L('FA', 40, "Total des flux liés à l'activité", 'regroupement', "Flux d'exploitation", 'Solde', true),
+    L('F11', 20, 'Encaissements reçus des clients', 'grille', 'D', 'Variation (N et N-1)'),
+    L('F12', 30, 'Décaissements aux fournisseurs', 'grille', 'C', 'Variation (N et N-1)'),
+    L('FA', 40, "Total des flux liés à l'activité", 'regroupement', 'Solde D', 'Variation (N et N-1)', true),
     L('F2', 50, "Flux de trésorerie liés à l'investissement", 'titre'),
-    L('F21', 60, "Acquisitions d'immobilisations", 'grille', "Flux d'investissement", 'Crédit'),
-    L('FT', 70, 'Variation de la trésorerie nette', 'formule', '', 'Variation')
+    L('F21', 60, "Acquisitions d'immobilisations", 'grille', 'C', 'Variation (N et N-1)'),
+    L('FT', 70, 'Variation de la trésorerie nette', 'formule', '', 'Variation (N et N-1)')
   ] }, { id: '2', libelle: 'Modèle N° 2', lignes: [] }];
   var cur = null, sel = -1, mode = 'consultation';
   var sM = q('[data-tp-modele]'), tb = q('[data-tp-lignes]');
@@ -28788,7 +28791,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
           <div class="bp-radios" data-r="nature">
             <label><input type="radio" name="crp-nature" value="titre">Titre</label><label><input type="radio" name="crp-nature" value="soustitre">Sous-titre</label>
             <label><input type="radio" name="crp-nature" value="ligne">Ligne comptable</label><label><input type="radio" name="crp-nature" value="soustotal">Sous-total</label>
-            <label><input type="radio" name="crp-nature" value="total">Total</label><label><input type="radio" name="crp-nature" value="resultat">Résultat</label>
+            <label><input type="radio" name="crp-nature" value="total">Total</label>
             <label><input type="radio" name="crp-nature" value="formule">Formule</label><label><input type="radio" name="crp-nature" value="constante">Constante</label>
           </div></div>
 
@@ -28846,7 +28849,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     L('PT', 140, '*** TOTAL Charges de personnel ***', 'actif', 'soustotal'),
     L('GC', 150, 'TOTAL GÉNÉRAL CHARGES', 'actif', 'total'),
     L('GP', 160, 'TOTAL GÉNÉRAL PRODUITS', 'passif', 'total'),
-    L('XD', 170, 'EXCÉDENT / DÉFICIT', 'passif', 'resultat')
+    L('XD', 170, 'EXCÉDENT / DÉFICIT', 'passif', 'formule')
   ] }, { id: 'ALLEGE', libelle: 'Système allégé', lignes: [] }];
   var cur = null, sel = -1, mode = 'consultation', copie = null, optOuvert = false;
   var sM = q('[data-crp-modele]'), tb = q('[data-crp-lignes]');
@@ -29138,12 +29141,12 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
           <label><input type="checkbox" data-c="imprimer">À imprimer</label><label><input type="checkbox" data-c="afficher">À afficher</label>
         </div>
         <div><div class="bp-lab">Type <b>*</b></div>
-          <div class="bp-radios" data-r="type"><label><input type="radio" name="erp-type" value="actif">Emploi</label><label><input type="radio" name="erp-type" value="passif">Ressource</label></div></div>
+          <div class="bp-radios" data-r="type"><label><input type="radio" name="erp-type" value="actif">Emploi</label><label><input type="radio" name="erp-type" value="passif">Ressource</label><label><input type="radio" name="erp-type" value="treso">Compte de trésorerie</label></div></div>
         <div><div class="bp-lab">Nature <b>*</b></div>
           <div class="bp-radios" data-r="nature">
             <label><input type="radio" name="erp-nature" value="titre">Titre</label><label><input type="radio" name="erp-nature" value="soustitre">Sous-titre</label>
             <label><input type="radio" name="erp-nature" value="ligne">Ligne comptable</label><label><input type="radio" name="erp-nature" value="soustotal">Sous-total</label>
-            <label><input type="radio" name="erp-nature" value="total">Total</label><label><input type="radio" name="erp-nature" value="resultat">Résultat</label>
+            <label><input type="radio" name="erp-nature" value="total">Total</label>
             <label><input type="radio" name="erp-nature" value="formule">Formule</label><label><input type="radio" name="erp-nature" value="constante">Constante</label>
           </div></div>
 
@@ -29215,10 +29218,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     q('[data-erp-vide]').textContent = !m ? 'Sélectionnez ou créez un modèle pour afficher ses lignes.' : 'Ce modèle n\'a pas encore de ligne : utilisez « Ajouter ».';
     q('[data-erp-compte]').textContent = m ? m.lignes.length + ' ligne' + (m.lignes.length > 1 ? 's' : '') : '';
     var LET = { ligne: 'G', formule: 'F', constante: 'C' };
-    tb.innerHTML = m ? m.lignes.map(function (l, i) { return { l: l, i: i }; }).sort(function (a, b) { return (a.l.type === b.l.type ? 0 : a.l.type === 'actif' ? -1 : 1) || (+a.l.ordre || 0) - (+b.l.ordre || 0); }).map(function (o) {
+    tb.innerHTML = m ? m.lignes.map(function (l, i) { return { l: l, i: i }; }).sort(function (a, b) { return ((({ actif: 0, passif: 1, treso: 2 })[a.l.type] || 0) - (({ actif: 0, passif: 1, treso: 2 })[b.l.type] || 0)) || (+a.l.ordre || 0) - (+b.l.ordre || 0); }).map(function (o) {
       var l = o.l, i = o.i, f = l.fourchettes[0] || {}, a = l.amort[0] || {}, res = l.nature === 'resultat';
       function c(v, cl) { return '<td' + (cl ? ' class="' + cl + '"' : '') + '>' + esc(v) + '</td>'; }
-      return '<tr data-i="' + i + '" class="t-' + l.nature + (i === sel ? ' sel' : '') + '">' + c(l.code) + c(l.libelle) + c(l.type === 'actif' ? 'E' : 'R', 'c') +
+      return '<tr data-i="' + i + '" class="t-' + l.nature + (i === sel ? ' sel' : '') + '">' + c(l.code) + c(l.libelle) + c(l.type === 'actif' ? 'E' : l.type === 'treso' ? 'T' : 'R', 'c') +
         '<td class="c" data-v="' + (res ? 'oui' : 'non') + '"><input type="checkbox" tabindex="-1" aria-label="Résultat"' + (res ? ' checked' : '') + '></td>' +
         c(f.d) + c(f.f) + c(f.s, 'c') + c(a.d) + c(a.f) + c(a.s, 'c') +
         '<td class="c" title="' + NAT[l.nature] + '">' + (LET[l.nature] || 'R') + '</td>' + c(l.formule) + '</tr>';
@@ -29319,7 +29322,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     qa('[data-c]').forEach(function (c) { l[c.dataset.c] = c.checked; });
     var t = qa('[name=erp-type]:checked')[0], n = qa('[name=erp-nature]:checked')[0];
     l.type = t && t.value; l.nature = n && n.value; if (l.nature !== 'ligne') { l.fourchettes = []; l.amort = []; } l.ordre = parseInt(l.ordre, 10) || '';
-    var err = !l.code ? 'Le code est obligatoire.' : !l.libelle ? 'Le libellé est obligatoire.' : !l.type ? 'Choisissez le type (Emploi ou Ressource).' : !l.nature ? 'Choisissez la nature de la ligne.'
+    var err = !l.code ? 'Le code est obligatoire.' : !l.libelle ? 'Le libellé est obligatoire.' : !l.type ? 'Choisissez le type (Emploi, Ressource ou Compte de trésorerie).' : !l.nature ? 'Choisissez la nature de la ligne.'
       : (l.nature === 'ligne' && !l.fourchettes.some(function (x) { return x.d && x.f; })) ? 'Au moins une fourchette de comptes est obligatoire.' : '';
     if (!err && cur.lignes.some(function (x, i) { return x.code === l.code && i !== sel; })) err = 'Ce code existe déjà dans le modèle.';
     if (err) { toast(err); return; }
@@ -30774,7 +30777,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function syncJnl() { var j = root.querySelector('[name="trjnl"]:checked'), t = j ? j.value : 'Tous', l = t === 'Tous' ? JN.OD.concat(JN['Trésorerie']) : JN[t]; fld('jnl').innerHTML = '<option>Tous</option>' + l.map(function (x) { return '<option>' + x + '</option>'; }).join(''); }
   function types() {
     var t = (window.__taxTypes || []).filter(function (x) { return x.code; });
-    if (!t.some(function (x) { return x.code === 'TAXE'; })) t = t.concat([{ code: 'TAXE', lib: 'TAXE', cpt: [{ compte: '445000', lib: 'Impôt sur les Marchés Publics', sens: 'Crédit' }] }]);
+    if (!t.some(function (x) { return x.code === 'TAXE'; })) t = t.concat([{ code: 'TAXE', lib: 'TAXE', type: 'IMP', cpt: [{ compte: '445000', lib: 'Impôt sur les Marchés Publics', sens: 'Crédit' }] }]);
     return t;
   }
   function fld(k) { return q('[data-tr-f="' + k + '"]'); }
@@ -30814,8 +30817,11 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     Array.prototype.forEach.call(els, function (el) {
       var t = el.querySelector('[data-mf-title]'), sec = el.closest('[data-mf-sec]');
       var mt = el.querySelector('.mf-meta'), cd = mt ? mt.textContent.split('·')[0].replace('N°', '').trim() : '';
-      if (t) out.push({ nom: t.textContent.trim(), code: cd, annexe: sec ? sec.dataset.mfSec === 'ANNEXE' : /annexe/i.test(t.textContent) });
+      if (t) out.push({ nom: t.textContent.trim(), code: cd, taxtype: el.dataset.taxtype || '', annexe: sec ? sec.dataset.mfSec === 'ANNEXE' : /annexe/i.test(t.textContent) });
     });
+    // filtrage : les modèles rattachés à un type de taxe ne sont proposés que pour ce type (les modèles sans type restent proposés pour tous)
+    var tt = crit && (window.__taxTypes || []).filter(function (x) { return x.code === crit.type; })[0], fam = tt && tt.type;
+    if (fam) out = out.filter(function (m) { return !m.taxtype || m.taxtype === fam; });
     if (!out.length) out = [{ nom: 'Annexes', annexe: true }, { nom: 'Déclaration', annexe: false }];
     if (!out.some(function (m) { return m.nom === model; })) model = (out.filter(function (m) { return !m.annexe; })[0] || out[0]).nom;
     return out;
@@ -33577,7 +33583,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .mf-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .mf-name b{font-weight:600;color:#0B1332}
 .mf-tag{border-radius:999px;padding:2px 8px;font-size:12px;font-weight:600}
-.mf-tag.annexe{background:#F4F7FE;color:#2E427B}.mf-tag.decl{background:#F4F7FE;color:#5F77B9}.mf-tag.def{background:#fffbeb;color:#b45309}
+.mf-tag.annexe{background:#F4F7FE;color:#2E427B}.mf-tag.decl{background:#F4F7FE;color:#5F77B9}.mf-tag.tx{background:#F4F7FE;color:#2E427B}.mf-tag.def{background:#fffbeb;color:#b45309}
 .mf-meta{margin:2px 0 0;font-size:12px;color:#5B606D}
 .mf-acts{display:flex;align-items:center;gap:8px}
 .mf-a{border:1px solid #B9BEC8;border-radius:6px;background:#fff;color:#353944;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
@@ -33622,58 +33628,58 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
             <p class="mf-meta">N° FISCAL_ANNEXES · Fichier : annexes</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Annexe IRSA</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="IRSA">
+          <div><div class="mf-name"><b data-mf-title>Annexe IRSA</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : IRSA</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° FISCAL_ANNEXE_IRSA · Fichier : DGI_Annexe_IRSA</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Annexe TVA</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="TVA">
+          <div><div class="mf-name"><b data-mf-title>Annexe TVA</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : TVA</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° FISCAL_ANNEXE_TVA · Fichier : DGI_Annexe_TVA</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Achats de marchandises destinées à la revente (ADR)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Achats de marchandises destinées à la revente (ADR)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_ADR · Fichier : DGI_DCOM_ADR</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Achats immobilisés (AI)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Achats immobilisés (AI)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_AI · Fichier : DGI_DCOM_AI</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Achats non destinés à la revente (AC)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Achats non destinés à la revente (AC)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_AC · Fichier : DGI_DCOM_AC</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Débours (DEB)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Débours (DEB)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_DEB · Fichier : DGI_DCOM_DEB</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Marchandises vendues (MV)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Marchandises vendues (MV)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_MV · Fichier : DGI_DCOM_MV</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Prestations de services vendues (PSV)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Prestations de services vendues (PSV)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_PSV · Fichier : DGI_DCOM_PSV</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Produits locaux (PL)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Produits locaux (PL)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_PL · Fichier : DGI_DCOM_PL</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Produits locaux par produit (récapitulation) (PLP)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Produits locaux par produit (récapitulation) (PLP)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_PLP · Fichier : DGI_DCOM_PLP</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Droit de communication — Sommes versées à des tiers (SVT)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="DCOM">
+          <div><div class="mf-name"><b data-mf-title>Droit de communication — Sommes versées à des tiers (SVT)</b><span class="mf-tag annexe">Annexe</span><span class="mf-tag tx">Type : DCOM</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° DCOM_SVT · Fichier : DGI_DCOM_SVT</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
@@ -33687,8 +33693,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
             <p class="mf-meta">N° DECLARATION · Fichier : Declaration_Fiscale</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="mf-row" data-mf-item data-def="1">
-          <div><div class="mf-name"><b data-mf-title>Déclaration TMP</b><span class="mf-tag decl">Déclaration</span><span class="mf-tag def">Par défaut</span></div>
+        <div class="mf-row" data-mf-item data-def="1" data-taxtype="IMP">
+          <div><div class="mf-name"><b data-mf-title>Déclaration TMP</b><span class="mf-tag decl">Déclaration</span><span class="mf-tag tx">Type : IMP</span><span class="mf-tag def">Par défaut</span></div>
             <p class="mf-meta">N° TMP_DECLARATION · Fichier : Declaration_TMP</p></div>
           <div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button><button type="button" class="mf-trash" disabled title="Suppression interdite : modèle officiel par défaut" aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>
         </div>
@@ -33704,6 +33710,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <div class="mf-field"><label class="mf-label">Nom du modèle *</label><input class="mf-ctl" data-mf-f="nom" placeholder="Ex. Listing standard des mouvements"></div>
       <div class="mf-field"><label class="mf-label">Type d'état *</label>
         <select class="mf-ctl" data-mf-f="type"><option value="ANNEXE">Annexe</option><option value="DÉCLARATION">Déclaration</option></select></div>
+      <div class="mf-field" data-mf-taxfield><label class="mf-label">Type de taxe</label><select class="mf-ctl" data-mf-tax><option value="">Tous les types de taxe</option></select><p class="mf-help">Le modèle sera proposé uniquement pour les déclarations de ce type. Non modifiable après la création.</p></div>
       <div class="mf-field"><label class="mf-label">Nom du fichier RepX créé après enregistrement *</label><input class="mf-ctl" data-mf-f="file" placeholder="Ex. listing_modele_04"><p class="mf-help">L'extension .repx sera ajoutée automatiquement.</p></div>
       <div class="mf-foot">
         <button type="button" class="mf-btn mf-sec" data-mf-cancel>Annuler</button>
@@ -33728,8 +33735,11 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     q('[data-mf-none]').style.display = shown ? 'none' : '';
   }
   function say(t) { toast.textContent = t; toast.style.display = ''; clearTimeout(say.t); say.t = setTimeout(function () { toast.style.display = 'none'; }, 3500); }
+  function familles() { return window.__taxFamilles || [['IR', 'IR'], ['IRSA', 'IRSA'], ['IMP', 'IMP'], ['TVA', 'TVA'], ['DCOM', 'DCOM'], ['AUTRE', 'Autre']]; }
   function open(item) {
     editing = item || null;
+    var st = q('[data-mf-tax]'); st.innerHTML = '<option value="">Tous les types de taxe</option>' + familles().map(function (x) { return '<option value="' + esc(x[0]) + '">' + esc(x[1]) + '</option>'; }).join('');
+    st.value = item ? (item.dataset.taxtype || '') : ''; st.disabled = !!item;
     F.forEach(function (k) { f(k).value = ''; f(k).disabled = false; f(k).classList.remove('mf-bad'); });
     q('[data-mf-mtitle]').textContent = item ? 'Modifier le modèle' : 'Nouveau modèle listing';
     if (!item) f('type').value = 'ANNEXE';
@@ -33749,8 +33759,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (q('[data-mf-save]').disabled) return;
     if (editing) { editing.querySelector('[data-mf-title]').textContent = f('nom').value.trim(); close(); refresh(); return; }
     var annexe = f('type').value === 'ANNEXE', row = document.createElement('div');
-    row.className = 'mf-row'; row.setAttribute('data-mf-item', '');
-    row.innerHTML = '<div><div class="mf-name"><b data-mf-title>' + esc(f('nom').value.trim()) + '</b><span class="mf-tag ' + (annexe ? 'annexe">Annexe' : 'decl">Déclaration') + '</span></div>' +
+    row.className = 'mf-row'; row.setAttribute('data-mf-item', ''); var tx = q('[data-mf-tax]').value; if (tx) row.setAttribute('data-taxtype', tx);
+    row.innerHTML = '<div><div class="mf-name"><b data-mf-title>' + esc(f('nom').value.trim()) + '</b><span class="mf-tag ' + (annexe ? 'annexe">Annexe' : 'decl">Déclaration') + '</span>' + (tx ? '<span class="mf-tag tx">Type : ' + esc(tx) + '</span>' : '') + '</div>' +
       '<p class="mf-meta">N° ' + esc(f('code').value.trim()) + ' · Fichier : ' + esc(f('file').value.trim()) + '</p></div>' +
       '<div class="mf-acts"><button type="button" class="mf-a" data-mf-edit>Modifier</button><button type="button" class="mf-a mf-or" data-mf-design>Ouvrir le designer</button>' +
       '<button type="button" class="mf-trash mf-on" data-mf-del aria-label="Supprimer"><i class="ti ti-trash"></i></button></div>';
@@ -36842,11 +36852,22 @@ window.ECRITURES_REF = {
   function enteteListe(axes) {
     var sig = axes.map(function (a) { return a.lib; }).join('|') + (regrActif() ? '+R' : '') + '#' + repCols().map(function (c) { return c.code; }).join(','); if (!trEntete || sig === sigEntete) return; sigEntete = sig;
     [].slice.call(trEntete.children).slice(1).forEach(function (t) { trEntete.removeChild(t); });
-    ['Compte', 'Auxiliaire'].concat(axes.map(function (a) { return a.lib; }), ['Budget'], regrActif() ? ['Regroupement'] : [], ['Libellé', 'Débit', 'Crédit'], [].concat.apply([], repCols().map(function (c, i) { return [repNom(i, 'Débit'), repNom(i, 'Crédit')]; })), ['Échéance']).forEach(function (nom) {
+    ['Compte', 'Auxiliaire'].concat(axes.map(function (a) { return a.lib; }), ['Budget'], regrActif() ? ['Regroupement'] : [], ['Contrat', 'Libellé', 'Débit', 'Crédit'], [].concat.apply([], repCols().map(function (c, i) { return [repNom(i, 'Débit'), repNom(i, 'Crédit')]; })), ['Échéance']).forEach(function (nom) {
       var t = thModele.cloneNode(true); t.textContent = nom;
       if (/^(Débit|Crédit)/.test(nom)) t.style.textAlign = 'right';
       trEntete.appendChild(t);
     });
+    // la ligne de filtres (tableaux.js) est posée une seule fois : elle suit les colonnes quand l'en-tête change (axes, devises de report, regroupement)
+    var fr = trEntete.parentNode.querySelector('tr.tf-row');
+    if (fr) {
+      var st0 = fr.cells[0] ? fr.cells[0].style.cssText : '';
+      fr.innerHTML = '';
+      [].slice.call(trEntete.cells).forEach(function (c, i) {
+        var h = document.createElement('th'), tt = c.textContent.replace(/s+/g, ' ').trim(); if (st0) h.style.cssText = st0;
+        if (tt) { var inp = document.createElement('input'); inp.type = 'search'; inp.placeholder = 'Filtrer'; inp.setAttribute('aria-label', 'Filtrer : ' + tt); inp.autocomplete = 'off'; inp.dataset.tfc = i; h.appendChild(inp); }
+        fr.appendChild(h);
+      });
+    }
   }
   enteteListe(axesListe());
   var pied = $$('.entry-balance-footer td'), trPiedFixe = pied[0].parentNode, tfootFixe = pied[0].closest('tfoot');
@@ -36897,13 +36918,24 @@ window.ECRITURES_REF = {
   // Contrôle d'équilibre du bordereau (zone de droite de la ligne) : Débit, Crédit, Solde par monnaie de comptabilisation (locale et devise 1)
   var equilibre = el('<div class="entry-equilibre"><div class="entry-equilibre-titre">Contrôle d\'équilibre du bordereau</div>' +
     '<table><thead><tr><th>Monnaie</th><th>Débit</th><th>Crédit</th><th>Solde</th></tr></thead><tbody></tbody></table></div>');
+  // Équilibre débit / crédit par élément du plan de regroupement (monnaie locale) : obligatoire avant de valider la pièce
+  function ecartsRegr(liste) {
+    if (!regrActif()) return [];
+    var m = {}; (liste || lignes).forEach(function (l) { var k = l.regr || ''; m[k] = m[k] || { code: k, d: 0, c: 0 }; if (l.sens === 'DEBIT') m[k].d += l.montant; else m[k].c += l.montant; });
+    return Object.keys(m).map(function (k) { var x = m[k]; x.s = Math.round((x.d - x.c) * 100) / 100; return x; });
+  }
+  // Équilibre débit / crédit par contrat rattaché (monnaie locale) : obligatoire avant de valider la pièce
+  function ecartsContrat(liste) {
+    var m = {}; (liste || lignes).forEach(function (l) { var k = l.contrat && l.contrat.code; if (!k) return; m[k] = m[k] || { code: k, d: 0, c: 0 }; if (l.sens === 'DEBIT') m[k].d += l.montant; else m[k].c += l.montant; });
+    return Object.keys(m).map(function (k) { var x = m[k]; x.s = Math.round((x.d - x.c) * 100) / 100; return x; });
+  }
   function majEquilibre(liste) {
     var MONS = [[MON().m1, 'montant']].concat(repCols().map(function (c) { return [c.code, c.cle]; }));
     $('tbody', equilibre).innerHTML = MONS.map(function (m) {
       var d = 0, c = 0; liste.forEach(function (l) { if (l.sens === 'DEBIT') d += l[m[1]] || 0; else c += l[m[1]] || 0; });
       var s = Math.round((d - c) * 100) / 100, ok = !s;
       return '<tr><td>' + m[0] + '</td><td>' + fmt(d) + '</td><td>' + fmt(c) + '</td><td class="' + (!liste.length ? '' : ok ? 'eq-ok' : 'eq-ko') + '">' + fmt(s) + '</td></tr>';
-    }).join('');
+    }).join('') + ecartsRegr(liste).map(function (x) { return '<tr title="Équilibre du regroupement ' + (x.code || 'non renseigné') + '"><td>Regr. ' + (x.code || '—') + '</td><td>' + fmt(x.d) + '</td><td>' + fmt(x.c) + '</td><td class="' + (!x.s ? 'eq-ok' : 'eq-ko') + '">' + fmt(x.s) + '</td></tr>'; }).join('');
   }
   majEquilibre([]);
   function valider(l) {
@@ -36911,6 +36943,7 @@ window.ECRITURES_REF = {
     invalide(compte.btn, !l.compte); if (!l.compte) manque.push('compte général');
     invalide(libelle, !l.libelle); if (!l.libelle) manque.push('libellé');
     invalide(montant, !l.montant); if (!l.montant) manque.push('montant en devise locale');
+    if (regrActif()) { var cr = ctrl('regroupement'); if (cr) { invalide(cr, !l.regr); if (cr.__cbBox) invalide(cr.__cbBox, !l.regr); } if (!l.regr) manque.push('plan de regroupement'); }
     if (l.montant < 0) { invalide(montant, true); notify('Le montant doit être positif : utilisez le sens Débit / Crédit.', true); return false; }
     if (manque.length) { notify('Complétez : ' + manque.join(', ') + '.', true); return false; }
     return true;
@@ -36931,6 +36964,7 @@ window.ECRITURES_REF = {
         axesL.map(function (a) { return td(l.axes[a.nom] ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.axes[a.nom]) + '</span>' : VIDE); }).join('') +
         td(l.budget ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.budget) + '</span>' : VIDE) +
         (regrActif() ? td(l.regr ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.regr) + '</span>' : VIDE) : '') +
+        td(l.contrat && l.contrat.code ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums" title="' + esc(l.contrat.label || '') + '">' + esc(l.contrat.code) + '</span>' : VIDE) +
         td('<div style="min-width:220px">' + esc(l.libelle) + '</div>', 'whitespace-normal') +
         td(l.sens === 'DEBIT' ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + fmt(l.montant) + '</span>' : '', 'text-right whitespace-nowrap') +
         td(l.sens === 'DEBIT' ? '' : '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + fmt(l.montant) + '</span>', 'text-right whitespace-nowrap') +
@@ -36958,19 +36992,21 @@ window.ECRITURES_REF = {
     lignes.forEach(function (l) { if (l.sens === 'DEBIT') d1 += l.montant1 || 0; else c1 += l.montant1 || 0; });
     var ecart1 = Math.round((d1 - c1) * 100) / 100;
     var d2 = 0, c2 = 0; lignes.forEach(function (l) { if (l.sens === 'DEBIT') d2 += l.montant2 || 0; else c2 += l.montant2 || 0; });
-    window.__ecTotaux = { d: d, c: c, d1: d1, c1: c1, d2: d2, c2: c2 }; window.dispatchEvent(new Event('ecritures-totaux'));
+    window.__ecTotaux = { d: d, c: c, d1: d1, c1: c1, d2: d2, c2: c2 }; window.__ecRegr = ecartsRegr(); window.__ecContrat = ecartsContrat(); window.dispatchEvent(new Event('ecritures-totaux'));
     var trPied = trPiedFixe, tdT = 'class="px-2.5 py-2 text-right whitespace-nowrap" style="font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-weight:700;color:#0B1332"';
     tfootFixe.style.display = lignes.length ? '' : 'none';
     trPied.className = ''; trPied.style.background = '#fff'; trPied.style.color = '#0B1332';
-    trPied.innerHTML = '<td colspan="' + (5 + axesL.length + (regrActif() ? 1 : 0)) + '" class="px-2.5 py-2" style="font-weight:700">Total · ' + (ecart || ecart1 ? 'Écart ' + fmt(Math.abs(ecart)) + (ecart1 ? ' / ' + fmt(Math.abs(ecart1)) + ' USD' : '') : 'Équilibré') + '</td>' +
+    trPied.innerHTML = '<td colspan="' + (6 + axesL.length + (regrActif() ? 1 : 0)) + '" class="px-2.5 py-2" style="font-weight:700">Total · ' + (ecart || ecart1 ? 'Écart ' + fmt(Math.abs(ecart)) + (ecart1 ? ' / ' + fmt(Math.abs(ecart1)) + ' USD' : '') : 'Équilibré') + '</td>' +
       '<td ' + tdT + '>' + fmt(d) + '</td><td ' + tdT + '>' + fmt(c) + '</td>' + repCols().map(function (rc) { var a = rc.cle === 'montant1' ? d1 : d2, b = rc.cle === 'montant1' ? c1 : c2; return '<td ' + tdT + '>' + fmt(a) + '</td><td ' + tdT + '>' + fmt(b) + '</td>'; }).join('') + '<td></td>';
     $('.entry-crud-toolbar strong').textContent = lignes.length + (lignes.length > 1 ? ' lignes' : ' ligne') + (edition >= 0 ? ' · modification de la ligne ' + (edition + 1) : '');
 
     var sel = selection >= 0 && edition < 0;
     toolbar['Enregistrer'].disabled = consult >= 0 && edition < 0;   // enregistre la ligne en cours (ajout ou mise à jour) ; grisé quand une ligne est seulement consultée
     toolbar['Enregistrer'].title = edition >= 0 ? 'Enregistrer : mettre à jour la ligne ' + (edition + 1) : 'Enregistrer la ligne en cours';
-    btnPiece.disabled = !lignes.length || edition >= 0 || !!ecart;
-    btnPiece.title = !lignes.length ? 'Aucune ligne à enregistrer' : edition >= 0 ? 'Terminez la modification de la ligne en cours' : ecart ? 'Pièce déséquilibrée : écart de ' + fmt(Math.abs(ecart)) + ' entre débit et crédit' : 'Enregistrer la pièce';
+    var er = ecartsRegr().filter(function (x) { return x.s || !x.code; });
+    var ec2 = ecartsContrat().filter(function (x) { return x.s; });
+    btnPiece.disabled = !lignes.length || edition >= 0 || !!ecart || !!er.length || !!ec2.length;
+    btnPiece.title = !lignes.length ? 'Aucune ligne à enregistrer' : edition >= 0 ? 'Terminez la modification de la ligne en cours' : ecart ? 'Pièce déséquilibrée : écart de ' + fmt(Math.abs(ecart)) + ' entre débit et crédit' : ec2.length ? 'Contrat : débit et crédit à équilibrer pour ' + ec2.map(function (x) { return x.code; }).join(', ') : er.length ? 'Plan de regroupement : ' + (er.some(function (x) { return !x.code; }) ? 'regroupement manquant sur une ligne' : 'débit et crédit à équilibrer pour ' + er.filter(function (x) { return x.s; }).map(function (x) { return x.code; }).join(', ')) : 'Enregistrer la pièce';
     toolbar['Modifier'].disabled = !sel;
     toolbar['Dupliquer'].disabled = !sel;
     toolbar['Supprimer'].disabled = !sel;
@@ -36998,7 +37034,7 @@ window.ECRITURES_REF = {
       var T = tx0 > 0 ? rnd(M * tx0 / 100) : fo0, k0 = M ? T / M : 0, T1 = rnd(M1 * k0), T2 = rnd(M2 * k0);
       var cpx = REF.comptes.filter(function (x) { return x.code === nt.ctaxe; })[0], ct = { code: nt.ctaxe, label: cpx ? cpx.label : nt.libelle };
       var lib0 = nt.code + (tx0 > 0 ? ' ' + String(tx0).replace('.', ',') + ' %' : '') + ' — ' + b.libelle, opp = b.sens === 'DEBIT' ? 'CREDIT' : 'DEBIT';
-      var mk = function (compte, tiers, sens) { return { compte: compte, tiers: tiers, contrat: null, libelle: lib0, regr: '', montant: T, montant1: T1, montant2: T2, sens: sens, echeance: b.echeance, axes: {}, budget: '', mode: b.mode, infos: b.infos.map(function () { return ''; }), docs: [], parent: b.uid, taxeAuto: true }; };
+      var mk = function (compte, tiers, sens) { return { compte: compte, tiers: tiers, contrat: b.contrat || null, libelle: lib0, regr: b.regr || '', montant: T, montant1: T1, montant2: T2, sens: sens, echeance: b.echeance, axes: {}, budget: '', mode: b.mode, infos: b.infos.map(function () { return ''; }), docs: [], parent: b.uid, taxeAuto: true }; };
       if (nt.effet === 'Retenue') { ret += T; ret1 += T1; ret2 += T2; out.push(mk(ct, null, b.sens)); }   // 401 (C) 100 → 401 (C) 92 + taxe (C) 8
       else { out.push(mk(b.compte, b.tiers || null, b.sens)); out.push(mk(ct, null, opp)); }           // 401 (C) 100 + 401 (C) 20 + taxe (D) 20
     });
@@ -37015,7 +37051,7 @@ window.ECRITURES_REF = {
     var out = [];
     ty.cpt.forEach(function (c) {
       var m = taux > 0 ? rnd(b.montant * taux / 100) : forfait, k = b.montant ? m / b.montant : 0, cp = REF.comptes.filter(function (x) { return x.code === c.compte; })[0];
-      out.push({ compte: { code: c.compte, label: cp ? cp.label : c.lib }, tiers: null, contrat: null, libelle: ty.code + (taux > 0 ? ' ' + String(taux).replace('.', ',') + ' %' : '') + ' — ' + b.libelle, regr: '', montant: m, montant1: rnd((b.montant1 || 0) * k), montant2: rnd((b.montant2 || 0) * k),
+      out.push({ compte: { code: c.compte, label: cp ? cp.label : c.lib }, tiers: null, contrat: b.contrat || null, libelle: ty.code + (taux > 0 ? ' ' + String(taux).replace('.', ',') + ' %' : '') + ' — ' + b.libelle, regr: b.regr || '', montant: m, montant1: rnd((b.montant1 || 0) * k), montant2: rnd((b.montant2 || 0) * k),
         sens: /^Débit$/.test(c.sens) ? 'DEBIT' : /^Crédit$/.test(c.sens) ? 'CREDIT' : b.sens, echeance: b.echeance, axes: {}, budget: '', mode: b.mode, infos: b.infos.map(function () { return ''; }), docs: [], parent: b.uid, taxeAuto: true });
     });
     return out;
@@ -37044,6 +37080,12 @@ window.ECRITURES_REF = {
       var d = 0, c = 0;
       lignes.forEach(function (l) { if (l.sens === 'DEBIT') d += l.montant; else c += l.montant; });
       if (Math.round((d - c) * 100)) { notify('Pièce déséquilibrée : écart de ' + fmt(Math.abs(d - c)) + ' entre débit et crédit.', true); return; }
+      var sansR = lignes.filter(function (l) { return regrActif() && !l.regr; }).length;
+      if (sansR) { notify('Plan de regroupement obligatoire : ' + sansR + ' ligne(s) sans regroupement.', true); return; }
+      var kr = ecartsRegr().filter(function (x) { return x.s; });
+      if (kr.length) { notify('Plan de regroupement : débit et crédit non équilibrés pour ' + kr.map(function (x) { return x.code + ' (écart ' + fmt(Math.abs(x.s)) + ')'; }).join(', ') + '.', true); return; }
+      var kc = ecartsContrat().filter(function (x) { return x.s; });
+      if (kc.length) { notify('Contrat : débit et crédit non équilibrés pour ' + kc.map(function (x) { return x.code + ' (écart ' + fmt(Math.abs(x.s)) + ')'; }).join(', ') + '. Rattachez aussi la contrepartie au contrat.', true); return; }
       var pjE = paramJournal(journal.value.code);
       if (pjE && !pjE.auto && !pieceSaisie()) { notify('Ce journal est en numérotation manuelle : saisissez le numéro de pièce.', true); ctrl('piece').focus(); return; }
       var Z0 = window.CIRCUIT_ZERO, uc = window.UTILISATEUR_COURANT || 'admin';
@@ -37109,13 +37151,17 @@ window.ECRITURES_REF = {
   function majContrepartie(garder) {
     var pj = jTreso(); lignes = lignes.filter(function (l) { return !l.auto; });
     if (pj && tresoMode) {
-      var d = 0, c = 0, d1 = 0, c1 = 0, d2 = 0, c2 = 0;
-      lignes.forEach(function (l) { if (l.sens === 'DEBIT') { d += l.montant; d1 += l.montant1 || 0; d2 += l.montant2 || 0; } else { c += l.montant; c1 += l.montant1 || 0; c2 += l.montant2 || 0; } });
-      var net = Math.round((d - c) * 100) / 100;
-      if (net) {
-        var cp = REF.comptes.filter(function (x) { return x.code === pj.compte; })[0] || { code: pj.compte, label: '' }, r2 = function (v) { return Math.round(Math.abs(v) * 100) / 100; };
-        lignes.push({ compte: { code: cp.code, label: cp.label }, tiers: null, contrat: null, libelle: 'Contrepartie ' + (journal.value.label || journal.value.code), regr: '', montant: Math.abs(net), montant1: r2(d1 - c1), montant2: r2(d2 - c2), sens: net > 0 ? 'CREDIT' : 'DEBIT', echeance: '', axes: {}, budget: '', mode: '', infos: $$('[data-info]', corpsInfos).map(function () { return ''; }), docs: [], auto: true });
-      }
+      var cleG = function (l) { return (regrActif() ? l.regr || '' : '') + '\u0001' + (l.contrat && l.contrat.code || ''); };
+      var groupes = lignes.map(cleG).filter(function (v, i, t) { return t.indexOf(v) === i; });
+      groupes.forEach(function (gr) {
+        var d = 0, c = 0, d1 = 0, c1 = 0, d2 = 0, c2 = 0, ref = null;
+        lignes.forEach(function (l) { if (cleG(l) !== gr) return; if (!ref) ref = l; if (l.sens === 'DEBIT') { d += l.montant; d1 += l.montant1 || 0; d2 += l.montant2 || 0; } else { c += l.montant; c1 += l.montant1 || 0; c2 += l.montant2 || 0; } });
+        var net = Math.round((d - c) * 100) / 100;
+        if (net) {
+          var cp = REF.comptes.filter(function (x) { return x.code === pj.compte; })[0] || { code: pj.compte, label: '' }, r2 = function (v) { return Math.round(Math.abs(v) * 100) / 100; };
+          lignes.push({ compte: { code: cp.code, label: cp.label }, tiers: null, contrat: ref && ref.contrat || null, libelle: 'Contrepartie ' + (journal.value.label || journal.value.code), regr: regrActif() && ref ? ref.regr || '' : '', montant: Math.abs(net), montant1: r2(d1 - c1), montant2: r2(d2 - c2), sens: net > 0 ? 'CREDIT' : 'DEBIT', echeance: '', axes: {}, budget: '', mode: '', infos: $$('[data-info]', corpsInfos).map(function () { return ''; }), docs: [], auto: true });
+        }
+      });
     }
     if (!garder) { selection = -1; edition = -1; }
     render();
@@ -37152,7 +37198,7 @@ window.ECRITURES_REF = {
   window.__ecEntete.ajouterLignes = function (L, msg) {
     var vides = $$('[data-info]', corpsInfos).map(function () { return ''; });
     L.forEach(function (x) {
-      lignes.push({ compte: x.compte, tiers: x.tiers || null, contrat: x.contrat || null, libelle: x.libelle, regr: '', montant: x.montant, montant1: x.montant1 || 0, montant2: x.montant2 || 0, sens: x.sens, echeance: x.echeance || '', axes: x.axes || {}, budget: x.budget || '', mode: '', infos: vides.slice(), docs: [], apure: x.apure || null });
+      lignes.push({ compte: x.compte, tiers: x.tiers || null, contrat: x.contrat || null, libelle: x.libelle, regr: x.regr || '', montant: x.montant, montant1: x.montant1 || 0, montant2: x.montant2 || 0, sens: x.sens, echeance: x.echeance || '', axes: x.axes || {}, budget: x.budget || '', mode: '', infos: vides.slice(), docs: [], apure: x.apure || null });
     });
     selection = -1; edition = -1; majContrepartie(); notify(msg || (L.length + ' ligne(s) ajoutée(s) à la pièce depuis la facture.'));
   };
@@ -37254,6 +37300,19 @@ window.ECRITURES_REF = {
       function set(n, v) { var e = dr.querySelector('[data-t="' + n + k + '"]'); if (e) e.textContent = fmt(v); }
       set('d', x[1]); set('c', x[2]); set('s', s);
       var se = dr.querySelector('[data-t="s' + k + '"]'); if (se) se.classList.toggle('ec-ko', !!s);
+    });
+    // équilibre par élément du plan de regroupement (monnaie locale) : obligatoire avant de valider la pièce
+    var tbd = dr.querySelector('tbody'); [].forEach.call(tbd.querySelectorAll('tr[data-rg]'), function (r) { r.remove(); });
+    (window.__ecRegr || []).forEach(function (x) {
+      var tr = document.createElement('tr'); tr.setAttribute('data-rg', x.code); tr.title = 'Équilibre du regroupement ' + (x.code || 'non renseigné');
+      tr.innerHTML = '<th>' + (x.code ? 'Regr. ' + x.code : 'Sans regr.') + '</th><td>' + fmt(x.d) + '</td><td>' + fmt(x.c) + '</td><td' + (x.s || !x.code ? ' class="ec-ko"' : '') + '>' + fmt(x.s) + '</td>';
+      tbd.appendChild(tr);
+    });
+    [].forEach.call(tbd.querySelectorAll('tr[data-ct]'), function (r) { r.remove(); });
+    (window.__ecContrat || []).forEach(function (x) {
+      var tr = document.createElement('tr'); tr.setAttribute('data-ct', x.code); tr.title = 'Équilibre du contrat ' + x.code;
+      tr.innerHTML = '<th>Contrat ' + x.code + '</th><td>' + fmt(x.d) + '</td><td>' + fmt(x.c) + '</td><td' + (x.s ? ' class="ec-ko"' : '') + '>' + fmt(x.s) + '</td>';
+      tbd.appendChild(tr);
     });
   }
   window.addEventListener('ecritures-totaux', totaux); totaux();
@@ -38027,69 +38086,136 @@ window.ECRITURES_REF = {
   function monnaies() { return (window.ENTITE_MONNAIES && window.ENTITE_MONNAIES()) || { m1: 'MGA', m2: 'USD', m3: '' }; }
   function cours(dev, date) { return dev && window.COURS_API && window.COURS_API.taux ? (window.COURS_API.taux(dev, date) || 0) : 0; }
 
+  var AXNOM = ['ACTIVITE', 'POSTE BUDGETAIRE', 'FINANCEMENT', 'GEOGRAPHIQUE', 'NATURE', 'CATEGORIE DE DEPENSE', 'Plan 7', 'Plan 8', 'Plan 9', 'Plan 10'];
+  function r2(v) { return Math.round(v * 100) / 100; }
+  function regrInfo() { return window.REGROUPEMENT && window.REGROUPEMENT(); }
+  function axesActifs() { var act = window.PLANS_ACTIFS ? window.PLANS_ACTIFS() : []; return AXNOM.map(function (n, i) { return { nom: n, code: 'PLAN' + (i + 1), cle: 'p' + (i + 1) }; }).filter(function (a) { return act.indexOf(a.code) >= 0 && ((window.ECRITURES_AXES || {})[a.nom] || []).length; }); }
+  function abrevAxe(a) { var cfg = (window.PLANS_CFG || []).filter(function (p) { return p.code === a.code; })[0]; return (cfg && cfg.abrev) || a.nom.slice(0, 3); }
+  function opt(list, cur, vide) { return '<option value="">' + esc(vide) + '</option>' + list.map(function (v) { return '<option value="' + esc(v[0]) + '"' + (v[0] === cur ? ' selected' : '') + '>' + esc(v[1]) + '</option>'; }).join(''); }
+  function contratsListe() { return ((window.ECRITURES_REF && window.ECRITURES_REF.contrats) || []).map(function (x) { return [x.code, x.code + ' — ' + x.label]; }); }
+  function tiersListe(col) { return (window.TIERS_PLAN || []).filter(function (t) { return t.actif !== false && t.compte === col; }).slice(0, 500).map(function (t) { return [t.code, t.code + ' — ' + t.nom]; }); }
+  function lignesModele(m) {
+    if (m.lignes && m.lignes.length) return m.lignes;
+    return [{ sens: 'D', compte: m.D, libelle: m.libD, montantVar: m.montantVar !== false, montant: m.montantFixe || '', pct: 100, tiersVar: m.tiers === 'D' && m.tiersVar !== false, tiers: m.tiers === 'D' && m.tiersVar === false ? (m.tiersFixe || '') : '', anaVar: true, ana: {} },
+      { sens: 'C', compte: m.C, libelle: m.libC, montantVar: m.montantVar !== false, montant: m.montantFixe || '', pct: 100, tiersVar: m.tiers === 'C' && m.tiersVar !== false, tiers: m.tiers === 'C' && m.tiersVar === false ? (m.tiersFixe || '') : '', anaVar: true, ana: {} }];
+  }
+
   function ouvrir() {
     var M = window.MODELES_ECRITURE, mn = monnaies(), A = window.__ecEntete;
-    var w = O.fenetre('Écriture à partir d\'un modèle', false, 'template', 'Modèle d\'écriture');
-    var dEcr = (c('dateEcriture') && c('dateEcriture').value) || aujourdhui(), dPie = (c('datePiece') && c('datePiece').value) || dEcr;
+    var w = O.fenetre('Écriture à partir d\'un modèle', true, 'template', 'Modèle d\'écriture');
+    w.b.closest('.fo-md').style.width = 'min(1240px,100%)';
+    var dEcr = (c('dateEcriture') && c('dateEcriture').value) || aujourdhui(), dPie = (c('datePiece') && c('datePiece').value) || dEcr, G = regrInfo();
     w.b.innerHTML = '<div class="fo-fl"><label class="w">Modèle<select class="fo-in" data-mo="modele"><option value="">— Sélectionner un modèle —</option>' + M.map(function (m) { return '<option value="' + esc(m.code) + '">' + esc(m.code + ' — ' + m.libelle) + '</option>'; }).join('') + '</select></label>' +
       '<label class="w">Journal<select class="fo-in" data-mo="journal" disabled><option value="">—</option></select></label>' +
       '<label>Date comptable<input class="fo-in" type="date" data-mo="date" value="' + esc(dEcr) + '"></label><label>Date pièce<input class="fo-in" type="date" data-mo="datep" value="' + esc(dPie) + '"></label>' +
       '<label>Numéro de pièce<input class="fo-in" data-mo="piece" readonly placeholder="Proposé par la saisie" style="background:#E9EBF0"></label><label data-mo-tiers hidden>Tiers<select class="fo-in" data-mo="tiers"></select></label>' +
+      '<label>Contrat<select class="fo-in" data-mo="contrat" data-combo data-combo-cols="Code|Libellé">' + opt(contratsListe(), '', 'Sélectionner un contrat') + '</select></label>' +
+      (G && G.elements ? '<label><span>Regroupement <b style="color:#C0182B">*</b></span><select class="fo-in" data-mo="regr" data-combo data-combo-cols="Code|Libellé">' + opt(G.elements.map(function (e) { return [String(e.code), e.code + ' — ' + (e.libelle || '')]; }), '', 'Sélectionner un élément') + '</select></label>' : '') +
       '<label class="w">Libellé au débit<input class="fo-in" data-mo="libD"></label><label class="w">Libellé au crédit<input class="fo-in" data-mo="libC"></label>' +
       '<label>Montant en <b>' + esc(mn.m1) + '</b><input class="fo-in r" data-mo="m1" inputmode="decimal" placeholder="0,00"></label>' +
       (mn.m2 ? '<label>Cours Rap. <b>' + esc(mn.m2) + '</b><input class="fo-in r" data-mo="k2" inputmode="decimal"></label><label>Montant Rap. <b>' + esc(mn.m2) + '</b><input class="fo-in r" data-mo="m2" readonly style="background:#E9EBF0"></label>' : '') +
       (mn.m3 ? '<label>Cours Rap. <b>' + esc(mn.m3) + '</b><input class="fo-in r" data-mo="k3" inputmode="decimal"></label><label>Montant Rap. <b>' + esc(mn.m3) + '</b><input class="fo-in r" data-mo="m3" readonly style="background:#E9EBF0"></label>' : '') + '</div>' +
-      '<div class="fo-sec">Schéma de l\'écriture</div><div data-mo-sch style="font-size:12.5px;color:#5B606D">Sélectionnez un modèle.</div><div data-mo-er class="fo-ko"></div>';
+      '<div class="fo-sec">Aperçu des imputations comptables et analytiques <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#5B606D">(modifiable)</span></div><div data-mo-sch style="font-size:12.5px;color:#5B606D;overflow:auto">Sélectionnez un modèle.</div><div data-mo-tot style="margin:8px 0 0;font-size:12.5px"></div><div data-mo-er class="fo-ko"></div>';
     w.f.innerHTML = '<button type="button" data-fo-x>Annuler</button><button type="button" class="p" data-mo-ok disabled><i class="ti ti-pencil"></i> Préremplir la saisie</button>';
-    var Q = function (s) { return w.b.querySelector(s); }, F = function (k) { return Q('[data-mo="' + k + '"]'); }, cur = null;
-    function majCours() { [['k2', mn.m2], ['k3', mn.m3]].forEach(function (x) { if (F(x[0])) { var k = cours(x[1], F('date').value); F(x[0]).value = k ? String(k).replace('.', ',') : ''; } }); conv(); }
+    var Q = function (s) { return w.b.querySelector(s); }, F = function (k) { return Q('[data-mo="' + k + '"]'); }, cur = null, rows = [], AX = axesActifs();
+    var st = document.createElement('style'); st.textContent = '.mo-t input,.mo-t select{width:100%;min-width:90px;box-sizing:border-box;height:32px;border:1px solid #D6D9E0;border-radius:6px;padding:0 6px;font:inherit;font-size:12px;background:#fff}.mo-t input.r{text-align:right;min-width:100px}.mo-t td{padding:4px 4px;vertical-align:middle}.mo-t input.bad,.mo-t select.bad{border-color:#C0182B}.mo-t .na{color:#5B606D;text-align:center}'; w.b.appendChild(st);
+
+    function construire() {
+      rows = cur ? lignesModele(cur).map(function (l) {
+        var ax = {}; if (l.anaVar === false && l.ana) Object.keys(l.ana).forEach(function (k) { var i = parseInt(String(k).replace(/\D/g, ''), 10); if (i >= 1 && i <= 10 && AXNOM[i - 1]) ax[AXNOM[i - 1]] = l.ana[k]; });
+        var sens = l.sens === 'C' || l.sens === 'CREDIT' ? 'CREDIT' : 'DEBIT';
+        return { sens: sens, compte: l.compte, libelle: l.libelle || (sens === 'DEBIT' ? cur.libD : cur.libC) || '', tiers: l.tiersVar ? '' : (l.tiers || ''), tiersVar: !!l.tiersVar, axes: ax, montantVar: l.montantVar !== false, pct: l.pct === '' || l.pct == null ? 100 : +l.pct, fixe: +l.montant || 0, montant: 0, edited: false, contrat: '', regr: '' };
+      }) : [];
+      appliquerEntete(true); recalc(); schema();
+    }
+    function appliquerEntete(tout) {
+      var ct = F('contrat') ? F('contrat').value : '', rg = F('regr') ? F('regr').value : '', th = F('tiers').value;
+      rows.forEach(function (r) { r.contrat = ct; r.regr = rg; if (r.tiersVar && th && !r.tiersEdit) r.tiers = th; });
+    }
+    function recalc() { var m = num(F('m1').value); rows.forEach(function (r) { if (!r.edited) r.montant = r.montantVar ? r2(m * r.pct / 100) : r.fixe; }); }
+    function totaux() {
+      var d = 0, cr = 0, parC = {}; rows.forEach(function (r) { if (r.sens === 'DEBIT') d += r.montant; else cr += r.montant; if (r.contrat) { parC[r.contrat] = parC[r.contrat] || 0; parC[r.contrat] += r.sens === 'DEBIT' ? r.montant : -r.montant; } });
+      var ec = r2(d - cr), ko = Object.keys(parC).filter(function (k) { return r2(parC[k]) !== 0; });
+      Q('[data-mo-tot]').innerHTML = rows.length ? '<b>Total</b> · Débit ' + fmt(d) + ' · Crédit ' + fmt(cr) + ' · <span style="color:' + (ec ? '#C0182B' : '#136C34') + ';font-weight:600">' + (ec ? 'Écart ' + fmt(Math.abs(ec)) : 'Équilibré') + '</span>' + (ko.length ? ' · <span style="color:#C0182B;font-weight:600">Contrat à équilibrer : ' + ko.map(esc).join(', ') + '</span>' : '') : '';
+      w.f.querySelector('[data-mo-ok]').disabled = !(rows.length && d > 0 && !ec && !ko.length);
+      return { d: d, c: cr, ec: ec, ko: ko };
+    }
     function conv() {
       var m = num(F('m1').value);
-      [['m2', 'k2'], ['m3', 'k3']].forEach(function (x) { if (F(x[0])) { var k = num(F(x[1]).value); F(x[0]).value = m > 0 && k > 0 ? fmt(Math.round(m / k * 100) / 100) : ''; } });
-      schema();
+      [['m2', 'k2'], ['m3', 'k3']].forEach(function (x) { if (F(x[0])) { var k = num(F(x[1]).value); F(x[0]).value = m > 0 && k > 0 ? fmt(r2(m / k)) : ''; } });
+      recalc(); schema();
     }
     function schema() {
-      if (!cur) { Q('[data-mo-sch]').textContent = 'Sélectionnez un modèle.'; w.f.querySelector('[data-mo-ok]').disabled = true; return; }
-      var m = num(F('m1').value), dc = compteDe(cur.D), cc = compteDe(cur.C);
-      Q('[data-mo-sch]').innerHTML = '<table class="fo-t"><thead><tr><th>Compte</th><th>Libellé</th><th style="width:110px;text-align:right">Débit</th><th style="width:110px;text-align:right">Crédit</th></tr></thead><tbody>' +
-        '<tr><td><b>' + esc(dc.code) + '</b> <span style="color:#5B606D">' + esc(dc.label) + '</span></td><td>' + esc(F('libD').value) + '</td><td style="text-align:right">' + (m ? fmt(m) : '') + '</td><td></td></tr>' +
-        '<tr><td><b>' + esc(cc.code) + '</b> <span style="color:#5B606D">' + esc(cc.label) + '</span></td><td>' + esc(F('libC').value) + '</td><td></td><td style="text-align:right">' + (m ? fmt(m) : '') + '</td></tr></tbody></table>';
-      w.f.querySelector('[data-mo-ok]').disabled = !(m > 0);
+      if (!cur) { Q('[data-mo-sch]').textContent = 'Sélectionnez un modèle.'; Q('[data-mo-tot]').innerHTML = ''; w.f.querySelector('[data-mo-ok]').disabled = true; return; }
+      var comptes = (window.ECRITURES_REF && window.ECRITURES_REF.comptes) || [], G2 = regrInfo(), co = {};
+      var optCpt = function (cur0) { return '<option value="">— Compte —</option>' + comptes.map(function (x) { return '<option value="' + esc(x.code) + '"' + (x.code === cur0 ? ' selected' : '') + '>' + esc(x.code + ' — ' + x.label) + '</option>'; }).join(''); };
+      Q('[data-mo-sch]').innerHTML = '<table class="fo-t mo-t"><thead><tr><th>Compte</th><th>Libellé</th><th>Tiers</th>' + AX.map(function (a) { return '<th>' + esc(abrevAxe(a)) + '</th>'; }).join('') + '<th>Contrat</th>' + (G2 ? '<th>Regroupement</th>' : '') + '<th style="text-align:right">Débit</th><th style="text-align:right">Crédit</th></tr></thead><tbody>' +
+        rows.map(function (r, i) {
+          var cp = compteDe(r.compte), col = !!cp.collectif;
+          return '<tr data-i="' + i + '"><td><select data-c="compte">' + optCpt(r.compte) + '</select></td>' +
+            '<td><input data-c="libelle" value="' + esc(r.libelle) + '"></td>' +
+            '<td>' + (col ? '<select data-c="tiers">' + opt(tiersListe(r.compte), r.tiers, 'Sélectionner un tiers') + '</select>' : '<div class="na">Non applicable</div>') + '</td>' +
+            AX.map(function (a) { return '<td><select data-c="ax" data-n="' + esc(a.nom) + '">' + opt(((window.ECRITURES_AXES || {})[a.nom] || []).map(function (x) { return [x.code, x.code + ' — ' + x.label]; }), r.axes[a.nom] || '', 'Sélectionner') + '</select></td>'; }).join('') +
+            '<td><select data-c="contrat">' + opt(contratsListe(), r.contrat, '—') + '</select></td>' +
+            (G2 ? '<td><select data-c="regr">' + opt((G2.elements || []).map(function (e) { return [String(e.code), e.code + ' — ' + (e.libelle || '')]; }), r.regr, '—') + '</select></td>' : '') +
+            '<td>' + (r.sens === 'DEBIT' ? '<input class="r" data-c="montant" inputmode="decimal" value="' + (r.montant ? fmt(r.montant) : '') + '">' : '') + '</td>' +
+            '<td>' + (r.sens === 'CREDIT' ? '<input class="r" data-c="montant" inputmode="decimal" value="' + (r.montant ? fmt(r.montant) : '') + '">' : '') + '</td></tr>';
+        }).join('') + '</tbody></table>';
+      totaux();
     }
+    // modifications dans l'aperçu : l'état suit les champs sans redessiner (sauf changement de compte)
+    Q('[data-mo-sch]').addEventListener('input', function (e) {
+      var tr = e.target.closest('tr[data-i]'); if (!tr) return; var r = rows[+tr.dataset.i], k = e.target.dataset.c;
+      if (k === 'libelle') r.libelle = e.target.value; else if (k === 'montant') { r.montant = num(e.target.value); r.edited = true; totaux(); }
+    });
+    Q('[data-mo-sch]').addEventListener('change', function (e) {
+      var tr = e.target.closest('tr[data-i]'); if (!tr) return; var r = rows[+tr.dataset.i], k = e.target.dataset.c, v = e.target.value;
+      if (k === 'compte') { r.compte = v; r.tiers = ''; schema(); }
+      else if (k === 'tiers') { r.tiers = v; r.tiersEdit = true; } else if (k === 'ax') { r.axes[e.target.dataset.n] = v; }
+      else if (k === 'contrat') { r.contrat = v; totaux(); } else if (k === 'regr') { r.regr = v; }
+      else if (k === 'montant') { r.montant = num(v); r.edited = true; e.target.value = r.montant ? fmt(r.montant) : ''; totaux(); }
+    });
     F('modele').addEventListener('change', function () {
       cur = M.filter(function (x) { return x.code === F('modele').value; })[0] || null;
       var J = (window.ECRITURES_REF && window.ECRITURES_REF.journaux) || [], jc = cur ? journalOk(cur.journal) : '';
       F('journal').innerHTML = cur ? J.map(function (j) { return '<option value="' + esc(j.code) + '"' + (j.code === jc ? ' selected' : '') + '>' + esc(j.code + (j.label ? ' — ' + j.label : '')) + '</option>'; }).join('') : '<option value="">—</option>';
-      F('libD').value = cur ? cur.libD : ''; F('libC').value = cur ? cur.libC : '';
-      var lt = Q('[data-mo-tiers]'); lt.hidden = !(cur && cur.tiers);
-      if (cur && cur.tiers) { var col = cur[cur.tiers]; F('tiers').innerHTML = '<option value="">— Sélectionner —</option>' + (window.TIERS_PLAN || []).filter(function (t) { return t.actif !== false && t.compte === col; }).map(function (t) { return '<option value="' + esc(t.code) + '">' + esc(t.code + ' — ' + t.nom) + '</option>'; }).join(''); }
-      F('tiers').disabled = !!(cur && cur.tiers && cur.tiersVar === false && cur.tiersFixe); if (F('tiers').disabled) F('tiers').value = cur.tiersFixe;
-      F('m1').readOnly = !!(cur && cur.montantVar === false); if (cur && cur.montantVar === false) { F('m1').value = fmt(cur.montantFixe || 0); conv(); }
-      majCours();
+      F('libD').value = cur ? cur.libD || '' : ''; F('libC').value = cur ? cur.libC || '' : '';
+      var tv = cur ? lignesModele(cur).filter(function (l) { return l.tiersVar; })[0] : null, lt = Q('[data-mo-tiers]'); lt.hidden = !tv;
+      if (tv) { F('tiers').innerHTML = '<option value="">— Sélectionner —</option>' + tiersListe(tv.compte).map(function (t) { return '<option value="' + esc(t[0]) + '">' + esc(t[1]) + '</option>'; }).join(''); } else F('tiers').innerHTML = '';
+      var mv = cur && lignesModele(cur).every(function (l) { return l.montantVar === false; });
+      F('m1').readOnly = !!mv; if (mv) F('m1').value = fmt(lignesModele(cur).filter(function (l) { return l.sens === 'D'; }).reduce(function (a, l) { return a + (+l.montant || 0); }, 0));
+      construire(); majCours();
     });
+    function majCours() { [['k2', mn.m2], ['k3', mn.m3]].forEach(function (x) { if (F(x[0])) { var k = cours(x[1], F('date').value); F(x[0]).value = k ? String(k).replace('.', ',') : ''; } }); conv(); }
     ['date', 'm1', 'k2', 'k3'].forEach(function (k) { if (F(k)) { F(k).addEventListener('input', k === 'date' ? majCours : conv); F(k).addEventListener('change', k === 'm1' ? function () { F('m1').value = num(F('m1').value) ? fmt(num(F('m1').value)) : ''; conv(); } : (k === 'date' ? majCours : conv)); } });
-    ['libD', 'libC'].forEach(function (k) { F(k).addEventListener('input', schema); });
+    // contrat, regroupement, tiers de l'en-tête : valeurs proposées à toutes les lignes (modifiables ensuite dans l'aperçu)
+    ['contrat', 'regr', 'tiers'].forEach(function (k) { if (F(k)) F(k).addEventListener('change', function () { appliquerEntete(); schema(); }); });
+    [['libD', 'DEBIT'], ['libC', 'CREDIT']].forEach(function (x) { F(x[0]).addEventListener('input', function () { rows.forEach(function (r) { if (r.sens === x[1]) r.libelle = F(x[0]).value; }); schema(); }); });
     w.f.querySelector('[data-fo-x]').addEventListener('click', O.fermer);
     w.f.querySelector('[data-mo-ok]').addEventListener('click', function () {
-      var er = []; if (!F('date').value) er.push('la date comptable'); if (!F('libD').value.trim() || !F('libC').value.trim()) er.push('les libellés au débit et au crédit'); if (cur.tiers && !F('tiers').value) er.push('le tiers');
+      var er = [], G3 = regrInfo(); if (!F('date').value) er.push('la date comptable');
+      rows.forEach(function (r, i) {
+        var n = i + 1; if (!r.compte) er.push('le compte de la ligne ' + n); if (!String(r.libelle).trim()) er.push('le libellé de la ligne ' + n);
+        if (compteDe(r.compte).collectif && !r.tiers) er.push('le tiers de la ligne ' + n); if (G3 && !r.regr) er.push('le regroupement de la ligne ' + n);
+      });
       if (er.length) { Q('[data-mo-er]').textContent = 'Complétez : ' + er.join(', ') + '.'; return; }
+      var t = totaux(); if (t.ec || t.ko.length) { Q('[data-mo-er]').textContent = t.ec ? 'Le débit et le crédit doivent être équilibrés.' : 'Le contrat doit être équilibré (débit = crédit).'; return; }
       if (generer()) O.fermer();
     });
     function generer() {
       if (!A || !A.ajouterLignes) { alert('Saisie d\'écritures indisponible.'); return false; }
-      var m = num(F('m1').value), k2 = F('k2') ? num(F('k2').value) : 0, k3 = F('k3') ? num(F('k3').value) : 0;
+      var k2 = F('k2') ? num(F('k2').value) : 0, k3 = F('k3') ? num(F('k3').value) : 0;
       A.rouvrirEntete(false); if (A.setJournal) A.setJournal(F('journal').value);
       function poser(i, v) { if (!i) return; i.value = v; i.dispatchEvent(new Event('input', { bubbles: true })); i.dispatchEvent(new Event('change', { bubbles: true })); }
       poser(c('datePiece'), F('datep').value || F('date').value); poser(c('dateEcriture'), F('date').value);
       window.__ecSansTreso = true; var ouvert = A.ouvrirLignes(); window.__ecSansTreso = false;
       if (!ouvert) { Q('[data-mo-er]').textContent = 'La date comptable est hors de l\'exercice ou de la période ouverte : corrigez-la.'; return false; }
-      var cv = { montant1: k2 > 0 ? Math.round(m / k2 * 100) / 100 : 0, montant2: k3 > 0 ? Math.round(m / k3 * 100) / 100 : 0 };
-      var td = cur.tiers === 'D' ? tiersDe(cur.D) : null, tc = cur.tiers === 'C' ? tiersDe(cur.C) : null;
-      function tiersDe(col) { var t = (window.TIERS_PLAN || []).filter(function (x) { return x.code === F('tiers').value && x.compte === col; })[0]; return t ? { code: t.code, label: t.nom, collectif: t.compte } : null; }
-      var dc = compteDe(cur.D), cc = compteDe(cur.C);
-      A.ajouterLignes([
-        Object.assign({ compte: dc, tiers: td, libelle: F('libD').value.trim(), montant: m, sens: 'DEBIT', echeance: '' }, cv),
-        Object.assign({ compte: cc, tiers: tc, libelle: F('libC').value.trim(), montant: m, sens: 'CREDIT', echeance: '' }, cv)], 'Saisie préremplie depuis le modèle « ' + cur.code + ' » : vérifiez les lignes, complétez si besoin puis validez la pièce.');
+      var CT = (window.ECRITURES_REF && window.ECRITURES_REF.contrats) || [];
+      A.ajouterLignes(rows.map(function (r) {
+        var cp = compteDe(r.compte), t = r.tiers ? (window.TIERS_PLAN || []).filter(function (x) { return x.code === r.tiers; })[0] : null, ct = r.contrat ? CT.filter(function (x) { return x.code === r.contrat; })[0] : null, ax = {};
+        Object.keys(r.axes).forEach(function (n) { if (r.axes[n]) ax[n] = r.axes[n]; });
+        return { compte: cp, tiers: t ? { code: t.code, label: t.nom, collectif: t.compte } : null, contrat: ct ? { code: ct.code, label: ct.label } : null, regr: r.regr || '', libelle: String(r.libelle).trim(), montant: r.montant, sens: r.sens, echeance: '', axes: ax, montant1: k2 > 0 ? r2(r.montant / k2) : 0, montant2: k3 > 0 ? r2(r.montant / k3) : 0 };
+      }), 'Saisie préremplie depuis le modèle « ' + cur.code + ' » : vérifiez les lignes, complétez si besoin puis validez la pièce.');
       return true;
     }
     majCours();
@@ -38219,7 +38345,7 @@ window.ECRITURES_REF = {
       if (!A || !A.ajouterLignes) { alert('Saisie d’écritures indisponible.'); return; }
       var k1 = num(c('cours1') && c('cours1').value), k2 = num(c('cours2') && c('cours2').value), X = ecriture();
       A.ajouterLignes(X.L.map(function (x) {
-        return { compte: x.compte, tiers: x.tiers, contrat: x.sens === 'DEBIT' && !/^TVA /.test(x.libelle) ? item : null, libelle: x.libelle, montant: x.montant, sens: x.sens, echeance: '', axes: x.axes || {}, budget: x.budget || '',
+        return { compte: x.compte, tiers: x.tiers, contrat: item, libelle: x.libelle, montant: x.montant, sens: x.sens, echeance: '', axes: x.axes || {}, budget: x.budget || '',
           montant1: k1 > 0 ? r2(x.montant / k1) : 0, montant2: k2 > 0 ? r2(x.montant / k2) : 0 };
       }), 'Saisie préremplie avec les imputations du marché ' + item.code + ' (' + String(pct()).replace('.', ',') + ' % facturé, attributaire ' + (tiersSel() ? tiersSel().code : '—') + ') : vérifiez les lignes puis validez la pièce.');
       extra[item.code] = (extra[item.code] || 0) + X.ht; sauve();
