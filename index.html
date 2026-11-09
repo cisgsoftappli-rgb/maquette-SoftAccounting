@@ -873,7 +873,35 @@ app-balance-analytique :is(.page-title,.page-subtitle){position:absolute!importa
   });
   rm.addEventListener('click', function () { inp.value = ''; pv.innerHTML = vide; rm.hidden = true; ms.textContent = txt; });
 })();
-</script><app-analytique data-tab-panel="analytique" style="display:none" _nghost-ng-c3637292053=""><div><p class="text-[13px] text-[#5B606D] mb-6 mt-[-4px]"> Activez les plans analytiques à utiliser par l'entité (jusqu'à 10). Les plans activés seront visibles au niveau du paramétrage des plans (Comptabilité analytique). </p><div class="bg-white rounded-2xl border border-[#E9EBF0] shadow-[0_10px_30px_#4c577d14] overflow-hidden" data-an><div class="flex items-center gap-2 px-5 py-3.5 border-b border-[#E9EBF0]"><i class="ti ti-chart-pie text-base text-[#2E427B]"></i><span class="text-[15px] font-bold text-[#353944]">Plans analytiques</span><span class="text-[13px] font-normal text-[#5B606D] ml-1" data-an-compte>11</span></div><div class="table-scroll"><table class="w-full text-sm"><thead class="bg-[#F5F7F9] border-b border-[#E9EBF0]"><tr><th class="text-center px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Activer</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Code</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Libellé</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Abréviation</th><th class="text-center px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Plan de regroupement</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Niveau de regroupement</th></tr></thead><tbody class="divide-y divide-[#E9EBF0]" data-an-lignes></tbody></table></div><p class="px-5 py-3 text-[13px] text-[#5B606D]">Le libellé et l'abréviation viennent de « Gestion des plans › Configuration des plans ». Seuls les plans activés apparaissent dans les autres modules (menu « Saisie des plans », états, sélections).</p><div class="flex justify-end gap-2 px-6 py-4 border-t border-[#E9EBF0]"><button type="button" data-an-annuler class="inline-flex items-center gap-1.5 min-h-[44px] px-3 rounded-lg border border-[#D6D9E0] bg-white text-[#353944] text-[13px] font-medium cursor-pointer hover:bg-[#F4F7FE] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"> Annuler </button><button type="button" data-an-enregistrer class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-lg border-0 bg-[#2E427B] text-white text-[13px] font-bold cursor-pointer hover:bg-[#243569] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"> Enregistrer </button></div></div></div></app-analytique>
+</script><script>
+(function () {
+  var root = document.querySelector('app-informations-generales'); if (!root) return;
+  var CLE = 'softcompta.entiteInfos', champs = [].slice.call(root.querySelectorAll('.ig-in')), pv = root.querySelector('[data-ig-prev]'), rm = root.querySelector('[data-ig-rm]'), vide = pv ? pv.innerHTML : '';
+  var ok = root.querySelector('.ig-ok'), an = root.querySelector('.ig-ft .ig-bt:not(.ig-ok)');
+  function toast(t, err) {
+    var d = document.createElement('div'); d.setAttribute('role', 'status'); d.textContent = t;
+    d.style.cssText = 'position:fixed;top:16px;right:16px;z-index:50;padding:10px 16px;border-radius:8px;color:#fff;font:600 13px Inter,system-ui,sans-serif;background:' + (err ? '#B63132' : '#0B1332');
+    document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600);
+  }
+  function lire() { var o = { champs: champs.map(function (c) { return c.value; }) }; var im = pv && pv.querySelector('img'); o.logo = im ? im.src : ''; return o; }
+  function poser(o) {
+    champs.forEach(function (c, i) { c.value = o && o.champs && o.champs[i] != null ? o.champs[i] : ''; c.style.borderColor = ''; });
+    if (pv) { if (o && o.logo) { pv.innerHTML = '<img alt="Aperçu du logo">'; pv.firstChild.src = o.logo; if (rm) rm.hidden = false; } else { pv.innerHTML = vide; if (rm) rm.hidden = true; } }
+  }
+  function charger() { var o = null; try { o = JSON.parse(localStorage.getItem(CLE) || 'null'); } catch (e) {} poser(o); }
+  function enregistrer() {
+    var o = lire(), lib = champs[0];
+    if (!String(o.champs[0] || '').trim()) { lib.style.borderColor = '#B63132'; lib.focus(); toast('Le libellé de l’entité est obligatoire.', true); return; }
+    var mail = String(o.champs[5] || '').trim(); if (mail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { champs[5].style.borderColor = '#B63132'; champs[5].focus(); toast('Adresse mail invalide.', true); return; }
+    try { localStorage.setItem(CLE, JSON.stringify(o)); } catch (e) { toast('Enregistrement impossible : espace de stockage saturé (logo trop volumineux ?).', true); return; }
+    window.ENTITE_INFOS = o; window.dispatchEvent(new Event('entite-infos-changed')); toast('Informations de l’entité enregistrées.');
+  }
+  ok.addEventListener('click', enregistrer);
+  an.addEventListener('click', function () { charger(); toast('Modifications annulées.'); });
+  charger();
+})();
+</script>
+<app-analytique data-tab-panel="analytique" style="display:none" _nghost-ng-c3637292053=""><div><p class="text-[13px] text-[#5B606D] mb-6 mt-[-4px]"> Activez les plans analytiques à utiliser par l'entité (jusqu'à 10). Les plans activés seront visibles au niveau du paramétrage des plans (Comptabilité analytique). </p><div class="bg-white rounded-2xl border border-[#E9EBF0] shadow-[0_10px_30px_#4c577d14] overflow-hidden" data-an><div class="flex items-center gap-2 px-5 py-3.5 border-b border-[#E9EBF0]"><i class="ti ti-chart-pie text-base text-[#2E427B]"></i><span class="text-[15px] font-bold text-[#353944]">Plans analytiques</span><span class="text-[13px] font-normal text-[#5B606D] ml-1" data-an-compte>11</span></div><div class="table-scroll"><table class="w-full text-sm"><thead class="bg-[#F5F7F9] border-b border-[#E9EBF0]"><tr><th class="text-center px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Activer</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Code</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Libellé</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Abréviation</th><th class="text-center px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Plan de regroupement</th><th class="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#5B606D] whitespace-nowrap">Niveau de regroupement</th></tr></thead><tbody class="divide-y divide-[#E9EBF0]" data-an-lignes></tbody></table></div><p class="px-5 py-3 text-[13px] text-[#5B606D]">Le libellé et l'abréviation viennent de « Gestion des plans › Configuration des plans ». Seuls les plans activés apparaissent dans les autres modules (menu « Saisie des plans », états, sélections).</p><div class="flex justify-end gap-2 px-6 py-4 border-t border-[#E9EBF0]"><button type="button" data-an-annuler class="inline-flex items-center gap-1.5 min-h-[44px] px-3 rounded-lg border border-[#D6D9E0] bg-white text-[#353944] text-[13px] font-medium cursor-pointer hover:bg-[#F4F7FE] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"> Annuler </button><button type="button" data-an-enregistrer class="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-lg border-0 bg-[#2E427B] text-white text-[13px] font-bold cursor-pointer hover:bg-[#243569] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"> Enregistrer </button></div></div></div></app-analytique>
 <style>
 .an-sw{position:relative;display:inline-block;width:36px;height:20px;line-height:0;vertical-align:middle}
 .an-sw input{-webkit-appearance:none;appearance:none;display:block;position:relative;margin:0;width:36px;height:20px;border:0;border-radius:999px;background:#B9BEC8;box-shadow:none;outline:0;opacity:1;cursor:pointer;transition:background 200ms}
@@ -1096,11 +1124,16 @@ app-balance-analytique :is(.page-title,.page-subtitle){position:absolute!importa
   secs[secs.length - 1].grid.parentNode.appendChild(list);
   var rows = list.querySelector('[data-ml-rows]');
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  // carte : module actif → statut « Actif » et bouton « Désactiver » ; module désactivé → carte estompée, statut « Inactif » et bouton « Activer » (mise en forme en ligne : indépendante des classes disponibles)
   function paintCard(m) {
-    var c = m.card, t = m.on ? tplOn : tplOff;
-    if (!t) return;
-    stat(c).outerHTML = t.st; btn(c).outerHTML = t.bt;
-    btn(c).addEventListener('click', function () { toggle(m); });
+    var c = m.card, st = stat(c), b = btn(c), on = m.on;
+    c.style.opacity = on ? '' : '.55';
+    if (st) { st.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + (on ? '#10b981' : '#B9BEC8') + '"></span> ' + (on ? 'Actif' : 'Inactif'); st.style.color = on ? '#10b981' : '#747A88'; }
+    if (b) {
+      b.innerHTML = '<i class="ti ' + (on ? 'ti-x' : 'ti-check') + '" style="font-size:12px"></i> ' + (on ? 'Désactiver' : 'Activer');
+      b.style.background = on ? '' : '#2E427B'; b.style.color = on ? '' : '#fff'; b.style.borderColor = on ? '' : 'transparent'; b.style.fontWeight = on ? '' : '700';
+      b.setAttribute('aria-label', (on ? 'Désactiver ' : 'Activer ') + m.name);
+    }
   }
   function draw() {
     var h = '', n = 0, ex = window.PRODUIT_EXCLUS || [], tot = mods.filter(function (m) { return ex.indexOf(m.id) < 0; }).length;
@@ -6571,8 +6604,11 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <label>Type de dépenses<select class="bp-sel" data-uf-typ data-no-combo><option>Décaissements</option><option>Engagements</option></select></label>
       <div class="uf-f"><span>Convention</span><div class="uf-ms" data-uf-ms="IDA-6543|IDA-6544|FIDA-2210|FIDA-2211|BAD-0987|FED-1120|FM-0455"></div></div>
       <label>État exprimé en milliers<input type="checkbox" data-uf-mil style="width:22px;height:22px"></label>
+      <label>Afficher uniquement les lignes renseignées<input type="checkbox" data-uf-ren style="width:22px;height:22px"></label>
       <div class="uf-sec">Monnaie</div>
       <label>Monnaie<select class="bp-sel" data-uf-dev data-no-combo><option value="1">MGA - ARIARY</option><option value="4800">EUR - EURO</option><option value="4500">USD - DOLLAR US</option></select></label>
+      <div class="uf-f" data-uf-cr style="display:none"><span>Cours de change</span><div style="display:flex;align-items:center;gap:8px"><span data-uf-cr1>1 EUR =</span><input class="bp-in" type="text" inputmode="decimal" data-uf-cours style="text-align:right;max-width:170px" value="0,00000"><b>MGA</b></div></div>
+      <label data-uf-cr2 style="display:none">Exclure les valeurs nulles<input type="checkbox" data-uf-excl style="width:22px;height:22px"></label>
       <div class="uf-sec" data-uf-lvt>Structure d’activités</div>
       <div class="uf-lv" data-uf-lv></div>
     </div></div>
@@ -6679,18 +6715,27 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     });
     return tot;
   }
+  // devise : cours proposé d'après la devise choisie, modifiable ; visible seulement pour une devise autre que la monnaie locale
+  function nbr(t) { var x = parseFloat(String(t == null ? '' : t).replace(/[\s ]/g, '').replace(',', '.')); return isFinite(x) ? x : 0; }
+  function majCours() {
+    var o = q('[data-uf-dev]').selectedOptions[0], code = o.textContent.split(' - ')[0], loc = Number(o.value) === 1;
+    q('[data-uf-cr]').style.display = q('[data-uf-cr2]').style.display = loc ? 'none' : '';
+    if (!loc) { q('[data-uf-cr1]').textContent = '1 ' + code + ' ='; q('[data-uf-cours]').value = Number(o.value).toLocaleString('fr-FR', { minimumFractionDigits: 5, maximumFractionDigits: 5 }); }
+  }
+  q('[data-uf-dev]').addEventListener('change', majCours); majCours();
   function generer() {
-    var p = periode(), div = q('[data-uf-mil]').checked ? 1000 : 1, dv = Number(q('[data-uf-dev]').value);
+    var p = periode(), div = q('[data-uf-mil]').checked ? 1000 : 1, dv = (Number(q('[data-uf-dev]').value) !== 1 && nbr(q('[data-uf-cours]').value) > 0) ? nbr(q('[data-uf-cours]').value) : Number(q('[data-uf-dev]').value);
     var k = 1 / dv / div * (qa('[data-uf-ms]').reduce(function (a, e) { return a * (e.__n() / e.__t); }, 1) || 0.0001);
     if (!qa('[data-uf-ms]').every(function (e) { return e.__n() > 0; })) { toast('Sélectionnez au moins un élément dans chaque liste.'); return; }
     var niv = qa('[data-uf-niv]').filter(function (c) { return c.checked; }).map(function (c) { return Number(c.dataset.ufNiv); });
     if (!niv.length) { toast('Cochez au moins un niveau de la structure d’activités.'); return; }
     var out = []; lignes(arbrePlan(), 1, p, k, out);
-    res = { rows: out.filter(function (r) { return niv.indexOf(r.niv) >= 0; }), p: p, src: q('[data-uf-src]:checked').value, dev: q('[data-uf-dev]').selectedOptions[0].textContent.split(' - ')[0], mil: div === 1000 };
+    var src0 = q('[data-uf-src]:checked').value, ren = q('[data-uf-ren]').checked;
+    res = { rows: out.filter(function (r) { return niv.indexOf(r.niv) >= 0 && (!ren || cols(r, src0).some(function (x) { return x !== 0; })); }), excl: q('[data-uf-excl]').checked, p: p, src: src0, dev: q('[data-uf-dev]').selectedOptions[0].textContent.split(' - ')[0], mil: div === 1000 };
     dessiner();
   }
   function n(x) { return Math.round(x).toLocaleString('fr-FR').replace(/[  ]/g, ' '); }
-  function cell(x) { return '<td class="r' + (x < 0 ? ' uf-neg' : '') + '">' + (x === 0 ? '' : n(x)) + '</td>'; }
+  function cell(x) { return '<td class="r' + (x < 0 ? ' uf-neg' : '') + '">' + (x === 0 ? (res && res.dev !== 'MGA' && !res.excl ? '0' : '') : n(x)) + '</td>'; }
   function cols(r, src) { var v = r.v, pc = src === 'pad' ? v.pad : v.cb; return [v.tp, v.te, v.tp - v.te, v.ap, v.ae, v.ap - v.ae, pc, v.ce, pc - v.ce, v.pv]; }
   function dessiner() {
     var lab = res.src === 'pad' ? 'PAD' : 'Prévu', fin = fr(res.p.au);
@@ -6801,6 +6846,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <div class="sb-f"><span>Centre de saisie</span><div class="sb-ms" data-sb-ms="Siège|Antenne Menabe|Antenne Melaky"></div></div>
       <div class="sb-f"><span>Financier</span><div class="sb-ms" data-sb-ms="IDA|FIDA|FED|FM|BAD|État malgache|Bénéficiaires"></div></div>
       <label>Monnaie<select class="bp-sel" data-sb-dev data-no-combo><option value="1">MGA - ARIARY</option><option value="4800">EUR - EURO</option><option value="4500">USD - DOLLAR US</option></select></label>
+      <div class="sb-f" data-sb-cs style="display:none"><span>Cours de change</span><div style="display:flex;align-items:center;gap:8px"><span data-sb-cs1>1 EUR =</span><input class="bp-in" type="text" inputmode="decimal" data-sb-cours style="text-align:right;max-width:170px" value="0,00000"><b>MGA</b></div></div>
+      <label data-sb-cs2 style="display:none">Exclure les valeurs nulles<input type="checkbox" data-sb-excl style="width:22px;height:22px"></label>
       <div class="sb-pad"><b>Budget du projet (colonne Projet) :</b>
         <label><input type="radio" name="sbpad" value="fin" data-sb-pad checked> PAD Financier</label>
         <label><input type="radio" name="sbpad" value="actfin" data-sb-pad> PAD Acti + Financier</label>
@@ -6890,12 +6937,19 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     return { rp: r, bp: budget ? Math.round(budget / 3) : 0, re: r, be: budget, rj: Math.round(re * 6 + b * 2), bj: 0 };
   }
   function som(a, b) { var o = {}; Object.keys(a).forEach(function (x) { o[x] = a[x] + b[x]; }); return o; }
+  function nbr(t) { var x = parseFloat(String(t == null ? '' : t).replace(/[\s ]/g, '').replace(',', '.')); return isFinite(x) ? x : 0; }
+  function majCours() {
+    var o = q('[data-sb-dev]').selectedOptions[0], code = o.textContent.split(' - ')[0], loc = Number(o.value) === 1;
+    q('[data-sb-cs]').style.display = q('[data-sb-cs2]').style.display = loc ? 'none' : '';
+    if (!loc) { q('[data-sb-cs1]').textContent = '1 ' + code + ' ='; q('[data-sb-cours]').value = Number(o.value).toLocaleString('fr-FR', { minimumFractionDigits: 5, maximumFractionDigits: 5 }); }
+  }
+  q('[data-sb-dev]').addEventListener('change', majCours); majCours();
   function generer() {
     if (q('[data-sb-du]').value > q('[data-sb-au]').value) { toast('La date de début est postérieure à la date de fin.'); return; }
     if (!qa('[data-sb-ms]').every(function (e) { return e.__n() > 0; })) { toast('Sélectionnez au moins un élément dans chaque liste.'); return; }
     var niv = qa('[data-sb-niv]').filter(function (c) { return c.checked; }).map(function (c) { return Number(c.dataset.sbNiv); });
     if (!niv.length) { toast('Cochez au moins un niveau.'); return; }
-    var k = 1 / Number(q('[data-sb-dev]').value) * qa('[data-sb-ms]').reduce(function (a, e) { return a * (e.__n() / e.__t); }, 1), typ = q('[data-sb-typ]').value === 'Engagements' ? 1.25 : 1;
+    var k = 1 / ((Number(q('[data-sb-dev]').value) !== 1 && nbr(q('[data-sb-cours]').value) > 0) ? nbr(q('[data-sb-cours]').value) : Number(q('[data-sb-dev]').value)) * qa('[data-sb-ms]').reduce(function (a, e) { return a * (e.__n() / e.__t); }, 1), typ = q('[data-sb-typ]').value === 'Engagements' ? 1.25 : 1;
     var pad = q('[data-sb-pad]:checked').value === 'fin' ? 3.2 : 2.6;
     var du = (qa('[data-sb-rg="' + crit + '"][data-sens="du"]')[0] || {}).value || '', au = (qa('[data-sb-rg="' + crit + '"][data-sens="au"]')[0] || {}).value || '';
     var R = lignesDe(crit), reel = R.length > 0; if (!reel) R = DEMO;
@@ -6913,13 +6967,13 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var vu = {}; (par[''] || []).forEach(function (r) { var w = visite(r, 1, vu); if (w) tot = tot ? som(tot, w) : w; });
     var rows = out.filter(function (x) { return x && niv.indexOf(x.niv) >= 0; });
     if (!rows.length) { toast('Aucune ligne ne correspond aux critères.'); return; }
-    res = { rows: rows, tot: tot, dev: q('[data-sb-dev]').selectedOptions[0].textContent.split(' - ')[0], plan: libPlan(crit, ''), reel: reel };
+    res = { rows: rows, tot: tot, dev: q('[data-sb-dev]').selectedOptions[0].textContent.split(' - ')[0], plan: libPlan(crit, ''), reel: reel, excl: q('[data-sb-excl]').checked };
     dessiner(); ouvrir(false); toast('Suivi budgétaire généré : ' + rows.length + ' ligne(s).');
   }
   function cols(v) { var e = function (r, b) { return b ? Math.round(r / b * 1000) / 10 : null; }; return [v.rp, v.bp, v.bp - v.rp, e(v.rp, v.bp), v.re, v.be, v.be - v.re, e(v.re, v.be), v.rj, v.bj, v.bj - v.rj, e(v.rj, v.bj)]; }
   function cel(x, i) {
     if (i % 4 === 3) return '<td class="r' + (x != null && x > 100 ? ' sb-ko' : '') + '">' + (x == null ? '' : x.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })) + '</td>';
-    return '<td class="r' + (x < 0 ? ' sb-neg' : '') + '">' + (x === 0 ? '' : nb(x)) + '</td>';
+    return '<td class="r' + (x < 0 ? ' sb-neg' : '') + '">' + (x === 0 ? (res && res.dev !== 'MGA' && !res.excl ? '0' : '') : nb(x)) + '</td>';
   }
   function dessiner() {
     var sub = ['Réalisations', 'Budget', 'Disponible', 'Exéc (%)'];
@@ -32665,13 +32719,13 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   function choisir1(sel, v) { sel.value = v || ''; if (v && sel.value !== v) { var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); sel.value = v; } }
   function ligneFl(kind, v) {
-    v = v || { d: '', f: '', s: 'S' };
+    v = v || { d: '', f: '', s: 'DC' };
     var d = document.createElement('tr'), o = optsHtml(ax); d.className = 'bp-fl';
     d.innerHTML = '<td><select class="bp-sel" data-k="d" aria-label="Min">' + o + '</select></td>' +
       '<td><select class="bp-sel" data-k="f" aria-label="Max">' + o + '</select></td>' +
-      '<td><select class="bp-sel" data-k="s" aria-label="Sens"><option value="S">S</option><option value="D">D</option><option value="C">C</option></select></td>' +
+      '<td><select class="bp-sel" data-k="s" aria-label="Sens"><option value="DC">D – C</option><option value="CD">C – D</option><option value="D">D</option><option value="C">C</option><option value="SD">Solde D</option><option value="SC">Solde C</option></select></td>' +
       '<td><button type="button" class="bp-b ico" title="Retirer la ligne" aria-label="Retirer la ligne" data-rm><i class="ti ti-trash"></i></button></td>';
-    choisir1(d.querySelector('[data-k=d]'), v.d); choisir1(d.querySelector('[data-k=f]'), v.f); d.querySelector('[data-k=s]').value = v.s || 'S';
+    choisir1(d.querySelector('[data-k=d]'), v.d); choisir1(d.querySelector('[data-k=f]'), v.f); d.querySelector('[data-k=s]').value = (!v.s || v.s === 'S') ? 'DC' : v.s;
     return d;
   }
   function majVide(kind) { var n = q('[data-rows="' + kind + '"]').children.length; q('[data-vide="' + kind + '"]').hidden = n > 0; }
@@ -32685,7 +32739,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function afficherAxe() {
     var c = q('[data-rows="cur"]'); c.innerHTML = ''; (G[ax] || []).forEach(function (v) { c.appendChild(ligneFl('cur', v)); }); majVide('cur');
     q('[data-erp-axh]').textContent = 'Axe : ' + (ax === 'Compte' ? 'Compte' : ax);
-    q('[data-erp-aide]').textContent = ax === 'Compte' ? 'Saisissez les comptes comptables constituant le montant. Sens : (S)olde, (D)ébit, (C)rédit.' : 'Fourchette d’éléments du plan de l’axe ' + ax + ' à retenir (Min / Max). Plusieurs fourchettes possibles ; aucune = pas de filtre sur cet axe. Sens : (S)olde, (D)ébit, (C)rédit.';
+    q('[data-erp-aide]').textContent = ax === 'Compte' ? 'Saisissez les comptes comptables constituant le montant. Sens : D – C, C – D, D (débit), C (crédit), Solde D ou Solde C (solde de chaque compte).' : 'Fourchette d’éléments du plan de l’axe ' + ax + ' à retenir (Min / Max). Plusieurs fourchettes possibles ; aucune = pas de filtre sur cet axe. Sens : D – C, C – D, D (débit), C (crédit), Solde D ou Solde C (solde de chaque compte).';
     dessinerOnglets(); desactiver();
   }
   function changerAxe(k) { G[ax] = lireRows(); ax = k; afficherAxe(); }
@@ -33141,6 +33195,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <label class="be-c"><span>Au</span><input class="be-in" data-k="fin" disabled></label>
       <div class="be-c"><span>Tableau arrêté au</span><div class="be-dp"><input class="be-in" data-k="arrete" placeholder="jj/mm/aaaa" autocomplete="off" inputmode="numeric" aria-label="Date d'arrêté"><button type="button" class="be-dpb" data-ere-cal aria-label="Ouvrir le calendrier" aria-haspopup="dialog"><i class="ti ti-chevron-down"></i></button></div></div>
       <label class="be-c"><span>Devise</span><select class="be-sel" data-k="devise"><option value="MGA">MGA – Ariary</option><option value="EUR">EUR – Euro</option><option value="USD">USD – Dollar américain</option></select></label>
+      <label class="be-c" data-ere-cr style="display:none"><span data-ere-cr1>Cours de change : 1 EUR = … MGA</span><input class="be-in" data-k="cours" inputmode="decimal" value="0,00000" style="text-align:right"></label>
+      <label class="be-c" data-ere-cr2 style="display:none"><span>Exclure les valeurs nulles</span><input type="checkbox" data-k="excl" style="width:22px;height:22px"></label>
       <label class="be-c"><span>Périodicité</span><select class="be-sel" data-k="periodicite"><option value="1">Mois</option><option value="3" selected>Trimestre</option><option value="6">Semestre</option><option value="12">Année</option></select></label>
       <label class="be-c"><span>Numéro</span><select class="be-sel" data-kn="numero"></select></label>
       <label class="be-c" title="Décaissements : mouvements des racines C2, C4, C6 dans les journaux de trésorerie, avec imputation analytique. Engagements : mouvements des racines C2, C6 dans tous les journaux, avec imputation analytique."><span>Type de dépense</span><select class="be-sel" data-k="depense"><option value="decaissement">Décaissements</option><option value="engagement">Engagements</option></select></label>
@@ -33255,13 +33311,20 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var cur = efModeleId(); K.modele.innerHTML = M.map(function (m) { return '<option value="' + efEsc(m.id) + '">' + efEsc(m.id + ' — ' + m.libelle) + '</option>'; }).join('');
     K.modele.setAttribute('data-sig', sig); if (M.some(function (m) { return m.id === cur; })) K.modele.value = cur;
   }
-  function efTaux(au) { var dv = K.devise.value; if (!dv || dv === 'MGA') return 1; var C = window.COURS_API, t = C && C.taux(dv, au); if (!t && Array.isArray(window.COURS)) { var l = window.COURS.filter(function (x) { return x.devise === dv; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; })[0]; t = l && l.parite; } return t || 1; }
+  function nbr(t) { var x = parseFloat(String(t == null ? '' : t).replace(/[\s ]/g, '').replace(',', '.')); return isFinite(x) ? x : 0; }
+  function coursAuto() { var dv = K.devise.value, C = window.COURS_API, au = efIso(K.arrete.value), t = C && C.taux(dv, au); if (!t && Array.isArray(window.COURS)) { var l = window.COURS.filter(function (x) { return x.devise === dv; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; })[0]; t = l && l.parite; } return t || 0; }
+  function majCours() {
+    var dv = K.devise.value, loc = !dv || dv === 'MGA'; q('[data-ere-cr]').style.display = q('[data-ere-cr2]').style.display = loc ? 'none' : '';
+    if (!loc) { q('[data-ere-cr1]').textContent = 'Cours de change : 1 ' + dv + ' = … MGA'; K.cours.value = coursAuto().toLocaleString('fr-FR', { minimumFractionDigits: 5, maximumFractionDigits: 5 }); }
+  }
+  K.devise.addEventListener('change', majCours);
+  function efTaux(au) { var dv = K.devise.value; if (!dv || dv === 'MGA') return 1; if (nbr(K.cours.value) > 0) return nbr(K.cours.value); var C = window.COURS_API, t = C && C.taux(dv, au); if (!t && Array.isArray(window.COURS)) { var l = window.COURS.filter(function (x) { return x.devise === dv; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; })[0]; t = l && l.parite; } return t || 1; }
   function efCalc(du, au) { return window.ETATS_FIN ? window.ETATS_FIN.calc('er', efModeleId(), du, au, { depense: K.depense.value, taux: efTaux(au) }) : []; }
   function corps() {
     var P = window.ETATS_FIN, du = efIso(K.debut.value), au = efIso(K.arrete.value); if (!P) return '';
     var m = +au.slice(5, 7), pas = +K.periodicite.value || 3, qd = pas === 12 ? du : au.slice(0, 5) + ('0' + (Math.floor((m - 1) / pas) * pas + 1)).slice(-2) + '-01', T = efCalc(qd < du ? du : qd, au), C = efCalc(du, au), CL = { titre: 'titre', soustitre: 'soustitre', ligne: 'ligne', resultat: 'ligne', constante: 'ligne', soustotal: 'total', total: 'total', formule: 'total' };
     var th = q('[data-ere-per]'); if (th) th.textContent = { 1: 'Mois', 3: 'Trimestre', 6: 'Semestre', 12: 'Année' }[K.periodicite.value] || 'Trimestre';
-    return C.map(function (r, i) { if (!r.afficher) return ''; var v = r.nature === 'titre' || r.nature === 'soustitre'; function c(x) { return '<td class="r">' + x + '</td>'; } return '<tr class="' + CL[r.nature] + '"><td>' + efEsc(r.libelle) + '</td>' + c(v ? '' : P.fmt(T[i].v)) + c('') + c(v ? '' : P.fmt(r.v)) + c('') + '</tr>'; }).join('');
+    return C.map(function (r, i) { if (!r.afficher) return ''; var v = r.nature === 'titre' || r.nature === 'soustitre'; function c(x) { return '<td class="r">' + x + '</td>'; } function f0(x) { return (K.excl.checked && K.devise.value !== 'MGA' && !x) ? '' : P.fmt(x); } return '<tr class="' + CL[r.nature] + '"><td>' + efEsc(r.libelle) + '</td>' + c(v ? '' : f0(T[i].v)) + c('') + c(v ? '' : f0(r.v)) + c('') + '</tr>'; }).join('');
   }
   function editer() {
     majModeles();
@@ -37955,6 +38018,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     });
     return out;
   }
+  var gardee = '';   // monnaie de la ligne en cours de modification : conservée dans la liste même si elle n'est plus proposée par l'entité
   function refreshMon() {
     var sel = entSelects();
     if (!entInit && sel.length === 4 && sel.every(function (s) { return !s.value; })) { ['MGA', 'USD', 'MUR'].forEach(function (v, i) { sel[i].value = v; }); }
@@ -37962,8 +38026,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var seen = [], opts = [];
     sel.forEach(function (s) { var o = s.options[s.selectedIndex]; if (s.value && seen.indexOf(s.value) < 0) { seen.push(s.value); opts.push('<option value="' + s.value + '">' + o.textContent + '</option>'); } });
     var cur = mon.value;
+    if (gardee && seen.indexOf(gardee) < 0) opts.push('<option value="' + gardee + '">' + gardee + '</option>');
     mon.innerHTML = '<option value="">— Sélectionner une monnaie —</option>' + opts.join('');
-    mon.value = seen.indexOf(cur) >= 0 ? cur : '';
+    mon.value = (seen.indexOf(cur) >= 0 || (gardee && cur === gardee)) ? cur : '';
   }
   document.addEventListener('change', function (e) { if (e.target.closest && e.target.closest('[data-screen="entite"]')) refreshMon(); });
   window.addEventListener('hashchange', refreshMon);
@@ -38030,7 +38095,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   function loadRow(tr) {
     var cv = tr.dataset.conv; var opt = Array.prototype.filter.call(conv.options, function (o) { return o.value === cv || o.text === cv; })[0];
-    conv.value = opt ? opt.value : ''; proc.value = tr.querySelector('.pf-pill').textContent; refreshMon(); mon.value = tr.dataset.mon || ''; renderModels();
+    conv.value = opt ? opt.value : ''; proc.value = tr.querySelector('.pf-pill').textContent; gardee = tr.dataset.mon || ''; refreshMon(); mon.value = gardee; renderModels();
     var have = Array.prototype.map.call(tr.querySelectorAll('.pf-chip'), function (c) { return c.textContent; });
     checks().forEach(function (x) { x.checked = have.indexOf(x.value) >= 0; });
   }
@@ -38045,7 +38110,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var tr = e.target.closest('tr[data-conv]'); if (!tr || e.target.closest('[data-pf-del]') || mode !== 'consult') return;
     select(tr); loadRow(tr); setMode('modif'); showTab('saisie');
   });
-  function reset() { conv.value = ''; proc.value = ''; mon.value = ''; renderModels(); [conv, proc, mon, box].forEach(function (f) { f.classList.remove('pf-bad'); }); say(''); }
+  function reset() { gardee = ''; conv.value = ''; proc.value = ''; mon.value = ''; renderModels(); [conv, proc, mon, box].forEach(function (f) { f.classList.remove('pf-bad'); }); say(''); }
   q('[data-pf-reset]').addEventListener('click', reset);
   q('[data-pf-save]').addEventListener('click', function () {
     var sel = checks().filter(function (x) { return x.checked; }).map(function (x) { return x.value; });
@@ -40244,11 +40309,15 @@ window.PLANS_REF = {"comptes":[["0","Projet PARN",0],["101001","Paiement Direct 
     var tot = 0; F = (F || []).filter(function (f) { return f.d && f.f; }); axes = axes || [];
     if (!F.length) return 0;
     var par = {}; axes.forEach(function (a) { (par[a.axe] = par[a.axe] || []).push(a); });
+    var sc = {};   // soldes par compte (Solde D / Solde C)
     E.forEach(function (e) {
       var f = premiere(e.c, F); if (!f) return;
       for (var k in par) { if (!par.hasOwnProperty(k)) continue; if (e.base) return; var v = e.ax[k]; if (!v || !par[k].some(function (a) { return dans(v, a.d, a.f); })) return; }
-      tot += f.s === 'D' ? e.d : f.s === 'C' ? e.cr : (type === 'passif' ? e.cr - e.d : e.d - e.cr);
+      // sens : DC (D – C), CD (C – D), D, C, SD (Solde D : solde débiteur de chaque compte), SC (Solde C : solde créditeur) ; S = ancien « solde » selon le type de ligne
+      if (f.s === 'SD' || f.s === 'SC') { var k2 = sc[e.c] = sc[e.c] || { d: 0, cr: 0, s: f.s }; k2.d += e.d; k2.cr += e.cr; return; }
+      tot += f.s === 'D' ? e.d : f.s === 'C' ? e.cr : f.s === 'DC' ? e.d - e.cr : f.s === 'CD' ? e.cr - e.d : (type === 'passif' ? e.cr - e.d : e.d - e.cr);
     });
+    Object.keys(sc).forEach(function (c) { var k3 = sc[c], v = k3.d - k3.cr; tot += k3.s === 'SD' ? Math.max(v, 0) : Math.max(-v, 0); });
     return tot;
   }
   function resultatGestion(E) { var r = 0; E.forEach(function (e) { var k = classe(e.c); if (k === 7) r += e.cr - e.d; else if (k === 6) r -= e.d - e.cr; }); return r; }
