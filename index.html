@@ -30909,7 +30909,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .tr-line{flex:1;height:1px;margin:0 16px;background:#ddd8cd}
 .tr-card{background:#fff;border:1px solid #D6D9E0;border-radius:12px;box-shadow:0 1px 2px #0B13320d;padding:24px}
 .tr-card h2{margin:0 0 4px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}.tr-card>p{margin:0 0 16px;font-size:13px;color:#5B606D}
-.tr-crit{display:flex;align-items:center;gap:8px;border:1px solid #E3EBFE;background:#fff;border-radius:8px;padding:10px 16px;font:inherit;font-size:13px;cursor:pointer}.tr-crit:hover{background:#E9EBF0}.tr-crit b{color:#242830}.tr-crit span{color:#5B606D}
+.tr-crit{display:flex;align-items:center;gap:8px;border:1px solid #E3EBFE;background:#fff;border-radius:8px;padding:10px 16px;font:inherit;font-size:13px;cursor:pointer}.tr-crit:hover{background:#E9EBF0}.tr-crit b{color:#242830;white-space:nowrap}.tr-crit{text-align:left}.tr-crit span{color:#5B606D}
 .tr-empty{padding:32px 0;text-align:center;font-size:13px;color:#5B606D}
 .tr-ft{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid #D6D9E0}
 .tr-cfm{max-width:520px}.tr-cfb{display:flex;gap:16px;padding:24px 28px}.tr-cfi{flex:0 0 40px;height:40px;border-radius:50%;background:#fff3d6;color:#b7791f;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center}.tr-cfi.d{background:#fdecf1;color:#d1416c}.tr-cfb h2{margin:0 0 8px;font-size:16px;font-weight:700;color:#242830}.tr-cfw{background:#fff8eb;border:1px solid #f0d9a8;border-radius:8px;padding:10px 12px;font-size:13px;color:#8a5a12}.tr-cfw ul{margin:6px 0 0 20px;padding:0}.tr-cfb p{margin:10px 0 0;font-size:13px;color:#474C58}.tr-mf button.d{background:#d1416c;border-color:#d1416c;color:#fff}.tr-bd{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid #f0b4c5;background:#fff;color:#d1416c;font:inherit;font-size:12px;font-weight:600;cursor:pointer}.tr-bd:hover{background:#fdecf1}.tr-done{display:flex;flex-direction:column;align-items:center;text-align:center;padding:64px 0}.tr-dk{width:64px;height:64px;border-radius:50%;background:#dcf3e8;color:#12805c;font-size:28px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}.tr-done h2{margin:0;font-size:16px;font-weight:700;color:#242830}.tr-done p{margin:4px 0 0;font-size:13px;color:#5F77B9}.tr-done .tr-bk{margin-top:20px}.tr-warn{background:#fff8eb;border:1px solid #f0d9a8;border-radius:12px;padding:12px 16px;font-size:13px;color:#8a5a12}.tr-sm4{display:block;max-width:512px}.tr-sr{display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #F4F7FE;font-size:13px}.tr-sr.last{border-bottom:0}.tr-sr span:first-child{color:#5B606D}.tr-nx{min-height:40px;padding:0 16px;border-radius:8px;border:0;font:inherit;font-size:12px;font-weight:600;color:#fff;background:#12332c;cursor:pointer}.tr-nx:disabled{opacity:.45;cursor:not-allowed}
@@ -30951,7 +30951,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 <softcompta-traitement-declaration-fiscale>
 <div data-tr-root style="width:100%">
 <main class="tr-main"><section class="tr-sec">
-  <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><h1 class="tr-h">Traitement d'une déclaration</h1><div data-tr-hnav style="display:flex;gap:8px"></div></header>
+  <header style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px"><h1 class="tr-h">Traitement d'une déclaration</h1><div data-tr-hnav style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:70%"></div></header>
   <ol class="tr-steps" data-tr-steps></ol>
   <div data-tr-body></div>
   <footer class="tr-ft"><div data-tr-prev></div><div data-tr-next></div></footer>
@@ -30959,7 +30959,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 
 <div class="tr-ov" data-tr-ov>
   <div class="tr-md" role="dialog" aria-modal="true" aria-label="Critères de sélection des mouvements">
-    <div class="tr-mh"><h2>Critères de sélection des mouvements</h2><p>Sélectionnez le périmètre des écritures à reprendre, puis affichez la liste ou validez la sélection.</p></div>
+    <div class="tr-mh"><h2>Critères de sélection des mouvements</h2><p>« Afficher » pour continuer avec la sélection en cours ; « Valider » pour une nouvelle sélection.</p></div>
     <div class="tr-mb">
       <div class="tr-g3">
         <label class="tr-f"><span>Type d'impôt / taxe <i>*</i></span><select class="tr-in" data-tr-f="type"></select></label>
@@ -31167,7 +31167,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var b = '';
     if (step === 0) {
       b = '<div class="tr-card"><p class="tr-et">Étape 1 sur 4</p><h2>Sélection des mouvements</h2><p>Validez les critères de sélection pour extraire la matière imposable. Le détail des lignes se traite à l\'étape « Mouvements ».</p>' +
-        '<button type="button" class="tr-crit" data-tr-crit>🔍 <b>Critères de sélection</b><span>— ' + (crit ? 'Exercice ' + esc(crit.ex) + ' · ' + esc(crit.type) + ' · N° ' + esc(crit.sel) + ' · ' + fmtD(crit.du) + ' au ' + fmtD(crit.au) + (crit.mode ? ' · ' + esc(crit.mode) : '') + ' · ' + esc(jlabel(crit)) : 'Aucune sélection effectuée') + '</span></button></div>' +
+        '</div>' +
         (crit ? '<div class="tr-kpi"><div><small>Type de taxe</small><b>' + esc(crit.type) + ' — ' + esc(crit.type) + '</b></div><div><small>N° de sélection / déclaration</small><b>' + esc(crit.sel) + '</b></div><div><small>Mouvements sélectionnés</small><b>' + rows.length + '</b></div><div><small>Montant total</small><b>' + nf(total()) + '</b></div></div><div class="tr-okb">Sélection validée. Passez à l\'étape « Mouvements » pour vérifier et enrichir les lignes.</div>' : '<p class="tr-empty">Aucune sélection effectuée. Cliquez sur « Critères de sélection » pour lancer une recherche.</p>');
     } else if (step === 1) {
       var HD = ['À déclarer', 'Date', 'N° Pièce', 'Journal', 'Libellé', 'Contrat', 'N° Facture', 'NIF titulaire', 'Statut titulaire', 'Fournisseur', 'Objet du marché', 'Montant marché', 'Montant payé', 'Montant déclaration', 'Date paiement', 'Mode règlement'], RT = [11, 12, 13], cn = function (v) { return v == null ? '—' : String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
@@ -31204,7 +31204,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (step !== 1) selRow = -1;
     var MOD = step === 1 && !locked ? '<button type="button" class="tr-bk" data-tr-modrow' + (selRow < 0 ? ' disabled' : '') + ' title="Modifier le mouvement sélectionné (ou double-clic sur la ligne)">✎ Modifier</button>' : '';
     q('[data-tr-next]').innerHTML = step === 3 ? (locked ? '' : '<div style="display:flex;gap:8px"><button type="button" class="tr-bd" data-tr-askcancel>✕ Annuler le traitement de la déclaration</button><button type="button" class="tr-nx" data-tr-asklock>✔ Valider le traitement de la déclaration</button></div>') : step < 3 ? '<div style="display:flex;gap:8px;flex-wrap:wrap">' + MOD + ANN + '<button type="button" class="tr-bk tr-nx" data-tr-fwd' + (!rows.length ? ' disabled' : '') + '>Suivant →</button></div>' : '';
-    var hn = q('[data-tr-hnav]'); if (hn) hn.innerHTML = MOD;
+    // critères de sélection : affichés dans l’en-tête de la page, à droite du titre (étape 1)
+    var CRIT = step === 0 && !locked ? '<button type="button" class="tr-crit" data-tr-crit>🔍 <b>Critères de sélection</b><span>— ' + (crit ? 'Exercice ' + esc(crit.ex) + ' · ' + esc(crit.type) + ' · N° ' + esc(crit.sel) + ' · ' + fmtD(crit.du) + ' au ' + fmtD(crit.au) + (crit.mode ? ' · ' + esc(crit.mode) : '') + ' · ' + esc(jlabel(crit)) : 'Aucune sélection effectuée') + '</span></button>' : '';
+    var hn = q('[data-tr-hnav]'); if (hn) hn.innerHTML = CRIT + MOD;
   }
   var cfMode = '';
   function askCf(m) {
@@ -31231,7 +31233,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var t = e.target;
     if (t.closest('[data-tr-crit]')) openModal();
     else if (t.closest('[data-tr-cancel]')) closeModal();
-    else if (t.closest('[data-tr-show]')) { var c = read(), pp = pendT(c.type); if (pp) { loadT(pp); closeModal(); draw(); } else if (check(c)) { rows = gen(c); var er = q('[data-tr-err]'); er.style.color = '#166534'; er.textContent = rows.length + ' mouvement(s) correspondent aux critères.'; er.style.display = 'block'; } else q('[data-tr-err]').style.color = '#d1416c'; }
+    else if (t.closest('[data-tr-show]')) { var c = read(), pp = pendT(c.type); if (pp) { if (crit !== pp) loadT(pp); closeModal(); draw(); } else if (check(c)) { rows = gen(c); var er = q('[data-tr-err]'); er.style.color = '#166534'; er.textContent = rows.length + ' mouvement(s) correspondent aux critères.'; er.style.display = 'block'; } else q('[data-tr-err]').style.color = '#d1416c'; }
     else if (t.closest('[data-tr-valid]')) { var c2 = read(), p2 = pendT(c2.type); q('[data-tr-err]').style.color = '#d1416c';
       if (p2) { pendInfo = p2; askCf('cursel'); }
       else if (check(c2)) {
@@ -31325,10 +31327,13 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   // au clic sur le module : la fenêtre des critères s'ouvre directement ; les données n'apparaissent qu'après « Afficher » ou « Valider »
   function entree() {
     var p = SELT.filter(function (x) { return x.st === 'En cours' && DATAT[x.type]; }).pop();
-    if (p) { loadT(p); draw(); closeModal(); return; }   // sélection en cours : reprise directe
+    // la fenêtre de sélection s’ouvre à chaque entrée dans « Traitement » : la sélection en cours y est proposée (Afficher = la reprendre, Valider = nouvelle sélection)
+    if (p) { if (crit !== p) loadT(p); draw(); openModal(); return; }
     crit = null; rows = []; step = 0; locked = false; lotId = ''; model = ''; draw(); openModal();
   }
   window.addEventListener('hashchange', function () { if (location.hash === '#fisctrait') setTimeout(entree, 0); });
+  // clic sur le menu « Traitement » alors que l’écran est déjà affiché : la fenêtre se rouvre aussi
+  document.addEventListener('click', function (e) { var a = e.target.closest && e.target.closest('[data-nav="fisctrait"]'); if (a && location.hash === '#fisctrait') setTimeout(entree, 0); });
   if (location.hash === '#fisctrait') setTimeout(entree, 50);
 })();
 </script>
@@ -37018,6 +37023,10 @@ window.ECRITURES_REF = {
     '<div class="entry-analytic-modal-free-info" style="order:0"><h4><i class="ti ti-notes"></i> Informations libres de la ligne</h4>' +
     '<div class="entry-modal-two-cols"><div><label>INFORMATION LIBRE 1</label><input data-info="0" placeholder="Info libre 1"></div>' +
     '<div><label>INFORMATION LIBRE 2</label><input data-info="1" placeholder="Info libre 2"></div></div></div>' +
+    '<div class="entry-info-modal-documents" data-benef-bloc><h4><i class="ti ti-user-check"></i> Bénéficiaire du paiement</h4>' +
+    '<label style="display:block;margin:6px 0 4px;font-size:12px;font-weight:700">BÉNÉFICIAIRE DU PAIEMENT</label>' +
+    '<input data-benef list="ec-benef-liste" autocomplete="off" maxlength="120" placeholder="Code ou nom du tiers, ou nom du bénéficiaire" style="width:100%;box-sizing:border-box"><datalist id="ec-benef-liste"></datalist>' +
+    '<p class="entry-modal-doc-hint" data-benef-hint>Personne ou organisme qui reçoit effectivement le paiement (s’il diffère du tiers de la ligne).</p></div>' +
     '<div class="entry-info-modal-documents" data-sdoc-bloc><h4><i class="ti ti-link"></i> Document SoftDocs</h4>' +
     '<label style="display:block;margin:6px 0 4px;font-size:12px;font-weight:700">LIEN DU DOCUMENT SOFTDOCS</label>' +
     '<div style="display:flex;gap:8px;align-items:center"><input data-sdoc type="url" inputmode="url" autocomplete="off" placeholder="https://softdocs.softwell.mg/documents/…" style="flex:1;min-width:0">' +
@@ -37029,6 +37038,13 @@ window.ECRITURES_REF = {
     '<button type="button" class="entry-modal-doc-button" disabled title="Aucun lien documentaire à consulter"><i class="ti ti-eye"></i> Consulter</button></div>' +
     '<p class="entry-modal-doc-hint">Le lien documentaire est enregistré sur la ligne.</p></div></div>');
   var mInfos = modal('Infos libres', 'ti-info-circle', corpsInfos);
+  var benef = $('[data-benef]', corpsInfos), benefListe = $('#ec-benef-liste', corpsInfos);
+  function majBenefListe() {
+    var t = (window.TIERS_PLAN || []).filter(function (x) { return x.actif !== false; }), cur = tiers && tiers.value ? tiers.value.code : '';
+    t = t.slice().sort(function (a, b) { return (b.code === cur) - (a.code === cur); }).slice(0, 400);
+    benefListe.innerHTML = t.map(function (x) { return '<option value="' + esc(x.code + ' — ' + x.nom) + '"></option>'; }).join('');
+  }
+  benef.addEventListener('focus', majBenefListe);
   var sdoc = $('[data-sdoc]', corpsInfos), sdocOuvrir = $('[data-sdoc-ouvrir]', corpsInfos), sdocHint = $('[data-sdoc-hint]', corpsInfos), SDOC_AIDE = sdocHint.textContent;
   function lienOk(v) { return /^https?:\/\/[^\s\/$.?#][^\s]*$/i.test(v); }
   function majSdoc() { var v = sdoc.value.trim(), ok = !v || lienOk(v); sdocOuvrir.disabled = !v || !ok; sdoc.style.borderColor = ok ? '' : '#dc2626'; sdocHint.textContent = ok ? SDOC_AIDE : 'Lien invalide : il doit commencer par http:// ou https://.'; sdocHint.style.color = ok ? '' : '#dc2626'; }
@@ -37124,7 +37140,7 @@ window.ECRITURES_REF = {
       regr: ctrl('regroupement') ? ctrl('regroupement').value : '',
       montant: parse(montant.value), montant1: parse(ctrl('devise1') ? ctrl('devise1').value : '') || 0, montant2: parse(ctrl('devise2') ? ctrl('devise2').value : '') || 0, sens: ctrl('sens').value, echeance: echeance.value,
       axes: axes, ventil: JSON.parse(JSON.stringify(ventil)), budget: budgetSel.value, mode: modeReglement.value, taxe: taxesSel.join(','),
-      infos: $$('[data-info]', corpsInfos).map(function (i) { return i.value.trim(); }), docs: docs.slice(), sdoc: sdoc.value.trim()
+      infos: $$('[data-info]', corpsInfos).map(function (i) { return i.value.trim(); }), docs: docs.slice(), sdoc: sdoc.value.trim(), benef: benef.value.trim()
     };
   }
   function ecrireLigne(l) {
@@ -37147,6 +37163,7 @@ window.ECRITURES_REF = {
     $$('[data-info]', corpsInfos).forEach(function (i, k) { i.value = l ? l.infos[k] : ''; });
     docs = l ? l.docs.slice() : [];
     sdoc.value = l && l.sdoc ? l.sdoc : ''; majSdoc();
+    benef.value = l && l.benef ? l.benef : '';
     renderDocs();
     [libelle, montant].forEach(function (c) { invalide(c, false); });
     invalide(compte.btn, false);
@@ -37309,7 +37326,7 @@ window.ECRITURES_REF = {
       // Ligne suivante : on garde compte, tiers, analytique… ; libellé et montant sont à ressaisir
       libelle.value = ''; montant.value = '';
       docs = []; renderDocs(); ventil = {};
-      sdoc.value = ''; majSdoc();
+      sdoc.value = ''; majSdoc(); benef.value = '';
       $$('[data-info]', corpsInfos).forEach(function (i) { i.value = ''; });
       render();
       libelle.focus();
