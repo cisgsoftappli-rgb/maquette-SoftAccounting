@@ -4027,7 +4027,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 [data-cv] .cvn-tile b{display:block;font-size:14px;margin-bottom:4px}[data-cv] .cvn-tile .d{font-size:12px;color:#5B606D;line-height:1.4;display:block}[data-cv] .cvn-tile .meta{margin-top:10px;font-size:12px;font-weight:600;color:#5B606D;font-variant-numeric:tabular-nums}
 [data-cv] .cvn-tile .chk{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:6px;border:1.5px solid #CAD9FB;display:grid;place-items:center;color:#fff;background:#fff;font-size:12px}
 [data-cv] .cvn-tile:has(input:checked){border-color:#2E427B;background:#F4F7FE}[data-cv] .cvn-tile:has(input:checked) .ic{background:#2E427B;color:#fff}[data-cv] .cvn-tile:has(input:checked) .chk{background:#2E427B;border-color:#2E427B}[data-cv] .cvn-tile:has(input:checked) .meta{color:#2E427B}
-[data-cv] .cvn-cur{cursor:default}[data-cv] .cvn-cur .rate{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}[data-cv] .cvn-cur .warn{color:#B45309;font-size:12px;font-weight:600;margin-top:6px}
+[data-cv] .cvn-cur{cursor:pointer}[data-cv] .cvn-cur .rate{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}[data-cv] .cvn-cur .warn{color:#B45309;font-size:12px;font-weight:600;margin-top:6px}
 [data-cv] .cvn-opt{display:flex;gap:14px;align-items:flex-start;margin-top:20px;padding:14px;border:1px solid #E3EBFE;border-radius:8px;cursor:pointer}
 [data-cv] .cvn-opt input{position:absolute;opacity:0;pointer-events:none}[data-cv] .cvn-sw{width:36px;height:20px;border-radius:999px;background:#CAD9FB;position:relative;transition:200ms;flex:none;margin-top:1px}[data-cv] .cvn-sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(11,19,50,.2);transition:200ms}
 [data-cv] .cvn-opt input:checked+.cvn-sw{background:#2E427B}[data-cv] .cvn-opt input:checked+.cvn-sw::after{left:18px}[data-cv] .cvn-opt b{display:block;font-size:13.5px}[data-cv] .cvn-opt .d{font-size:12.5px;color:#5B606D}
@@ -4081,7 +4081,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       </div>
     </div>
     <div class="cv-card">
-      <div class="cvn-sh"><span class="cvn-n" data-cvn="3">3</span><div><h2>Devises des rapports</h2><p>Monnaie des rapports : <b data-cv-monrap></b>. Le cours en vigueur à la fin de période est appliqué à chaque devise de l’entité.</p></div></div>
+      <div class="cvn-sh"><span class="cvn-n" data-cvn="3">3</span><div><h2>Devises des rapports</h2><p>Monnaie de tenue de compte : <b data-cv-monrap></b>. Monnaies de reporting de l’entité (Administration › Informations générales) ; le cours en vigueur à la fin de période est appliqué à chaque devise sélectionnée.</p></div></div>
       <div class="cvn-g" data-cv-cur></div>
       <label class="cvn-opt"><input type="checkbox" id="cv-nuls" data-cv-nuls checked><span class="cvn-sw"></span><span><b>Convertir uniquement les montants nuls</b><span class="d">Seules les lignes dont le montant en devise est encore à zéro sont traitées. Les conversions déjà faites sont conservées.</span></span></label>
     </div>
@@ -4180,45 +4180,48 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
 
   // ---------- Devises de l'entité, cours, synthèses ----------
-  function locale() { var l = 'MGA'; [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (x) { var a = x.querySelector('.ig-l'), s = x.querySelector('select'); if (a && s && a.textContent.trim() === 'Monnaie locale' && s.value) l = s.value; }); return l; }
-  function devisesEntite() {
-    var m = {}; [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (x) { var a = x.querySelector('.ig-l'), s = x.querySelector('select'); if (a && s) m[a.textContent.trim()] = s.value; });
-    if (!('Devise 1' in m)) { m['Devise 1'] = 'USD'; m['Devise 2'] = 'MUR'; }
-    return ['Devise 1', 'Devise 2', 'Devise 3'].map(function (k) { return m[k]; }).filter(Boolean);
+  // Monnaies de comptabilisation lues dans Administration de l'entité › Informations générales : M1 = monnaie de tenue de compte (locale), M2 et M3 = monnaies de reporting
+  function monnaiesEntite() {
+    var m = { M1: '', M2: '', M3: '' }; [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (x) { var a = x.querySelector('.ig-l'), s = x.querySelector('select'), k = a && /\((M[123])\)/.exec(a.textContent); if (k && s) m[k[1]] = s.value; });
+    return m;
   }
+  function locale() { return monnaiesEntite().M1 || 'MGA'; }
+  function devisesEntite() { var m = monnaiesEntite(); return [m.M2, m.M3].filter(function (d, k, a) { return d && d !== m.M1 && a.indexOf(d) === k; }); }
+  var curSel = {};   // devises des rapports retenues (par défaut : toutes les devises de comptabilisation de l'entité)
+  function devisesSel() { return devisesEntite().filter(function (d) { return curSel[d] !== false; }); }
   function coursA(dev, d) { var r = null; (window.COURS || []).forEach(function (x) { if (x.devise === dev && (!d || x.date <= d) && (!r || x.date > r.date)) r = x; }); return r; }
   function infos() {
     var an = Object.keys(window.A_NOUVEAUX || {}).length, du = q('[data-cv-du]').value, au = q('[data-cv-au]').value, txt = {
       compta: MS.journaux ? 'Écritures du ' + date(du) + ' au ' + date(au) + ' · ' + nbSel(MS.journaux) + ' journal(aux)' : '',
       anouveaux: an + ' jeu(x) d’à-nouveaux en mémoire', immo: 'Mouvements des immobilisations de la période', marches: 'Ventilations des fiches marchés de la période' };
     qa('[data-cv-info]').forEach(function (i) { var c = q('[data-cv-el="' + i.dataset.cvInfo + '"]'); i.value = c && c.checked ? txt[i.dataset.cvInfo] : ''; });
-    q('[data-cv-monrap]').textContent = devisesEntite()[0] || '';
+    q('[data-cv-monrap]').textContent = locale();
     recap();
   }
 
   // récapitulatif, volumes par ensemble, devises (cours à fin de période)
   function recap() {
     if (!MS.site || !MS.journaux) return;
-    var du = q('[data-cv-du]').value, au = q('[data-cv-au]').value, els = qa('[data-cv-el]:checked').map(function (c) { return c.dataset.cvEl; }), nuls = q('[data-cv-nuls]').checked, loc = locale(), D = devisesEntite();
+    var du = q('[data-cv-du]').value, au = q('[data-cv-au]').value, els = qa('[data-cv-el]:checked').map(function (c) { return c.dataset.cvEl; }), nuls = q('[data-cv-nuls]').checked, loc = locale(), D = devisesEntite(), DS = devisesSel();
     function S(k, v) { q('[data-cv-s="' + k + '"]').textContent = v; }
     S('per', date(du) + ' → ' + date(au));
     S('sites', nbSel(MS.site) === MS.site.items.length ? 'Tous (' + nbSel(MS.site) + ')' : nbSel(MS.site) + ' / ' + MS.site.items.length);
     S('jnl', nbSel(MS.journaux) === MS.journaux.items.length ? 'Tous (' + nbSel(MS.journaux) + ')' : nbSel(MS.journaux) + ' / ' + MS.journaux.items.length);
     S('data', els.length ? els.map(function (e) { return { compta: 'Comptabilité générale', anouveaux: 'À-nouveaux', immo: 'Immobilisations', marches: 'Marchés' }[e]; }).join(', ') : '—');
-    S('cur', D.join(', ') || '—'); S('mode', nuls ? 'Montants nuls uniquement' : 'Tous les montants');
+    S('cur', DS.join(', ') || '—'); S('mode', nuls ? 'Montants nuls uniquement' : 'Tous les montants');
     var ok = du && au && du <= au;
     if (ok) {
       var vAll = volumes(du, au, ['compta', 'anouveaux', 'immo', 'marches'], false), vSel = volumes(du, au, els, nuls);
       vAll.forEach(function (x) { var m = q('[data-cv-meta="' + x.el + '"]'); if (m) m.textContent = nb(x.total) + (x.el === 'compta' || x.el === 'anouveaux' ? ' lignes' : x.el === 'immo' ? ' fiches' : ' contrats'); });
       S('n', nb(vSel.reduce(function (t, x) { return t + x.conv; }, 0)));
     } else S('n', '0');
-    q('[data-cv-cur]').innerHTML = D.map(function (d) { var c = ok ? coursA(d, au) : null; return '<div class="cvn-tile cvn-cur c3"><div class="cvn-top"><span class="ic" style="font-weight:700;font-size:12px">' + esc(d) + '</span>' + (c ? '<div class="rate">' + Number(c.parite).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' <span style="font-size:12px;color:#5B606D;font-weight:500">' + esc(loc) + '</span></div>' : '') + '</div><b>' + esc(d) + ' → ' + esc(loc) + '</b>' + (c ? '<span class="d">Dernier cours au ' + date(c.date) + '</span>' : '<div class="warn">⚠ Aucun cours saisi</div><span class="d">Saisissez un cours dans Gestion des cours › Saisie</span>') + '</div>'; }).join('');
-    var n1 = q('[data-cvn="1"]'), n2 = q('[data-cvn="2"]'), n3 = q('[data-cvn="3"]'); n1.classList.toggle('ok', !!(ok && nbSel(MS.site) && nbSel(MS.journaux))); n2.classList.toggle('ok', !!els.length); n3.classList.toggle('ok', D.length > 0 && D.every(function (d) { return coursA(d, au); }));
+    if (!D.length) q('[data-cv-cur]').innerHTML = '<div class="c12" style="grid-column:span 12;color:#B45309;font-size:13px;font-weight:600">⚠ Aucune monnaie de reporting (M2, M3) n’est définie dans Administration de l’entité › Informations générales.</div>'; else q('[data-cv-cur]').innerHTML = D.map(function (d) { var c = ok ? coursA(d, au) : null; return '<label class="cvn-tile cvn-cur c3"><input type="checkbox" data-cv-dev="' + esc(d) + '"' + (curSel[d] !== false ? ' checked' : '') + '><span class="chk">✓</span><div class="cvn-top"><span class="ic" style="font-weight:700;font-size:12px">' + esc(d) + '</span>' + (c ? '<div class="rate">' + Number(c.parite).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' <span style="font-size:12px;color:#5B606D;font-weight:500">' + esc(loc) + '</span></div>' : '') + '</div><b>' + esc(d) + ' → ' + esc(loc) + '</b>' + (c ? '<span class="d">Dernier cours au ' + date(c.date) + '</span>' : '<div class="warn">⚠ Aucun cours saisi</div><span class="d">Saisissez un cours dans Gestion des cours › Saisie</span>') + '</label>'; }).join('');
+    var n1 = q('[data-cvn="1"]'), n2 = q('[data-cvn="2"]'), n3 = q('[data-cvn="3"]'); n1.classList.toggle('ok', !!(ok && nbSel(MS.site) && nbSel(MS.journaux))); n2.classList.toggle('ok', !!els.length); n3.classList.toggle('ok', DS.length > 0 && DS.every(function (d) { return coursA(d, au); }));
   }
   function aujourdhui() { return new Date(); }
   function defauts() {
     var y = aujourdhui().getFullYear(); q('[data-cv-du]').value = y + '-01-01'; q('[data-cv-au]').value = y + '-12-31';
-    qa('[data-cv-el]').forEach(function (c) { c.checked = c.dataset.cvEl === 'compta'; }); q('[data-cv-nuls]').checked = true;
+    qa('[data-cv-el]').forEach(function (c) { c.checked = c.dataset.cvEl === 'compta'; }); q('[data-cv-nuls]').checked = true; curSel = {};
     ['site', 'journaux'].forEach(function (n) { msInit(n); });
     q('[data-cv-err]').hidden = true; q('[data-cv-res]').hidden = true; infos();
   }
@@ -4238,7 +4241,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (au < du) { erreur('La fin de période précède le début.'); return; }
     if (!nbSel(MS.site)) { erreur('Sélectionnez au moins un site.'); return; }
     if (els.indexOf('compta') >= 0 && !nbSel(MS.journaux)) { erreur('Sélectionnez au moins un journal.'); return; }
-    var loc = locale(), cours = devisesEntite().map(function (d) { return { dev: d, c: coursA(d, au) }; }), manque = cours.filter(function (x) { return !x.c; });
+    if (!devisesSel().length) { erreur('Sélectionnez au moins une devise de rapport à convertir.'); return; }
+    var loc = locale(), cours = devisesSel().map(function (d) { return { dev: d, c: coursA(d, au) }; }), manque = cours.filter(function (x) { return !x.c; });
     if (manque.length) { erreur('Aucun cours à la date du ' + date(au) + ' (ou avant) pour : ' + manque.map(function (x) { return x.dev + loc; }).join(', ') + '. Saisissez-les dans Gestion des cours › Saisie.'); return; }
     if (!(reprise || window.confirm('Convertir ' + els.map(function (e) { return EL[e]; }).join(', ') + ' du ' + date(du) + ' au ' + date(au) + ' ?'))) return;
     if (!reprise && window.SC_ETATS) {   // opération longue : barre de progression avec pourcentage, volume traité et annulation
@@ -4270,7 +4274,8 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   });
   q('[data-cv-ov]').addEventListener('mousedown', function (e) { if (e.target === this) this.hidden = true; });
   document.addEventListener('keydown', function (e) { var o = q('[data-cv-ov]'); if (e.key === 'Escape' && o && !o.hidden) o.hidden = true; });
-  root.addEventListener('change', function (e) { if (e.target.matches('[data-cv-el],[data-cv-du],[data-cv-au],[data-cv-nuls]')) infos(); });
+  document.addEventListener('change', function (e) { if (e.target.closest && e.target.closest('.ig-f') && q('[data-cv-cur]')) infos(); });
+  root.addEventListener('change', function (e) { if (e.target.matches('[data-cv-dev]')) curSel[e.target.dataset.cvDev] = e.target.checked; if (e.target.matches('[data-cv-el],[data-cv-du],[data-cv-au],[data-cv-nuls],[data-cv-dev]')) infos(); });
   window.addEventListener('hashchange', function () { if (location.hash === '#conversion') { ['site', 'journaux'].forEach(function (n) { if (!MS[n] || MS[n].items.length !== sources()[n].length) msInit(n); }); infos(); } else fermer(); });
   defauts(); histo();
   [600, 2000].forEach(function (t) { setTimeout(function () { ['site', 'journaux'].forEach(function (n) { if (!MS[n] || MS[n].items.length !== sources()[n].length) msInit(n); }); infos(); }, t); });
@@ -5762,10 +5767,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function taux(c) { return TAUX[c] || 1000; }
   function monnaies() {
     var m = {}, M = { loc: 'MGA', dev: [] };
-    [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'); if (l && s) m[l.textContent.trim()] = s.value; });
-    if (m['Monnaie locale']) M.loc = m['Monnaie locale'];
-    if (!('Devise 1' in m)) { m['Devise 1'] = 'USD'; m['Devise 2'] = 'MUR'; }
-    ['Devise 1', 'Devise 2', 'Devise 3'].forEach(function (k, i) { if (m[k]) M.dev.push({ n: i + 1, code: m[k], cle: 'd' + (i + 1) }); });
+    [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'), k = l && /\((M[123])\)/.exec(l.textContent); if (k && s) m[k[1]] = s.value; });
+    if (m.M1) M.loc = m.M1;   // M1 : monnaie de tenue de compte ; M2 et M3 : monnaies de reporting (Administration de l'entité › Informations générales)
+    ['M2', 'M3'].forEach(function (k, i) { if (m[k] && m[k] !== M.loc) M.dev.push({ n: i + 1, code: m[k], cle: 'd' + (i + 1) }); });
     return M;
   }
   function conv(loc, code, M) { return Math.round(loc * taux(M.loc) / taux(code) * 100) / 100; }
@@ -6229,7 +6233,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   // devises : monnaie locale et devise 1 (Administration de l'entité), taux d'exemple
   var TAUX = { MGA: 1, USD: 4000, EUR: 4400, GBP: 5100, MUR: 100, XOF: 6.6, CNY: 560 };
-  function devise1() { var d = 'USD'; qaDoc('.ig-f').forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'); if (l && s && l.textContent.trim() === 'Devise 1' && s.value) d = s.value; }); return d; }
+  function devise1() { var m = {}; qaDoc('.ig-f').forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'), k = l && /\((M[123])\)/.exec(l.textContent); if (k && s) m[k[1]] = s.value; }); return m.M2 || m.M3 || m.M1 || 'MGA'; }   // première monnaie de reporting (M2, à défaut M3) d'Administration de l'entité
   function qaDoc(s) { return [].slice.call(document.querySelectorAll(s)); }
   function conv(loc, code) { return Math.round(loc / (TAUX[code] || 1000) * 100) / 100; }
 
@@ -6413,7 +6417,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function nb(n, d) { return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }).replace(/[  ]/g, ' '); }
   function dt(d) { return d ? d.split('-').reverse().join('/') : ''; }
   function toast(m) { var t = q('[data-cpa-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
-  function devise1() { var d = 'USD'; [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'); if (l && s && l.textContent.trim() === 'Devise 1' && s.value) d = s.value; }); return d; }
+  function devise1() { var m = {}; [].slice.call(document.querySelectorAll('.ig-f')).forEach(function (f) { var l = f.querySelector('.ig-l'), s = f.querySelector('select'), k = l && /\((M[123])\)/.exec(l.textContent); if (k && s) m[k[1]] = s.value; }); return m.M2 || m.M3 || m.M1 || 'MGA'; }   // première monnaie de reporting (M2, à défaut M3) d'Administration de l'entité
   function exercices() { return (window.EXERCICES_API && window.EXERCICES_API.liste()) || []; }
   function exo() { var v = q('[data-cpa-ex]').value; return exercices().filter(function (e) { return String(e.annee) === v; })[0]; }
   function iso(d) { return d ? d.split('/').reverse().join('-') : ''; }
@@ -37845,17 +37849,32 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       <section class="bp-pan" aria-label="Saisie d'une sélection" data-pfs-pan="saisie" hidden>
         <form class="pfs-fm" onsubmit="return false" novalidate>
           <div class="pfs-b">
-            <label class="bp-champ"><span>N° paramètre <b>*</b></span><input class="bp-in" data-pfs-f="num" maxlength="20" placeholder="Ex : SOE"><span class="pfs-er" data-pfs-er="num"></span></label>
+            <div class="bp-champ"><span>N° paramètre <b>*</b></span><input class="bp-in" data-pfs-f="num" maxlength="20" placeholder="Ex : SOE"><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#353944;margin-top:4px"><input type="checkbox" data-pfs-auto style="width:15px;height:15px;min-height:0;accent-color:#2E427B"> Numérotation automatique du n° de sélection</label>
+              <div data-pfs-np hidden style="margin-top:8px;padding:10px;border:1px solid #CAD9FB;border-radius:8px;background:#F4F7FE">
+                <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+                  <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;color:#353944">Préfixe<input class="bp-in" data-pfs-npk="pre" maxlength="8" value="SEL" style="text-transform:none;font-weight:400"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;color:#353944">Texte intermédiaire<input class="bp-in" data-pfs-npk="mid" maxlength="6" value="-" style="text-transform:none;font-weight:400"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;color:#353944">Incrémentation<input title="Nombre de chiffres du compteur" class="bp-in" type="number" min="1" max="8" data-pfs-npk="len" value="3" style="text-transform:none;font-weight:400"></label>
+                  <label style="display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;text-transform:uppercase;color:#353944">Suffixe<input class="bp-in" data-pfs-npk="suf" maxlength="8" value="" style="text-transform:none;font-weight:400"></label>
+                </div>
+                <p style="margin:8px 0 0;font-size:12px;color:#5B606D">Exemple : <b data-pfs-npex></b></p>
+              </div><span class="pfs-er" data-pfs-er="num"></span></div>
             <label class="bp-champ"><span>Description <b>*</b></span><input class="bp-in" data-pfs-f="desc" maxlength="80" placeholder="Ex : STATE OF EXPENDITURE"><span class="pfs-er" data-pfs-er="desc"></span></label>
-            <label class="bp-champ"><span>Type de dépense <b>*</b></span><select class="bp-sel" data-pfs-f="type"><option value="">— Sélectionner —</option><option>Décaissement</option><option>Engagement</option><option>Prévision</option></select><span class="pfs-er" data-pfs-er="type"></span></label>
-            <label class="bp-champ"><span>Centre de saisie <b>*</b></span><select class="bp-sel" data-pfs-f="cs"></select><span class="pfs-er" data-pfs-er="cs"></span></label>
-            <div class="bp-champ pfs-w"><span>Journaux <b>*</b> <em data-pfs-nj style="font-style:normal;text-transform:none;color:#5B606D"></em></span>
+            <label class="bp-champ"><span>Type de dépense <b>*</b></span><select class="bp-sel" data-pfs-f="type"><option value="">— Sélectionner —</option><option>Décaissement</option><option>Engagement</option></select><span class="pfs-er" data-pfs-er="type"></span></label>
+            <div class="pfs-w" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;align-items:start"><div class="bp-champ"><span>Centres de saisie <b>*</b> <em data-pfs-ncs style="font-style:normal;text-transform:none;color:#5B606D"></em></span>
+              <div class="pfs-jr"><div class="pfs-jl">
+                <table class="pfs-jt" data-no-tf><thead>
+                  <tr><th class="pfs-ck"></th><th>Centre de saisie</th></tr>
+                  <tr class="pfs-jf"><th class="pfs-ck"><button type="button" data-pfs-tcs title="Tout sélectionner" aria-label="Tout sélectionner"><i class="ti ti-checks"></i></button></th><th><input class="bp-in" data-pfs-qcs placeholder="Filtrer" aria-label="Filtrer par centre de saisie"></th></tr>
+                </thead><tbody data-pfs-cl></tbody></table></div></div>
+              <span class="pfs-er" data-pfs-er="cs"></span></div>
+            <div class="bp-champ"><span>Journaux <b>*</b> <em data-pfs-nj style="font-style:normal;text-transform:none;color:#5B606D"></em></span>
               <div class="pfs-jr"><div class="pfs-jl">
                 <table class="pfs-jt" data-no-tf><thead>
                   <tr><th class="pfs-ck"></th><th>Code</th><th>Libellé</th></tr>
                   <tr class="pfs-jf"><th class="pfs-ck"><button type="button" data-pfs-tous title="Tout sélectionner" aria-label="Tout sélectionner"><i class="ti ti-checks"></i></button></th><th><input class="bp-in" data-pfs-qc placeholder="Filtrer" aria-label="Filtrer par code"></th><th><input class="bp-in" data-pfs-ql placeholder="Filtrer" aria-label="Filtrer par libellé"></th></tr>
                 </thead><tbody data-pfs-jl></tbody></table></div></div>
-              <span class="pfs-er" data-pfs-er="jnl"></span></div>
+              <span class="pfs-er" data-pfs-er="jnl"></span></div></div>
           </div>
         </form>
       </section>
@@ -38019,8 +38038,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 
   var CLE = 'softcompta.pfSelections', sel = -1, edit = -1;
   var SOE_J = ['BFM — Journal Banque BFM', 'BSGA2 — Journal Banque SGM A -MGA', 'CA — Journal Caisse', 'FID — Journal Fonds confiés FID', 'JAVNU — Journal Avance Agence des Nations Unies', 'JPDNU — Journal Paiement Direct Des Nations Unies', 'MISS — Journal mission', 'JPR — Journal Pénalité de retard', 'JPDFR — Journal Paiement Direct Fournisseur', 'FONDS — Journal Avance de Fonds', 'CREDOC — Journal CREDOC', 'BSGB1 — Journal Banque SGM B -USD', 'BSGA1 — Journal Banque SGM A - USD'];
-  var data = [{ num: 'SOE', desc: 'STATE OF EXPENDITURE', type: 'Décaissement', jnl: SOE_J, cs: 'Siège', lie: true }];
+  var data = [{ num: 'SOE', desc: 'STATE OF EXPENDITURE', type: 'Décaissement', jnl: SOE_J, cs: ['Siège'], lie: true }];
   try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (Array.isArray(sv)) data = sv; } catch (e) {}
+  function csArr(r) { return Array.isArray(r.cs) ? r.cs : (r.cs ? [r.cs] : []); }
   function msg(t) { q('[data-pfs-msg]').textContent = t || ''; }
   function publier() { window.PF_SELECTIONS = data; try { localStorage.setItem(CLE, JSON.stringify(data)); } catch (e) {} var c = page.querySelector('[data-pf-selcount]'); if (c) c.textContent = data.length; window.dispatchEvent(new Event('pf-selections-changed')); }
   function journaux() {
@@ -38028,6 +38048,13 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     SOE_J.forEach(function (x) { if (!l.some(function (y) { return y.split(' — ')[0] === x.split(' — ')[0]; })) l.push(x); });
     return l;
   }
+  /* Type de dépense « Décaissement » : seuls les journaux de type Trésorerie ou Hybride sont sélectionnables */
+  function typeJournal(j) {
+    var code = j.split(' — ')[0], p = (window.JOURNAUX_PLAN || []).filter(function (x) { return x.code === code; })[0];
+    if (p && p.type) return p.type;
+    return /banque|caisse|avance|fonds|paiement direct|credoc/i.test(j) ? 'Trésorerie' : 'Opérations diverses';
+  }
+  function eligible(j) { return f('type').value !== 'Décaissement' || /^(Trésorerie|Hybride)$/.test(typeJournal(j)); }
   function centres() { var l = ['Siège']; ((window.PLANS_REF || {}).sites || []).forEach(function (x) { if (x[0] !== '00') l.push(x[1]); }); return l; }
   function onglet(n) {
     qa('[data-pfs-tab]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-pfs-tab') === n); });
@@ -38038,7 +38065,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   function lister() {
     q('[data-pfs-rows]').innerHTML = data.map(function (r, i) {
-      return '<tr data-i="' + i + '"' + (i === sel ? ' class="pfs-sel"' : '') + '><td><b>' + esc(r.num) + '</b></td><td>' + esc(r.desc) + '</td><td><span class="pfs-pill">' + esc(r.type) + '</span></td><td class="c">' + r.jnl.length + '</td><td>' + esc(r.cs) + '</td></tr>';
+      return '<tr data-i="' + i + '"' + (i === sel ? ' class="pfs-sel"' : '') + '><td><b>' + esc(r.num) + '</b></td><td>' + esc(r.desc) + '</td><td><span class="pfs-pill">' + esc(r.type) + '</span></td><td class="c">' + r.jnl.length + '</td><td>' + esc(csArr(r).join(', ')) + '</td></tr>';
     }).join(''); q('[data-pfs-vide]').hidden = data.length > 0; q('[data-pfs-n]').textContent = '(' + data.length + ')';
     if (!q('[data-pfs-pan="liste"]').hidden) {
       var r = data[sel], b = function (k) { return q('[data-pfs-' + k + ']'); }, fige = sel < 0 || !!(r && r.lie);
@@ -38051,7 +38078,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var coches = [];
   function cases() {
     var h = '', qc = q('[data-pfs-qc]').value.toLowerCase(), ql = q('[data-pfs-ql]').value.toLowerCase();
-    journaux().forEach(function (j) {
+    journaux().filter(eligible).forEach(function (j) {
       var p = j.split(' — '), code = p.shift(), lib = p.join(' — ');
       if ((qc && code.toLowerCase().indexOf(qc) < 0) || (ql && lib.toLowerCase().indexOf(ql) < 0)) return;
       h += '<tr><td class="pfs-ck"><input type="checkbox" value="' + esc(j) + '"' + (coches.indexOf(j) >= 0 ? ' checked' : '') + ' aria-label="Sélectionner ' + esc(code) + '"></td><td class="pfs-cd">' + esc(code) + '</td><td>' + esc(lib) + '</td></tr>';
@@ -38059,11 +38086,38 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     q('[data-pfs-jl]').innerHTML = h || '<tr><td colspan="3" style="padding:10px;font-size:12px;color:#5B606D">Aucun journal.</td></tr>';
     q('[data-pfs-nj]').textContent = coches.length ? '(' + coches.length + ' sélectionné' + (coches.length > 1 ? 's' : '') + ')' : '';
   }
+  function typeChange() { lire(); coches = coches.filter(eligible); cases(); }
+  var cscoches = [];
+  function casesCS() {
+    var h = '', qs = q('[data-pfs-qcs]').value.toLowerCase();
+    centres().forEach(function (c) { if (qs && c.toLowerCase().indexOf(qs) < 0) return; h += '<tr><td class="pfs-ck"><input type="checkbox" value="' + esc(c) + '"' + (cscoches.indexOf(c) >= 0 ? ' checked' : '') + ' aria-label="Sélectionner ' + esc(c) + '"></td><td class="pfs-cd">' + esc(c) + '</td></tr>'; });
+    q('[data-pfs-cl]').innerHTML = h || '<tr><td colspan="2" style="padding:10px;font-size:12px;color:#5B606D">Aucun centre de saisie.</td></tr>';
+    q('[data-pfs-ncs]').textContent = cscoches.length ? '(' + cscoches.length + ' sélectionné' + (cscoches.length > 1 ? 's' : '') + ')' : '';
+  }
+  function lireCS() { qa('[data-pfs-cl] input').forEach(function (c) { var i = cscoches.indexOf(c.value); if (c.checked && i < 0) cscoches.push(c.value); if (!c.checked && i >= 0) cscoches.splice(i, 1); }); q('[data-pfs-ncs]').textContent = cscoches.length ? '(' + cscoches.length + ' sélectionné' + (cscoches.length > 1 ? 's' : '') + ')' : ''; }
+  /* numérotation automatique du n° de sélection : SEL-001, SEL-002… */
+  var CLEN = 'softcompta.pfNumParams';
+  function npLire() {
+    var p = { pre: 'SEL', mid: '-', len: 3, suf: '' }; try { var s = JSON.parse(localStorage.getItem(CLEN) || 'null'); if (s) p = Object.assign(p, s); } catch (e) {}
+    qa('[data-pfs-npk]').forEach(function (i) { var k = i.dataset.pfsNpk; if (document.activeElement !== i && !i.dataset.init) { i.value = p[k]; i.dataset.init = 1; } });
+    return { pre: q('[data-pfs-npk="pre"]').value, mid: q('[data-pfs-npk="mid"]').value, len: Math.max(1, Math.min(8, +q('[data-pfs-npk="len"]').value || 3)), suf: q('[data-pfs-npk="suf"]').value };
+  }
+  function reEsc(s) { return s.replace(/[.*+?^\x24()|\[\]{}\\]/g, function (c) { return '\\' + c; }); }
+  function numSuivant() {
+    var p = npLire(), re = new RegExp('^' + reEsc(p.pre + p.mid) + '(\\d+)' + reEsc(p.suf) + '\x24'), m = 0;
+    data.forEach(function (x, i) { var k = re.exec(x.num || ''); if (k && i !== edit) m = Math.max(m, +k[1]); });
+    var n = String(m + 1); while (n.length < p.len) n = '0' + n;
+    return p.pre + p.mid + n + p.suf;
+  }
+  function majAuto() {
+    var a = q('[data-pfs-auto]').checked, n = f('num'); n.readOnly = a; n.style.background = a ? '#F5F7F9' : ''; q('[data-pfs-np]').hidden = !a;
+    if (a) { n.value = numSuivant(); q('[data-pfs-npex]').textContent = n.value; try { localStorage.setItem(CLEN, JSON.stringify(npLire())); } catch (e) {} }
+  }
   function lire() { qa('[data-pfs-jl] input').forEach(function (c) { var i = coches.indexOf(c.value); if (c.checked && i < 0) coches.push(c.value); if (!c.checked && i >= 0) coches.splice(i, 1); }); q('[data-pfs-nj]').textContent = coches.length ? '(' + coches.length + ' sélectionné' + (coches.length > 1 ? 's' : '') + ')' : ''; }
   function ouvrir(i) {
     edit = i; effacer(); var r = i >= 0 ? data[i] : { num: '', desc: '', type: '', jnl: [], cs: '' };
     f('num').value = r.num; f('desc').value = r.desc; f('type').value = r.type;
-    var cs = f('cs'); cs.innerHTML = '<option value="">— Sélectionner —</option>' + centres().map(function (c) { return '<option>' + esc(c) + '</option>'; }).join(''); if (r.cs && centres().indexOf(r.cs) < 0) cs.insertAdjacentHTML('beforeend', '<option>' + esc(r.cs) + '</option>'); cs.value = r.cs;
+    cscoches = csArr(r).slice(); q('[data-pfs-qcs]').value = ''; casesCS(); qa('.pfs-jl').forEach(function (l) { l.scrollTop = 0; }); q('[data-pfs-auto]').checked = false; majAuto();
     coches = r.jnl.slice(); q('[data-pfs-qc]').value = ''; q('[data-pfs-ql]').value = ''; cases(); onglet('saisie'); f('num').focus();
   }
   q('[data-pfs-tab="saisie"]').addEventListener('click', function () { if (q('[data-pfs-pan="saisie"]').hidden) ouvrir(sel >= 0 && !data[sel].lie ? sel : -1); });
@@ -38080,14 +38134,21 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   ['[data-pfs-qc]', '[data-pfs-ql]'].forEach(function (x) { q(x).addEventListener('input', function () { lire(); cases(); }); });
   q('[data-pfs-jl]').addEventListener('click', function (e) { var td = e.target.closest('td'); if (!td || e.target.tagName === 'INPUT') return; var c = td.parentElement.querySelector('input'); if (c) { c.checked = !c.checked; lire(); } });
   q('[data-pfs-jl]').addEventListener('change', lire);
+  q('[data-pfs-auto]').addEventListener('change', majAuto);
+  qa('[data-pfs-npk]').forEach(function (i) { i.addEventListener('input', majAuto); });
+  q('[data-pfs-qcs]').addEventListener('input', function () { lireCS(); casesCS(); });
+  q('[data-pfs-cl]').addEventListener('click', function (e) { var td = e.target.closest('td'); if (!td || e.target.tagName === 'INPUT') return; var c = td.parentElement.querySelector('input'); if (c) { c.checked = !c.checked; lireCS(); } });
+  q('[data-pfs-cl]').addEventListener('change', lireCS);
+  q('[data-pfs-tcs]').addEventListener('click', function () { lireCS(); var vis = qa('[data-pfs-cl] input'), tout = vis.every(function (c) { return c.checked; }); vis.forEach(function (c) { c.checked = !tout; }); lireCS(); this.title = tout ? 'Tout sélectionner' : 'Tout désélectionner'; });
+  f('type').addEventListener('change', typeChange);
   q('[data-pfs-tous]').addEventListener('click', function () { lire(); var vis = qa('[data-pfs-jl] input'), tout = vis.every(function (c) { return c.checked; }); vis.forEach(function (c) { c.checked = !tout; }); lire(); this.title = tout ? 'Tout sélectionner' : 'Tout désélectionner'; });
   q('[data-pfs-enregistrer]').addEventListener('click', function () {
-    effacer(); lire(); var ok = true, r = { num: f('num').value.trim(), desc: f('desc').value.trim(), type: f('type').value, jnl: coches.slice(), cs: f('cs').value };
+    effacer(); lire(); lireCS(); if (q('[data-pfs-auto]').checked) f('num').value = numSuivant(); var ok = true, r = { num: f('num').value.trim(), desc: f('desc').value.trim(), type: f('type').value, jnl: coches.slice(), cs: cscoches.slice() };
     if (!r.num) { err('num', 'Le n° de paramètre est obligatoire.', f('num')); ok = false; } else if (data.some(function (x, i) { return i !== edit && x.num.toLowerCase() === r.num.toLowerCase(); })) { err('num', 'Ce n° de paramètre existe déjà.', f('num')); ok = false; }
     if (!r.desc) { err('desc', 'La description est obligatoire.', f('desc')); ok = false; }
     if (!r.type) { err('type', 'Le type de dépense est obligatoire.', f('type')); ok = false; }
     if (!r.jnl.length) { err('jnl', 'Choisissez au moins un journal.'); ok = false; }
-    if (!r.cs) { err('cs', 'Le centre de saisie est obligatoire.', f('cs')); ok = false; }
+    if (!r.cs.length) { err('cs', 'Choisissez au moins un centre de saisie.'); ok = false; }
     if (!ok) return;
     if (edit >= 0) data[edit] = r; else { data.push(r); edit = data.length - 1; }
     sel = edit; publier(); msg('Sélection enregistrée.'); onglet('liste');
