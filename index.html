@@ -16515,7 +16515,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     m3.style.display = 'none';
     var tp = selType.value === 'S' ? 'SOE' : 'Récapitulatif';
     q('[data-ed-cfg]').textContent = tp + ' · ' + selMod.value + (q('[data-ed-per]').checked ? ' · périodicité forcée' : '');
-    var tot = D2.reduce(function (a, r) { return a + r.mont; }, 0), prev = q('[data-ed-prev]');
+    var tot = D2.filter(function (r) { return r.fact; }).reduce(function (a, r) { return a + r.mont; }, 0), prev = q('[data-ed-prev]');
     prev.style.cssText = 'display:none';
     if (/4F/.test(selMod.value) && window.__render4F) {
       prev.innerHTML = viewer(selMod.value, window.__render4F(D2.filter(function (r) { return r.fact; }).map(function (r) {
@@ -16571,7 +16571,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       q('[data-ed-to4]').disabled = false; bindViewer(); return;
     }
     prev.innerHTML = '<div data-ed-doc><div class="edp-gen"><h3>' + selMod.value + ' — ' + q('[data-ed-ped]').textContent + '</h3><table class="ed-table"><thead><tr><th>Date</th><th>N° Bordereau</th><th>Cat.</th><th>Description</th><th class="ed-r" style="text-align:right">Montant</th><th class="ed-c">Statut</th></tr></thead><tbody>' +
-      D2.map(function (r) { return '<tr><td>' + r.date + '</td><td style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + r.bordn + '</td><td>' + r.cat + '</td><td>' + (r.desc || r.lib) + '</td><td class="ed-r">' + fmt(r.mont) + '</td><td class="ed-c">' + stat(r) + '</td></tr>'; }).join('') +
+      D2.filter(function (r) { return r.fact; }).map(function (r) { return '<tr><td>' + r.date + '</td><td style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + r.bordn + '</td><td>' + r.cat + '</td><td>' + (r.desc || r.lib) + '</td><td class="ed-r">' + fmt(r.mont) + '</td><td class="ed-c">' + stat(r) + '</td></tr>'; }).join('') +
       '</tbody><tfoot><tr class="ed-tf"><td colspan="4">Total</td><td class="ed-r">' + fmt(tot) + '</td><td></td></tr></tfoot></table></div></div>';
     q('[data-ed-to4]').disabled = false; bindViewer();
   });
@@ -16673,6 +16673,12 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     else if (cfM === 'cancel') { endSel('Annulée'); go(1); say('Confection de la demande annulée : retour à l\'étape 1.'); }
     else { var nf = D2.filter(function (r) { return r.fact; }).length, n1 = curNum; q('[data-ed-ok5t]').textContent = nf + ' mouvement(s) facturable(s) verrouillé(s) pour la demande ' + n1 + '. Elle est disponible dans la Régularisation des demandes.';
       var tot1 = Math.round(D2.filter(function (r) { return r.fact; }).reduce(function (a, r) { return a + ev(r); }, 0) * 100) / 100, kk = curKey;
+      (function () {
+        var ps = SELS.filter(function (x) { return x.num === n1 && keyOf(x) === kk; })[0] || {}, L = D2.filter(function (r) { return r.fact; });
+        (window.ED_UTILISES = window.ED_UTILISES || {}); L.forEach(function (r) { if (r.sid) window.ED_UTILISES[r.sid] = n1; });
+        window.DEMANDES_DEPENSE = (window.DEMANDES_DEPENSE || []).filter(function (x) { return !(x.num === n1 && x.conv === ps.conv); });
+        window.DEMANDES_DEPENSE.push({ num: n1, conv: ps.conv, param: ps.param, d1: ps.d1, d2: ps.d2, dev: emis(), lignes: L.map(function (r) { return { date: r.date, num: r.bord, lib: r.desc || r.lib, cat: r.lib, m: ev(r), s: '', sid: r.sid || '' }; }) });
+      })();
       SELS.forEach(function (x) { if (x.num === n1 && keyOf(x) === kk) { x.total = tot1; x.nbl = nf; x.dconf = new Date().toISOString().slice(0, 10); x.devEmis = emis(); } });
       endSel('Confectionnée'); go(5); }
   });
@@ -16776,6 +16782,29 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (!p) chkSync();
   }
   f('param').addEventListener('change', fillFields); f('conv').addEventListener('change', fillFields);
+  /* écritures saisies en comptabilité générale : comptes de classe 2, 4 ou 6, avec imputation analytique, dans un journal de trésorerie, sur la période de sélection ; déjà rattachées à une demande → exclues */
+  /* type de dépenses du paramètre de la sélection (Procédures financières) : Décaissement → comptes 2, 4, 6 dans un journal de trésorerie ; Engagement → comptes 2 et 6 dans tous les journaux */
+  function typeDepense() {
+    var P = window.__pfParams ? window.__pfParams() : [], v = f('param') ? f('param').value : '', x = P.filter(function (y) { return v.indexOf(y.num) === 0; })[0];
+    return x && /engagement/i.test(x.type) ? 'engagement' : 'decaissement';
+  }
+  function saisiesDepense(d1, d2) {
+    var S = window.ECRITURES_SAISIES, out = [], genre = typeDepense(), classes = genre === 'engagement' ? '26' : '246'; if (!S) return out;
+    var utilises = window.ED_UTILISES || {}, J = window.JOURNAUX_PLAN || [];
+    function treso(j) { var x = J.filter(function (y) { return y.code === j; })[0]; return !!x && x.type === 'Trésorerie'; }
+    S({}).forEach(function (x) {
+      if ((d1 && x.date < d1) || (d2 && x.date > d2)) return;
+      if (!String(x.compte).charAt(0) || classes.indexOf(String(x.compte).charAt(0)) < 0) return;
+      if (genre === 'decaissement' && !treso(x.journal)) return;
+      var ax = x.axes || {}; if (!Object.keys(ax).some(function (k) { return ax[k]; })) return;
+      if (utilises[x.id]) return;
+      var m = Math.round(((+x.debit || 0) - (+x.credit || 0)) * 100) / 100; if (!m) return;
+      var p = x.date.split('-'), lc = S.libCompte ? S.libCompte(x.compte) : '';
+      out.push({ date: p[2] + '/' + p[1] + '/' + p[0], bord: x.piece, cat: ax['FINANCEMENT'] || x.regr || '', lib: lc || x.libelle, desc: x.libelle, bordn: p[0] + p[1] + p[2] + (x.site || '01') + ('000' + (out.length + 1)).slice(-4), benp: S.nomTiers ? S.nomTiers(x.tiers) : (x.tiers || ''), marche: '',
+        mont: m, fact: 1, fcat: '01', pt: 1, mtot: m, mmon: 'MGA', dreg: x.date, rel: '', fref: x.facture || x.reference || '', tx: 100, src: 'saisie', sid: x.id });
+    });
+    return out;
+  }
   function endSel(st, num, key) {
     num = num || curNum; key = key || curKey; if (!num) return;
     SELS.forEach(function (x) { if (x.num === num && keyOf(x) === key) x.st = st; });
@@ -16793,7 +16822,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (SELS.some(function (x) { return keyOf(x) === key && x.num === num; })) { say('Le n° de sélection ' + num + ' existe déjà pour ce paramètre et cette convention.'); return; }
     keep();
     var c = {}; chks.forEach(function (x) { c[x.dataset.edChk] = x.checked; });
-    D2.length = 0; JSON.parse(POOL).forEach(function (r) { D2.push(r); });
+    D2.length = 0; saisiesDepense(f('d1').value, f('d2').value).concat(JSON.parse(POOL)).forEach(function (r) { D2.push(r); });
     D2.forEach(function (r) { r.fact = c.nf ? 0 : (c.pointe && !r.pt) ? 0 : 1; });
     curKey = key; curNum = num; DATA[key] = D2.slice();
     sel = -1; btnEdit.disabled = true; shown = true; draw2(); draw1();
@@ -16975,6 +17004,16 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     { id: 7, date: '29/05/2026', num: 'PC-2026-0149', lib: 'Achat groupe électrogène chantier', cat: 'Équipement', m: 15964.69, s: '' },
     { id: 8, date: '06/06/2026', num: 'PC-2026-0156', lib: 'Assurance chantier – 2e trimestre', cat: 'Services', m: 5400.00, s: '' }
   ];
+  var MV0 = MV.map(function (m) { return Object.assign({}, m); }), DEMANDE = null, TOTAL0 = TOTAL_USD;
+  // mouvements de la demande sélectionnée (numéro de demande + code de convention)
+  function chargerDemande(cv, num) {
+    var D = (window.DEMANDES_DEPENSE || []).filter(function (x) { return x.num === num && String(cv).indexOf(x.conv) === 0; })[0];
+    DEMANDE = D || null; MV.length = 0;
+    if (D) {
+      D.lignes.forEach(function (l, i) { MV.push({ id: i + 1, date: l.date, num: l.num, lib: l.lib, cat: l.cat, m: l.m / (RATES[D.dev] || 1), s: l.s || '' }); });
+      TOTAL_USD = MV.reduce(function (a, m) { return a + m.m; }, 0);
+    } else { MV0.forEach(function (m) { MV.push(Object.assign({}, m)); }); TOTAL_USD = TOTAL0; }
+  }
   var conv = q('[data-rg-conv]'), drf = q('[data-rg-drf]'), per = q('[data-rg-per]'), mon = q('[data-rg-mon]'), ok = q('[data-rg-ok]'), ov = q('[data-rg-ov]');
   var cur = 'USD', sel = null;
   function fmt(n) { var p = Math.abs(n).toFixed(2).split('.'); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' '); return (n < 0 ? '-' : '') + p.join(','); }
@@ -17047,7 +17086,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     snap = instantane(); drawRows(); drawDash();
   }
   ok.addEventListener('click', function () {
-    cur = mon.value; sel = { conv: conv.value, drf: drf.value, per: per.textContent };
+    cur = mon.value; sel = { conv: conv.value, drf: drf.value, per: per.textContent }; chargerDemande(conv.value, drf.value);
     ov.style.display = 'none'; q('[data-rg-work]').style.display = ''; drawDash(); initP();
   });
   q('[data-rg-change]').addEventListener('click', function () { ov.style.display = ''; q('[data-rg-close]').style.display = ''; });
@@ -17062,7 +17101,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     else if (!tous && s.reg) { s.st = 'Confectionnée'; s.reg = false; }
     if (s.st !== avant) window.dispatchEvent(new CustomEvent('selections-change'));
   }
-  q('[data-rg-psave]').addEventListener('click', function () { snap = instantane(); drawDash(); majStatutDemande(); msg('✓ Pointage enregistré'); });
+  q('[data-rg-psave]').addEventListener('click', function () { if (DEMANDE) MV.forEach(function (m, i) { if (DEMANDE.lignes[i]) DEMANDE.lignes[i].s = m.s; }); snap = instantane(); drawDash(); majStatutDemande(); msg('✓ Pointage enregistré'); });
   q('[data-rg-pcancel]').addEventListener('click', function () { MV.forEach(function (m, i) { m.s = snap[i]; }); drawRows(); drawDash(); });
   q('[data-rg-rows]').addEventListener('change', function (e) { var id = e.target.dataset.rgId; if (!id) return; MV.filter(function (m) { return m.id === +id; })[0].s = e.target.value; drawSum(); });
   qa('[data-rg-f]').forEach(function (e) { e.addEventListener(e.tagName === 'SELECT' ? 'change' : 'input', drawRows); });
@@ -38050,6 +38089,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   var CLE = 'softcompta.pfSelections', sel = -1, edit = -1;
   var SOE_J = ['BFM — Journal Banque BFM', 'BSGA2 — Journal Banque SGM A -MGA', 'CA — Journal Caisse', 'FID — Journal Fonds confiés FID', 'JAVNU — Journal Avance Agence des Nations Unies', 'JPDNU — Journal Paiement Direct Des Nations Unies', 'MISS — Journal mission', 'JPR — Journal Pénalité de retard', 'JPDFR — Journal Paiement Direct Fournisseur', 'FONDS — Journal Avance de Fonds', 'CREDOC — Journal CREDOC', 'BSGB1 — Journal Banque SGM B -USD', 'BSGA1 — Journal Banque SGM A - USD'];
   var data = [{ num: 'SOE', desc: 'STATE OF EXPENDITURE', type: 'Décaissement', jnl: SOE_J, cs: ['Siège'], lie: true }];
+  window.__pfParams = function () { return data; };   // paramètres d'état de dépense (n°, type Décaissement / Engagement…), lus par « État de dépense »
   try { var sv = JSON.parse(localStorage.getItem(CLE) || 'null'); if (Array.isArray(sv)) data = sv; } catch (e) {}
   function csArr(r) { return Array.isArray(r.cs) ? r.cs : (r.cs ? [r.cs] : []); }
   function msg(t) { q('[data-pfs-msg]').textContent = t || ''; }
@@ -38479,19 +38519,20 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     return out.sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : a.no < b.no ? -1 : 1; });
   }
   function generer() {
-    var plan = K('plan').value, P = plans(), du = K('du').value, au = K('au').value, type = typeSel(), niv = qa('[data-n]:checked').map(function (x) { return +x.getAttribute('data-n'); }), h = '', gd = 0, nb = 0;
+    var plan = K('plan').value, P = plans(), du = K('du').value, au = K('au').value, type = typeSel(), niv = qa('[data-n]:checked').map(function (x) { return +x.getAttribute('data-n'); }), h = '', gd = 0, gc = 0, nb = 0;
     P = P.filter(function (p) { return p[0] === plan; }).concat(P.filter(function (p) { return p[0] !== plan; }));
-    var C = comptes(plan, niv), colspan = 3 + P.length, ES = window.ECRITURES_SAISIES, NOMA = function (pc) { return ES ? ES.AXES[+String(pc).replace('PLAN', '') - 1] : ''; }, NOM = NOMA(plan), SA = ES && NOM ? ES({ du: du, au: au }).filter(function (x) { return x.axes[NOM]; }) : [];
+    var C = comptes(plan, niv), colspan = 3 + P.length, ES = window.ECRITURES_SAISIES, NOMA = function (pc) { return ES ? ES.AXES[+String(pc).replace('PLAN', '') - 1] : ''; }, NOM = NOMA(plan), SA = ES && NOM ? ES({ du: du, au: au }).filter(function (x) { return x.axes[NOM] && (type !== 'journal' || x.journal === K('journal').value); }) : [];
     SA.forEach(function (x) { var k = x.axes[NOM]; if (!C.some(function (c) { return c.code === k; })) { var r = lignesPlan(plan).rows.filter(function (y) { return String(y.code) === k; })[0]; C.push({ code: k, libelle: r ? r.libelle || '' : k }); } });   // éléments mouvementés par des écritures saisies
     if (type === 'code') C = C.filter(function (c) { return c.code === K('code').value; });
     q('[data-dm-th]').innerHTML = '<tr><th>Date</th><th>N° ordre</th><th>CG</th>' + P.map(function (p) { return '<th>' + esc(p[1]) + '</th>'; }).join('') + '<th>Journal</th><th>N° pièce</th><th>Tiers</th><th>Libellé</th><th class="r">Débit</th><th class="r">Crédit</th></tr>';
     C.forEach(function (c) {
-      var L = mouvements(c, P, du, au).concat(SA.filter(function (x) { return x.axes[NOM] === c.code; }).map(function (x) { var ax = {}; P.forEach(function (p) { ax[p[0]] = x.axes[NOMA(p[0])] || ''; }); return { d: x.date, no: x.piece, cg: x.compte, ax: ax, j: x.journal, p: x.piece, t: x.tiers || '—', lib: x.libelle, db: x.debit - x.credit }; })).sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }); /* + écritures saisies */ if (type === 'journal') L = L.filter(function (l, i) { return (hash(c.code + i) % 3) !== 0; }).map(function (l) { l.j = K('journal').value; return l; });   // maquette : les mouvements du journal choisi if (!L.length) return;
-      var td = 0;
-      L.forEach(function (l) { td += l.db; nb++; h += '<tr><td>' + dfr(l.d) + '</td><td>' + l.no + '</td><td>' + l.cg + '</td>' + P.map(function (p) { return '<td>' + esc(l.ax[p[0]]) + '</td>'; }).join('') + '<td>' + esc(l.j) + '</td><td>' + esc(l.p) + '</td><td>' + esc(l.t) + '</td><td class="lb">' + esc(l.lib + ' — ' + c.libelle.slice(0, 30)) + '</td><td class="r">' + fmt(l.db) + '</td><td class="r"></td></tr>'; });
-      h += '<tr class="t"><td colspan="' + (colspan + 3) + '" style="text-align:right">Total ' + esc(c.code) + '</td><td class="r">' + fmt(td) + '</td><td class="r">' + fmt(0) + '</td></tr>'; gd += td;
+      var L = (SA.length ? [] : mouvements(c, P, du, au)).concat(SA.filter(function (x) { return x.axes[NOM] === c.code; }).map(function (x) { var ax = {}; P.forEach(function (p) { ax[p[0]] = x.axes[NOMA(p[0])] || ''; }); return { d: x.date, no: x.piece, cg: x.compte, ax: ax, j: x.journal, p: x.piece, t: x.tiers || '—', lib: x.libelle, db: x.debit, cr: x.credit }; })).sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }); /* + écritures saisies */ if (type === 'journal') L = L.filter(function (l, i) { return (hash(c.code + i) % 3) !== 0; }).map(function (l) { l.j = K('journal').value; return l; });   // maquette : les mouvements du journal choisi if (!L.length) return;
+      if (SA.length && !L.length) return;
+      var td = 0, tc = 0;
+      L.forEach(function (l) { td += l.db || 0; tc += l.cr || 0; nb++; h += '<tr><td>' + dfr(l.d) + '</td><td>' + l.no + '</td><td>' + l.cg + '</td>' + P.map(function (p) { return '<td>' + esc(l.ax[p[0]]) + '</td>'; }).join('') + '<td>' + esc(l.j) + '</td><td>' + esc(l.p) + '</td><td>' + esc(l.t) + '</td><td class="lb">' + esc(l.lib + ' — ' + c.libelle.slice(0, 30)) + '</td><td class="r">' + (l.db ? fmt(l.db) : '') + '</td><td class="r">' + (l.cr ? fmt(l.cr) : '') + '</td></tr>'; });
+      h += '<tr class="t"><td colspan="' + (colspan + 3) + '" style="text-align:right">Total ' + esc(c.code) + '</td><td class="r">' + fmt(td) + '</td><td class="r">' + fmt(tc) + '</td></tr>'; gd += td; gc += tc;
     });
-    if (!nb) h = '<tr><td colspan="' + (colspan + 5) + '">' + (window.SC_ETATS ? window.SC_ETATS.htmlVide({ icone: 'search', titre: 'Aucun mouvement trouvé', texte: 'Aucun résultat ne correspond aux critères. Modifiez-les pour élargir la recherche.', actions: [{ label: 'Modifier les critères', primary: true, faire: '[data-dm-crit]' }] }) : 'Aucun mouvement ne correspond aux critères.') + '</td></tr>'; else h += '<tr class="tg"><td colspan="' + (colspan + 3) + '" style="text-align:right">Total général</td><td class="r">' + fmt(gd) + '</td><td class="r">' + fmt(0) + '</td></tr>';
+    if (!nb) h = '<tr><td colspan="' + (colspan + 5) + '">' + (window.SC_ETATS ? window.SC_ETATS.htmlVide({ icone: 'search', titre: 'Aucun mouvement trouvé', texte: 'Aucun résultat ne correspond aux critères. Modifiez-les pour élargir la recherche.', actions: [{ label: 'Modifier les critères', primary: true, faire: '[data-dm-crit]' }] }) : 'Aucun mouvement ne correspond aux critères.') + '</td></tr>'; else h += '<tr class="tg"><td colspan="' + (colspan + 3) + '" style="text-align:right">Total général</td><td class="r">' + fmt(gd) + '</td><td class="r">' + fmt(gc) + '</td></tr>';
     q('[data-dm-rows]').innerHTML = h;
     var t = { liste: 'Liste d’écritures', journal: 'Journal ' + K('journal').value, code: 'Écritures du code ' + K('code').value }[type];
     q('[data-dm-ti]').textContent = 'DÉTAILS DES MOUVEMENTS ANALYTIQUES — ' + (P[0] ? P[0][1] : '') + ' — ' + t + ' — du ' + dfr(du) + ' au ' + dfr(au) + ' (' + K('monnaie').value + ')';
@@ -39028,7 +39069,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function fmt(n) { return (n || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function frd(iso) { return iso ? iso.split('-').reverse().join('/') : ''; }
-  var UTIL = 'admin';
+  var UTIL = window.UTILISATEUR_COURANT || 'admin';
   function iso(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function toast(m) { var t = q('[data-cvt-toast]'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2400); }
 
@@ -39052,12 +39093,29 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     return out;
   }
   var DEMO = demo();
+  // colonne d'une pièce enregistrée : état du circuit conservé ; sinon Brouillon (étape zéro), Validé (utilisateur non nommé → dernière étape) ou Saisis
+  function etatReg(p) {
+    var C = colonnes(), ex = function (e) { return C.some(function (c) { return c.etat === e; }); };
+    if (p.circuit && ex(p.circuit)) return p.circuit;
+    if (p.statut === 'Brouillon' && zeroActif()) return 'BROUILLON';
+    if (p.statut === 'Validé' && zeroActif()) { var vis = C.filter(function (c) { return c.etape && autorise(c.etape); }); if (vis.length) return vis[vis.length - 1].etat; }   // pièce validée : dernière étape visible pour l'utilisateur
+    return 'SAISIS';
+  }
+  // l'état du circuit est reporté sur la pièce du registre (consultée par la liste des écritures et les états)
+  function persister(cle, etat) {
+    var C = colonnes(), dern = C.length > 1 ? C[C.length - 1].etat : '';
+    (window.ECRITURES_PIECES || []).forEach(function (x) {
+      if (x.journal + '|' + x.piece !== cle) return;
+      x.circuit = etat; x.statut = etat === 'BROUILLON' ? 'Brouillon' : (etat === dern ? 'Validé' : '');
+    });
+    window.dispatchEvent(new Event('ecritures-pieces-changed'));
+  }
   function pieces() {
     var P = DEMO.filter(function (x) { return !x.brouillon || zeroActif(); }), reg = window.ECRITURES_PIECES || [];
     reg.forEach(function (p) {
       var cle = p.journal + '|' + p.piece; if (P.some(function (x) { return x.journal + '|' + x.piece === cle; })) return;
       var m = 0; (p.lignes || []).forEach(function (l) { if (l.sens === 'DEBIT') m += l.montant || 0; });
-      P.push({ journal: p.journal, piece: p.piece, date: p.date || '', site: '01', libelle: ((p.lignes || [])[0] || {}).libelle || 'Pièce saisie', montant: m, lignes: (p.lignes || []).length, etat: p.statut === 'Brouillon' && zeroActif() ? 'BROUILLON' : 'SAISIS', createur: p.createur || '' });
+      P.push({ journal: p.journal, piece: p.piece, date: p.date || '', site: '01', libelle: ((p.lignes || [])[0] || {}).libelle || 'Pièce saisie', montant: m, lignes: (p.lignes || []).length, etat: etatReg(p), createur: p.createur || '' });
     });
     P.forEach(function (p) { var cle = p.journal + '|' + p.piece; if (etats[cle]) p.etat = etats[cle]; });
     return P;
@@ -39084,6 +39142,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   function dessiner() {
     var C = colonnes(), P = visibles();
     colsEl.innerHTML = C.map(function (c, i) {
+      if (c.etape && !autorise(c.etape)) return '';   // colonne d'une étape : affichée pour les validateurs rattachés à l'étape (Paramètre Circuit)
       var L = P.filter(function (p) { return p.etat === c.etat; }), vbi = vbIndex(), suiv = c.brouillon ? C[vbi] : C[i + 1], ia = c.brouillon ? vbi - 1 : i;
       return '<section class="cvt-col" data-i="' + i + '" aria-label="' + esc(c.etat) + '"><div class="cvt-ch">' + esc(c.etat) + '<small>' + L.length + '</small></div><div class="cvt-cb">' +
         (L.length ? L.map(function (p) {
@@ -39121,14 +39180,14 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     w.f.querySelector('[data-rt-x]').addEventListener('click', O.fermer);
     w.f.querySelector('[data-rt-ok]').addEventListener('click', function () {
       var com = w.b.querySelector('[data-rt-c]').value.trim(); if (!com) { w.b.querySelector('[data-rt-e]').innerHTML = '<div class="fo-ko">Le commentaire est obligatoire pour un retour.</div>'; w.b.querySelector('[data-rt-c]').focus(); return; }
-      O.fermer(); etats[cle] = C[j].etat; DEMO.forEach(function (x) { if (x.journal + '|' + x.piece === cle) x.etat = C[j].etat; });
+      O.fermer(); etats[cle] = C[j].etat; persister(cle, C[j].etat); DEMO.forEach(function (x) { if (x.journal + '|' + x.piece === cle) x.etat = C[j].etat; });
       (histo[cle] = histo[cle] || []).push({ etape: C[i].etape.nom, action: 'RETOUR', retour: true, utilisateur: UTIL, date: new Date().toISOString(), points: [], commentaire: com });
       dessiner(); toast('Pièce ' + p.piece + ' renvoyée à l’étape « ' + C[j].etat + ' ».');
     });
     setTimeout(function () { var t = w.b.querySelector('[data-rt-c]'); if (t) t.focus(); }, 50);
   }
   function appliquer(cle, j, p, res) {
-    var C = colonnes(); etats[cle] = C[j].etat; DEMO.forEach(function (x) { if (x.journal + '|' + x.piece === cle) x.etat = C[j].etat; });
+    var C = colonnes(); etats[cle] = C[j].etat; persister(cle, C[j].etat); DEMO.forEach(function (x) { if (x.journal + '|' + x.piece === cle) x.etat = C[j].etat; });
     if (res) (histo[cle] = histo[cle] || []).push({ etape: C[j].etape.nom, action: C[j].etape.action, utilisateur: UTIL, date: new Date().toISOString(), points: res.points, commentaire: res.commentaire });
     dessiner(); toast('Pièce ' + p.piece + ' : ' + C[j].etape.action.toLowerCase() + ' effectuée → ' + C[j].etat + '.');
   }
@@ -41259,7 +41318,8 @@ window.ECRITURES_REF = {
       var pjE = paramJournal(journal.value.code);
       if (pjE && !pjE.auto && !pieceSaisie()) { notify('Ce journal est en numérotation manuelle : saisissez le numéro de pièce.', true); ctrl('piece').focus(); return; }
       var Z0 = window.CIRCUIT_ZERO, uc = window.UTILISATEUR_COURANT || 'admin';
-      if (Z0 && Z0.actif && Z0.createurs.length && Z0.createurs.indexOf(uc) < 0) { notify('Étape zéro : vous n’êtes pas nommé utilisateur créateur d’écritures en brouillon (Paramètre Circuit).', true); return; }
+      // étape zéro : les écritures saisies par les utilisateurs nommés dans Paramètre Circuit sont en statut Brouillon ; les autres utilisateurs saisissent normalement (statut Validé), sans erreur
+      var statutPiece = (Z0 && Z0.actif) ? (Z0.createurs.indexOf(uc) >= 0 ? 'Brouillon' : 'Validé') : '';
       var manuelle = !!pieceSaisie(), p = pieceCourante(), n = lignes.length;
       if (!manuelle) { if (pjE) { if (window.JOURNAUX_AVANCER) window.JOURNAUX_AVANCER(pjE, ctxNum()); else pjE.dernier = (+pjE.dernier || 0) + 1; window.dispatchEvent(new Event('journaux-changed')); } else compteurs[journal.value.code] = (compteurs[journal.value.code] || 0) + 1; }
       ctrl('piece').value = '';
@@ -41267,7 +41327,7 @@ window.ECRITURES_REF = {
       // correction d'une pièce existante : l'ancienne version est retirée du registre et masquée dans la liste des écritures
       if (modifPiece) { var kk = modifPiece.journal + '|' + modifPiece.piece + '|' + modifPiece.date; window.ECRITURES_PIECES = (window.ECRITURES_PIECES || []).filter(function (x) { return (x.journal + '|' + x.piece + '|' + x.date) !== kk; }); (window.ECRITURES_REMPLACEES = window.ECRITURES_REMPLACEES || []).push(kk); modifPiece = null; }
       // la pièce enregistrée rejoint le registre des pièces (détection des doublons à l'importation)
-      (window.ECRITURES_PIECES = window.ECRITURES_PIECES || []).push({ journal: journal.value.code, piece: p, date: dateEcriture.value, datePiece: ctrl('datePiece').value, facture: ctrl('facture').value, reference: ctrl('reference').value, source: 'saisie', statut: (Z0 && Z0.actif) ? 'Brouillon' : '', createur: uc,
+      (window.ECRITURES_PIECES = window.ECRITURES_PIECES || []).push({ journal: journal.value.code, piece: p, date: dateEcriture.value, datePiece: ctrl('datePiece').value, facture: ctrl('facture').value, reference: ctrl('reference').value, source: 'saisie', statut: statutPiece, createur: uc,
         site: site.value ? site.value.code : '', lignes: lignes.map(function (l) { return { contrat: l.contrat ? l.contrat.code : '', compte: l.compte && l.compte.code, tiers: l.tiers && l.tiers.code, libelle: l.libelle, sens: l.sens, montant: l.montant, montant1: l.montant1 || 0, montant2: l.montant2 || 0, echeance: l.echeance, regr: l.regr, axes: l.axes, auto: !!l.auto, regle: 0 }; }) });
       window.dispatchEvent(new Event('ecritures-pieces-changed'));
       // Les tiers mouvementés deviennent « Utilisés » dans le référentiel
@@ -43961,11 +44021,20 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
 
   // --- Comptes généraux de tiers (issus des tiers du plan) ---
   var T = window.TIERS_PLAN || [], PC = window.PLAN_COMPTABLE || [];
+  function tiersListe() {
+    var base = (window.TIERS_PLAN || []).slice(), vus = {}, ES = window.ECRITURES_SAISIES;
+    base.forEach(function (t) { vus[t.code + '|' + t.compte] = 1; vus[t.code] = 1; });
+    if (ES) ES({}).forEach(function (x) {
+      if (!x.tiers || !/^4/.test(x.compte) || vus[x.tiers + '|' + x.compte] || vus[x.tiers]) return; vus[x.tiers] = 1;
+      base.push({ code: x.tiers, nom: ES.nomTiers ? ES.nomTiers(x.tiers) : x.tiers, compte: x.compte, sous: /^41/.test(x.compte) ? 'Client' : 'Fournisseur', actif: true });
+    });
+    return base;
+  }
   function libCompte(c) { var r = PC.filter(function (x) { return x.code === c; })[0]; return r ? (r.libelle || r.label || '') : 'Compte collectif'; }
   function typeDe(t) { return root.querySelector('input[name="ech-type"]:checked').value === 'Client' ? t.sous === 'Client' : t.sous === 'Fournisseur'; }   // type du tiers (Saisie des plans › Tiers)
   var du = q('#ech-du'), au = q('#ech-au');
   function comptes() {
-    var set = {}; T.forEach(function (t) { if (t.actif !== false && t.compte && typeDe(t)) set[t.compte] = 1; });
+    var set = {}; tiersListe().forEach(function (t) { if (t.actif !== false && t.compte && typeDe(t)) set[t.compte] = 1; });
     return Object.keys(set).sort();
   }
   function majComptes() {
@@ -44020,8 +44089,19 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
       var m = (((s >> 5) % 90) + 1) * 50000 * (s % 11 === 0 ? -1 : 1);
       L.push({ e: REF + off * 86400000, m: m });
     }
-    // + écritures saisies du tiers sur ce compte : échéance saisie (sinon date de l’écriture), montant restant dû
-    var ES = window.ECRITURES_SAISIES; if (ES) ES({ tiers: t.code }).forEach(function (x) { if (t.compte && x.compte !== t.compte) return; var v = /^40/.test(x.compte) ? x.credit - x.debit : x.debit - x.credit; if (v) L.push({ e: Date.parse((x.echeance || x.date) + "T00:00:00Z"), m: Math.round(v), saisi: true }); });
+    // + écritures saisies du tiers sur ce compte : reste dû (ou à recevoir) après imputation des règlements sur les factures les plus anciennes
+    var ES = window.ECRITURES_SAISIES;
+    if (ES) {
+      var fac = [], reg = 0;
+      ES({ tiers: t.code }).forEach(function (x) {
+        if (t.compte && x.compte !== t.compte) return;
+        var dette = /^40/.test(x.compte), v = dette ? x.credit - x.debit : x.debit - x.credit;   // > 0 : facture (à payer / à recevoir) ; < 0 : règlement
+        if (v > 0) fac.push({ e: Date.parse((x.echeance || x.date) + "T00:00:00Z"), m: v, d: x.date }); else if (v < 0) reg += -v;
+      });
+      fac.sort(function (p, q2) { return p.d < q2.d ? -1 : p.d > q2.d ? 1 : 0; });
+      fac.forEach(function (p) { var pris = Math.min(p.m, reg); reg -= pris; var reste = Math.round(p.m - pris); if (reste) L.push({ e: p.e, m: reste, saisi: true }); });
+      if (reg > 0) L.push({ e: REF, m: -Math.round(reg), saisi: true });   // avance / règlement non imputé
+    }
     return L;
   }
 
@@ -44033,7 +44113,7 @@ window.GLG_COMPTES=[{"c":"101100","l":"Fonds reçus IDA sur répprovisionnement 
   var courant = [], entetes = [];
   function calculer(echu, mode, D, taux) {
     var lignes = [];
-    T.forEach(function (t) {
+    tiersListe().forEach(function (t) {
       if (t.actif === false || !t.compte || !typeDe(t) || t.compte < du.value || t.compte > au.value) return;
       var E = echeances(t); if (!E.length) return;
       var v = { code: t.code, libelle: t.nom, solde: 0, special: 0, items: [], b: cols.map(function () { return 0; }) };
