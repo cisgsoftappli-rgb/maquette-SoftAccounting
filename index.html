@@ -37270,7 +37270,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   // ---------- double-clic sur un contrat : écritures de prise en charge et de paiement
   var MOD = document.createElement('div'); MOD.hidden = true; MOD.setAttribute('data-sc-mod', '');
-  MOD.style.cssText = 'position:fixed;inset:0;z-index:70;background:rgba(11,19,50,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto';
+  MOD.style.cssText = 'position:fixed;inset:0;z-index:70;background:rgba(11,19,50,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto';
   document.body.appendChild(MOD);
   function ecrituresContrat(m) {
     var S = window.ECRITURES_SAISIES ? window.ECRITURES_SAISIES({ contrat: m.code }) : [], pec = [], pai = [], sp = 0, sf = 0;
@@ -37295,10 +37295,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       '<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px 20px">' + [['Montant initial', m.ini], ['Avenants', m.ave], ['Montant du contrat', m.marche], ['Prises en charge', m.fact], ['Payé', m.paye]].map(function (k) { return '<div style="border:1px solid #E9EBF0;border-radius:8px;padding:8px 10px"><div style="font-size:12px;text-transform:uppercase;color:#5B606D;letter-spacing:.04em">' + k[0] + '</div><b style="font-variant-numeric:tabular-nums">' + nb(k[1]) + '</b></div>'; }).join('') + '</div>' +
       '<div style="padding:0 20px 20px"><h3 style="margin:8px 0;font:600 14px var(--font-heading)">Écritures de prise en charge <small style="font-weight:400;color:#5B606D">(' + E.pec.length + ')</small></h3>' + tabEcr(E.pec, 'Aucune écriture de prise en charge.') +
       '<h3 style="margin:16px 0 8px;font:600 14px var(--font-heading)">Écritures de paiement <small style="font-weight:400;color:#5B606D">(' + E.pai.length + ')</small></h3>' + tabEcr(E.pai, 'Aucun paiement enregistré.') + '</div></div>';
-    MOD.hidden = false;
+    MOD.hidden = false; MOD.style.display = 'flex';
   }
-  MOD.addEventListener('click', function (e) { if (e.target === MOD || e.target.closest('[data-sc-mx]')) MOD.hidden = true; });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !MOD.hidden) MOD.hidden = true; });
+  MOD.addEventListener('click', function (e) { if (e.target === MOD || e.target.closest('[data-sc-mx]')) { MOD.hidden = true; MOD.style.display = 'none'; } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !MOD.hidden) { MOD.hidden = true; MOD.style.display = 'none'; } });
   q('[data-sc-table]').addEventListener('dblclick', function (e) { var tr = e.target.closest('tr[data-code]'); if (tr) ouvrirContrat(tr.dataset.code); });
   q('[data-sc-consulter]').addEventListener('click', consulter);
   q('[data-sc-pdf]').addEventListener('click', function () { exporter('pdf'); }); q('[data-sc-xlsx]').addEventListener('click', function () { exporter('xlsx'); });
