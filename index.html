@@ -38445,16 +38445,15 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
   }
   var gardee = '';   // monnaie de la ligne en cours de modification : conservée dans la liste même si elle n'est plus proposée par l'entité
   function refreshMon() {
-    var sel = entSelects();
-    if (!entInit && sel.length === 4 && sel.every(function (s) { return !s.value; })) { ['MGA', 'USD', 'MUR'].forEach(function (v, i) { sel[i].value = v; }); }
-    if (sel.length) entInit = true;
-    var seen = [], opts = [];
-    sel.forEach(function (s) { var o = s.options[s.selectedIndex]; if (s.value && seen.indexOf(s.value) < 0) { seen.push(s.value); opts.push('<option value="' + s.value + '">' + o.textContent + '</option>'); } });
+    var M = window.ENTITE_MONNAIES ? window.ENTITE_MONNAIES() : null, seen = [], opts = [];
+    if (M) { [['m1', 'M1 — tenue de compte'], ['m2', 'M2 — reporting'], ['m3', 'M3 — reporting']].forEach(function (p) { var c = M[p[0]]; if (c && seen.indexOf(c) < 0) { seen.push(c); opts.push('<option value="' + c + '">' + c + ' (' + p[1] + ')</option>'); } }); }
+    else { var sel = entSelects(); sel.forEach(function (s) { var o = s.options[s.selectedIndex]; if (s.value && seen.indexOf(s.value) < 0) { seen.push(s.value); opts.push('<option value="' + s.value + '">' + o.textContent + '</option>'); } }); }
     var cur = mon.value;
     if (gardee && seen.indexOf(gardee) < 0) opts.push('<option value="' + gardee + '">' + gardee + '</option>');
     mon.innerHTML = '<option value="">— Sélectionner une monnaie —</option>' + opts.join('');
     mon.value = (seen.indexOf(cur) >= 0 || (gardee && cur === gardee)) ? cur : '';
   }
+  window.addEventListener('entite-options-changed', refreshMon);
   document.addEventListener('change', function (e) { if (e.target.closest && e.target.closest('[data-screen="entite"]')) refreshMon(); });
   window.addEventListener('hashchange', refreshMon);
   mon.addEventListener('focus', refreshMon);
