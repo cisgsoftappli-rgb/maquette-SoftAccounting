@@ -39435,6 +39435,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
         <span class="etf-bloc-titre"><i class="ti ti-list-numbers"></i>Comptes et journaux</span>
         <div class="etf-ligne">
           <div><label class="filter-label">Journal</label><div class="bx-multi" data-multi="journaux" data-tous="Tous les journaux"></div></div>
+          <div><span class="filter-label">Justificatif pluriannuel</span><div class="etf-pastilles"><label title="Coché : seules les opérations non lettrées sont détaillées"><input type="checkbox" id="gla-justif">Opérations non lettrées uniquement</label></div></div>
           <div class="bx-large"><label class="filter-label" for="gla-collectif">Compte collectif</label><select id="gla-collectif" class="filter-input"></select></div>
           <div><label class="filter-label" for="gla-aux-debut">Du compte auxiliaire</label><select id="gla-aux-debut" class="filter-input"></select></div>
           <div><label class="filter-label" for="gla-aux-fin">Au compte auxiliaire</label><select id="gla-aux-fin" class="filter-input"></select></div>
@@ -45445,13 +45446,13 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('app-grand-livre-auxiliaire .bx-multi')) multis.forEach(function (m) { m.classList.remove('ouvert'); }); });
 
   // --- Période : exercice ou programme (champ DP commun) ---
-  var exo = q('#gla-exercice'), deb = q('#gla-date-debut'), fin = q('#gla-date-fin'), erreur = q('.bx-erreur'), mois = q('#gla-ana') && q('#gla-mois'), ana = q('#gla-ana');
+  var exo = q('#gla-exercice'), deb = q('#gla-date-debut'), fin = q('#gla-date-fin'), erreur = q('.bx-erreur'), mois = q('#gla-ana') && q('#gla-mois'), ana = q('#gla-ana'), justif = q('#gla-justif');
   var dp = window.SoftDPFiltre ? window.SoftDPFiltre({ avant: exo.parentNode, attr: 'data-gla', id: 'gla-dp', ecran: 'glaux', exercice: exo, change: initDates }) : { valeur: function () { return null; }, reset: function () {} };
   function periode() { var d = dp.valeur(); return d ? { debut: d.debut, fin: d.fin } : { debut: exo.value + '-01-01', fin: exo.value + '-12-31' }; }
   function initDates() { var p = periode(); deb.value = p.debut; fin.value = p.fin; }
   exo.addEventListener('change', initDates);
   function reinitialiser() {
-    exo.value = EXERCICE_DONNEES; dp.reset(); initDates(); coll.selectedIndex = 1; aDeb.value = aFin.value = ''; mois.checked = false; ana.checked = true;
+    exo.value = EXERCICE_DONNEES; dp.reset(); initDates(); coll.selectedIndex = 1; aDeb.value = aFin.value = ''; mois.checked = false; ana.checked = true; justif.checked = false;
     multis.forEach(function (m) { m.reset(); }); root.querySelector('input[name="gla-monnaie"]').checked = true;
     var ms = root.querySelector('[data-etm-monnaie] select'); if (ms) ms.value = 'MGA'; erreur.style.display = 'none';
   }
@@ -45462,17 +45463,37 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   var crit = q('.bx-crit'), res = q('.bx-res'), thead = q('.gla-table thead'), tbody = q('.gla-table tbody'), titre = q('.bx-titre'), rech = q('.bx-search'), hint = q('.bx-hint');
   var COLS = ['Date comptable', 'Date pièce', 'Référence', 'N° contrat', 'JL', 'N° pièce', 'Site', 'Compte', 'Contre partie', 'Libellé', 'Débit', 'Crédit', 'Plan 1', 'Plan 2', 'Plan 3', 'Plan 4', 'Plan 5', 'Plan 6', 'Plan 7', 'Plan 8', 'Plan 9', 'Plan 10', 'Plan regroupement'];
   var groupes = [], devise = 'MGA';
+  // colonnes analytiques : plans activés (Administration de l'entité › Analytique), titre = abréviation du plan (Configuration des plans) ; valeur = axe de même rang des écritures (Plan n ↔ x.p[n-1])
+  function plansActifs() {
+    var A = window.PLANS_ACTIFS ? window.PLANS_ACTIFS() : ['PC', 'PLAN1', 'PLAN2', 'PLAN3', 'PLAN4'], C = window.PLANS_CFG || [];
+    return A.filter(function (c) { return /^PLAN\d+$/.test(c); }).map(function (c) {
+      var p = C.filter(function (x) { return x.code === c; })[0] || {}, n = +c.slice(4);
+      return { n: n, titre: p.abrev || p.libelle || 'Plan ' + n };
+    });
+  }
+  function regroupement() { var g = window.REGROUPEMENT && window.REGROUPEMENT(); if (!g) return null; var p = (window.PLANS_CFG || []).filter(function (x) { return x.code === g.plan; })[0] || {}; return { titre: p.abrev ? 'Regr. ' + p.abrev : 'Regroupement' }; }
+  // lettrage d'une opération : écritures saisies = lettrage manuel (écran Lettrage) ; données de démonstration = état stable simulé (3 opérations sur 5 lettrées)
+  function lettrage() {
+    var E = {}; try { var sv = JSON.parse(localStorage.getItem('softcompta.lettrageManuel') || 'null'); E = (sv && sv.lettres) || {}; } catch (e) {}
+    var P = {}; (window.ECRITURES_PIECES || []).forEach(function (p) { P[p.journal + '|' + p.piece] = 1; });
+    return function (x) {
+      var k = x.jl + '|' + x.piece;
+      if (P[k]) return Object.keys(E).some(function (i) { return i.indexOf('S|' + k + '|') === 0 && E[i]; });
+      var s = k + '|' + x.compte, h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997; return h % 5 < 3;
+    };
+  }
   function construire(cc, taux, d1, d2) {
+    var lettree = justif.checked ? lettrage() : null;
     var iD = aDeb.value, iF = aFin.value, jr = multis[1].valeurs().map(function (x) { return x.split(' — ')[0]; }), sit = window.ECRITURES_SAISIES && window.ECRITURES_SAISIES.sel ? window.ECRITURES_SAISIES.sel(multis[0]) : [];
     groupes = (window.ECRITURES_SAISIES ? window.ECRITURES_SAISIES.aux(T, cc) : T).filter(function (t) { /* + écritures saisies */ return (!iD || t.code >= iD) && (!iF || t.code <= iF); }).map(function (t) {
-      var L = window.BALANCE_DETAIL.auxLignes(cc, t, cc).filter(function (x) { var s = iso(x.d); return s >= d1 && s <= d2 && (!jr.length || jr.indexOf(x.jl) >= 0) && (!sit.length || sit.indexOf(String(x.site)) >= 0); });
+      var L = window.BALANCE_DETAIL.auxLignes(cc, t, cc).filter(function (x) { var s = iso(x.d); return s >= d1 && s <= d2 && (!jr.length || jr.indexOf(x.jl) >= 0) && (!sit.length || sit.indexOf(String(x.site)) >= 0) && (!lettree || !lettree(x)); });
       L.forEach(function (x) { x.D = Math.round(x.D / taux); x.C = Math.round(x.C / taux); });
       return { code: t.code, libelle: t.libelle, lignes: L };
     }).filter(function (g) { return g.lignes.length; });
   }
   function afficher() {
     var mot = rech.value.trim().toLowerCase(), G = groupes.filter(function (g) { return !mot || (g.code + ' ' + g.libelle).toLowerCase().indexOf(mot) >= 0 || g.lignes.some(function (x) { return x.lib.toLowerCase().indexOf(mot) >= 0; }); });
-    var anaOn = ana.checked, COLV = anaOn ? COLS : COLS.slice(0, 12);   // « Afficher les analytiques » : décoché, les colonnes Plan 1 à Plan 10 et Plan de regroupement sont masquées
+    var anaOn = ana.checked, PA = plansActifs(), RG = regroupement(), COLV = COLS.slice(0, 12).concat(anaOn ? PA.map(function (p) { return p.titre; }).concat(RG ? [RG.titre] : []) : []);   // « Afficher les analytiques » : décoché, les colonnes Plan 1 à Plan 10 et Plan de regroupement sont masquées
     thead.innerHTML = '<tr>' + COLV.map(function (c) { return '<th' + (/^(Débit|Crédit)$/.test(c) ? ' class="n"' : '') + '>' + esc(c) + '</th>'; }).join('') + '</tr>';
     var h = '', TD = 0, TC = 0, NC = COLV.length;
     G.forEach(function (g) {
@@ -45484,7 +45505,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
         D += x.D; C += x.C; mD += x.D; mC += x.C;
         var p = x.p.concat(['', '', '', '', '', '']);
         h += '<tr><td>' + frd(x.d) + '</td><td>' + frd(x.dp) + '</td><td>' + (x.ref ? esc(x.ref) : '—') + '</td><td>' + esc(x.ct || '') + '</td><td>' + esc(x.jl) + '</td><td>' + esc(x.piece) + '</td><td>' + esc(x.site) + '</td><td>' + esc(x.compte) + '</td><td>' + esc(x.cp) + '</td><td class="l">' + esc(x.lib) + '</td><td class="n">' + fmt(x.D) + '</td><td class="n">' + fmt(x.C) + '</td>' +
-          (anaOn ? [p[0], p[1], p[2], p[3], '', '', '', '', '', ''].map(function (v) { return '<td>' + esc(v) + '</td>'; }).join('') + '<td>' + esc(x.pr) + '</td>' : '') + '</tr>';
+          (anaOn ? PA.map(function (pl) { return '<td>' + esc(pl.n <= 4 ? p[pl.n - 1] : '') + '</td>'; }).join('') + (RG ? '<td>' + esc(x.pr) + '</td>' : '') : '') + '</tr>';
       });
       totalMois(); TD += D; TC += C;
       var s = D - C;
@@ -45492,7 +45513,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
         '<tr class="gl-tot"><td colspan="10">Solde — ' + esc(g.code) + '</td><td></td><td class="n">' + (s ? fmt(Math.abs(s)) + ' (' + (s > 0 ? 'D' : 'C') + ')' : '0') + '</td>' + (NC > 12 ? '<td colspan="' + (NC - 12) + '"></td>' : '') + '</tr>';
     });
     tbody.innerHTML = h || '<tr><td colspan="' + NC + '" class="bx-vide">Aucun mouvement ne correspond aux critères.</td></tr>';
-    hint.textContent = G.length + ' tiers — total débit ' + fmt(TD) + ' · total crédit ' + fmt(TC) + ' (' + devise + '). Tableau défilable horizontalement — les colonnes Plan 1 à Plan 10 sont disponibles.';
+    hint.textContent = (justif.checked ? 'Justificatif pluriannuel : opérations non lettrées uniquement. ' : '') + G.length + ' tiers — total débit ' + fmt(TD) + ' · total crédit ' + fmt(TC) + ' (' + devise + '). Tableau défilable horizontalement — colonnes des plans analytiques activés dans l\u2019entité.';
   }
   function consulter() {
     var msg = '';
@@ -45518,8 +45539,8 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   mois.addEventListener('change', function () { if (res.style.display !== 'none') afficher(); });
   q('.bx-pdf').addEventListener('click', function () { window.print(); });
   q('.bx-csv').addEventListener('click', function () {
-    var rows = [['Tiers'].concat(COLS)], n = function (c) { return c ? (c / 100).toFixed(2).replace('.', ',') : ''; };
-    groupes.forEach(function (g) { g.lignes.forEach(function (x) { rows.push([g.code, frd(x.d), frd(x.dp), x.ref, x.ct, x.jl, x.piece, x.site, x.compte, x.cp, x.lib, n(x.D), n(x.C)].concat(x.p.slice(0, 4), ['', '', '', '', '', ''], [x.pr])); }); });
+    var PA = plansActifs(), RG = regroupement(), rows = [['Tiers'].concat(COLS.slice(0, 12), ana.checked ? PA.map(function (p) { return p.titre; }).concat(RG ? [RG.titre] : []) : [])], n = function (c) { return c ? (c / 100).toFixed(2).replace('.', ',') : ''; };
+    groupes.forEach(function (g) { g.lignes.forEach(function (x) { rows.push([g.code, frd(x.d), frd(x.dp), x.ref, x.ct, x.jl, x.piece, x.site, x.compte, x.cp, x.lib, n(x.D), n(x.C)].concat(ana.checked ? PA.map(function (pl) { return pl.n <= 4 ? (x.p[pl.n - 1] || '') : ''; }).concat(RG ? [x.pr] : []) : [])); }); });
     var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(';'); }).join('\r\n');
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' })); a.download = 'grand_livre_auxiliaire_' + fin.value + '.csv'; a.click();
   });
