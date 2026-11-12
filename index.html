@@ -39395,6 +39395,9 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     else if (b.hasAttribute('data-dm-pdf')) { if (q('[data-dm-res]').hidden) { ouvrir(); return; } window.print(); }
   });
   root.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !q('[data-dm-ov]').hidden) fermer(); });
+  // version Entreprise : pas de type de dépense
+  function majEnt() { var e = window.PRODUIT === 'entreprise', d = K('dep').parentNode, st = K('site').parentNode; d.style.display = e ? 'none' : ''; st.style.gridColumn = e ? '1 / -1' : ''; }
+  majEnt(); window.addEventListener('produit-changed', majEnt); window.addEventListener('hashchange', majEnt); setTimeout(majEnt, 600);
   defauts();
   ['plans-changed', 'plans-actifs'].forEach(function (ev) { window.addEventListener(ev, function () { if (q('[data-dm-ov]').hidden) defauts(); }); });
   window.addEventListener('hashchange', function () { if (location.hash === '#detmvt' && q('[data-dm-res]').hidden) setTimeout(ouvrir, 200); });
@@ -47722,7 +47725,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   var PROFIL = { exclus: ['contrats', 'projets-bailleurs'], nom: 'SoftAccounting Entreprise', desc: 'Comptabilité d’entreprise', cleLS: 'softcompta.produit' };
   var TEXTES = [];   // le nom du produit reste « SoftAccounting » : seule la licence du projet change les menus proposés
   var cssEnt = document.createElement('style');
-  cssEnt.textContent = 'html.prod-entreprise [data-nav="dp"],html.prod-entreprise [data-nav="procfin"],html.prod-entreprise [data-nav="pl_financier"],html.prod-entreprise [data-group-toggle="financiers"],html.prod-entreprise [data-group="financiers"],html.prod-entreprise .ig-f:has([data-ig-gestiondp]),html.prod-entreprise .ig-sec:has([data-ig-procs]),html.prod-entreprise [data-proc],html.prod-entreprise .le-l:has(>[data-ms="contrat"]),html.prod-entreprise [data-nav="ecritures"],html:not(.prod-entreprise) [data-nav="ecritures_ent"]{display:none!important}';
+  cssEnt.textContent = 'html.prod-entreprise [data-nav="dp"],html.prod-entreprise [data-nav="erparam"],html.prod-entreprise [data-nav="ered"],html.prod-entreprise [data-nav="procfin"],html.prod-entreprise [data-nav="pl_financier"],html.prod-entreprise [data-group-toggle="financiers"],html.prod-entreprise [data-group="financiers"],html.prod-entreprise .ig-f:has([data-ig-gestiondp]),html.prod-entreprise .ig-sec:has([data-ig-procs]),html.prod-entreprise [data-proc],html.prod-entreprise .le-l:has(>[data-ms="contrat"]),html.prod-entreprise [data-nav="ecritures"],html:not(.prod-entreprise) [data-nav="ecritures_ent"]{display:none!important}';
   document.head.appendChild(cssEnt);
   function textes(ent) {
     var cibles = [document.querySelector('.app-switcher-trigger'), document.querySelector('[data-sidebar-level="root"]') && document.querySelector('[data-sidebar-level="root"]').parentElement && document.querySelector('[data-sidebar-level="root"]').parentElement.parentElement];
@@ -47745,7 +47748,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   window.addEventListener('produit-changed', projetActif); window.addEventListener('hashchange', function () { setTimeout(projetActif, 50); });
   try { new MutationObserver(projetActif).observe(document.body, { childList: true, subtree: true, characterData: true }); } catch (e) {}
   function ecransExclus() {
-    var s = {}; PROFIL.exclus.forEach(function (m) { [].forEach.call(document.querySelectorAll('[data-sidebar-level="' + m + '"] [data-nav]'), function (a) { s[a.getAttribute('data-nav')] = 1; }); }); ['dp', 'procfin', 'pl_financier'].forEach(function (i) { s[i] = 1; }); return s;
+    var s = {}; PROFIL.exclus.forEach(function (m) { [].forEach.call(document.querySelectorAll('[data-sidebar-level="' + m + '"] [data-nav]'), function (a) { s[a.getAttribute('data-nav')] = 1; }); }); ['dp', 'procfin', 'pl_financier', 'erparam', 'ered'].forEach(function (i) { s[i] = 1; }); return s;
   }
   window.PRODUIT = 'accounting'; window.PRODUIT_EXCLUS = [];
   function appliquerProduit(id, retenir) {
