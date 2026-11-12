@@ -28978,6 +28978,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 [data-gn] .gn-tb tr.g td{background:#F4F7FE;font-weight:700;color:#0B1332}
 [data-gn] .gn-tb tr.t td{background:#F4F7FE;font-weight:600;color:#0B1332}[data-gn] .gn-tb tr.tg td{background:#E3EBFE;font-weight:700;color:#0B1332}
 [data-gn] .gn-tb .cr{color:#D9534F}
+[data-gn] .gn-tb tr.ga td{font-weight:700;color:#0B1332;background:#fff}[data-gn] .gn-tb tr.tc td{font-weight:700;border-top:1px solid #D6D9E0;background:#fff}[data-gn] .gn-tb tr.ts td{font-weight:700;background:#F4F7FE}[data-gn] .gn-tb tr.th2 th{top:34px}
 [data-gn] .gn-ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(11,19,50,.55)}[data-gn] .gn-ov[hidden]{display:none}
 [data-gn] .gn-md{width:min(1000px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;background:#fff;border-radius:12px;box-shadow:0 24px 60px rgba(11,19,50,.35);overflow:hidden}
 [data-gn] .gn-mh{padding:16px 24px 10px;border-bottom:1px solid #F4F7FE}[data-gn] .gn-mh b{font-size:12px;letter-spacing:.06em;color:#2E427B;text-transform:uppercase}
@@ -29016,11 +29017,14 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
         <label class="gn-f"><span>Monnaie d’édition <b>*</b></span><select class="gn-in" data-gn-k="monnaie"><option value="MGA">Devise de tenue de compte (MGA)</option><option value="USD">Devise 1 (USD)</option></select></label>
         <div class="gn-f"><span>Période du <b>*</b> &nbsp;→&nbsp; au <b>*</b></span><div class="gn-rg"><input class="gn-in" type="date" data-gn-k="du"><i>→</i><input class="gn-in" type="date" data-gn-k="au"></div><p class="gn-hint" data-gn-hint></p></div>
         <div class="gn-2"><div class="gn-f"><span>Centre de saisie</span><div class="gn-ms" data-gn-ms="sites"></div></div><div class="gn-f"><span>Journal</span><div class="gn-ms" data-gn-ms="journaux"></div></div></div>
-        <label class="gn-f"><span>Type de dépense <b>*</b></span><select class="gn-in" data-gn-k="dep"><option value="DEC">Décaissement (Dépense payée)</option><option value="ENG">Engagement</option><option value="TOUS">Tous les types</option></select></label>
+        <label class="gn-f" data-gn-dep><span>Type de dépense <b>*</b></span><select class="gn-in" data-gn-k="dep"><option value="DEC">Décaissement (Dépense payée)</option><option value="ENG">Engagement</option><option value="TOUS">Tous les types</option></select></label>
       </section>
       <section class="gn-sec"><h3 class="gn-st"><i>2</i>Structure Analytique &amp; Restructuration</h3>
-        <label class="gn-f"><span>Plan analytique <b>*</b></span><select class="gn-in" data-gn-k="plan"></select></label>
+        <label class="gn-f"><span data-gn-l1>Plan analytique <b>*</b></span><select class="gn-in" data-gn-k="plan"></select></label>
         <div class="gn-f"><span>Niveaux d’analyse <b>*</b></span><div class="gn-niv" data-gn-niv></div></div>
+        <label class="gn-f" data-gn-e hidden><span>Critère secondaire (facultatif)</span><select class="gn-in" data-gn-k="plan2"></select></label>
+        <div class="gn-f" data-gn-e hidden data-gn-niv2f><span>Niveau d’analyse — critère secondaire <b>*</b></span><div class="gn-niv" data-gn-niv2></div></div>
+        <p class="gn-hint" data-gn-e hidden data-gn-info2></p>
         <div class="gn-f"><span>Axe de regroupement</span><div class="gn-ms" data-gn-ms="regr"></div></div>
       </section>
     </div>
@@ -29065,13 +29069,14 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     var noms = NOMS_NIV[code] || []; return Array.apply(null, Array(n)).map(function (_, i) { return noms[i] || ''; });
   }
   function dessinerNiveaux() {
+    if (ENT()) { niveauxEnt(); return; }
     var code = K('plan').value, N = niveauxDe(code);
     q('[data-gn-niv]').innerHTML = N.map(function (nom, i) { return '<label><input type="checkbox" data-n="' + (i + 1) + '" checked>Niveau ' + (i + 1) + (nom ? '<span class="gn-bd">' + esc(nom) + '</span>' : '') + '</label>'; }).join('');
   }
   function bornes() { var a = K('exo').value; K('du').min = K('au').min = a + '-01-01'; K('du').max = K('au').max = a + '-12-31'; q('[data-gn-hint]').textContent = 'Période autorisée : du 01/01/' + a + ' au 31/12/' + a; }
   function defauts() {
-    var P = plans(); K('plan').innerHTML = P.map(function (p) { return '<option value="' + p[0] + '">' + esc(p[1]) + '</option>'; }).join('');
-    K('exo').value = '2026'; K('monnaie').selectedIndex = 0; K('dep').selectedIndex = 0; bornes(); K('du').value = '2026-01-01'; K('au').value = '2026-12-31'; dessinerNiveaux();
+    majDispo(); var P = ENT() ? plansEnt() : plans(); K('plan').innerHTML = P.map(function (p) { return '<option value="' + p[0] + '">' + esc(p[1]) + '</option>'; }).join('');
+    K('exo').value = '2026'; K('monnaie').selectedIndex = 0; K('dep').selectedIndex = 0; bornes(); K('du').value = '2026-01-01'; K('au').value = '2026-12-31'; if (ENT()) { K('plan').value = (P.filter(function (x) { return x[0] === 'PLAN1'; })[0] || P[0] || [''])[0]; opt2(); } dessinerNiveaux();
     var sites = ((window.ECRITURES_REF && window.ECRITURES_REF.sites) || [{ code: '01', label: 'Siège' }]).map(function (s) { return [s.code, s.code + ' — ' + (s.label || '')]; });
     var jn = ((window.ECRITURES_REF && window.ECRITURES_REF.journaux) || []).map(function (j) { return [j.code, j.code + (j.label ? ' — ' + j.label : '')]; });
     var g = window.REGROUPEMENT && window.REGROUPEMENT(), rg = g && g.elements ? g.elements.map(function (e) { return [String(e.code), e.code + ' — ' + (e.libelle || '')]; }) : [];
@@ -29079,7 +29084,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     er('');
   }
   function er(m) { var e = q('[data-gn-er]'); e.textContent = m; e.classList.toggle('show', !!m); }
-  K('plan').addEventListener('change', dessinerNiveaux); K('exo').addEventListener('change', function () { bornes(); K('du').value = K('exo').value + '-01-01'; K('au').value = K('exo').value + '-12-31'; });
+  K('plan').addEventListener('change', function () { if (ENT()) opt2(); dessinerNiveaux(); }); K('plan2').addEventListener('change', dessinerNiveaux); K('exo').addEventListener('change', function () { bornes(); K('du').value = K('exo').value + '-01-01'; K('au').value = K('exo').value + '-12-31'; });
 
   // ---------- écritures simulées ----------
   function hash(t) { var h = 7; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) >>> 0; return h; }
@@ -29098,7 +29103,143 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     }
     return out.sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
   }
+
+  // ======================================================================================================================
+  // VERSION ENTREPRISE — grand livre analytique au gabarit « Grand-livre analytique » ; ventilation indépendante par axe (voir la balance analytique)
+  // ======================================================================================================================
+  function ENT() { return window.PRODUIT === 'entreprise' && !!window.BAL_ENT; }
+  var THEAD0 = null, DERN = null;
+  var DSP = null;
+  function titreSec(sec, txt) { var h = sec.querySelector('.gn-st'); if (!h) return; var t = [].slice.call(h.childNodes).filter(function (n) { return n.nodeType === 3; }).pop(); if (!t) return; if (!h.hasAttribute('data-t0')) h.setAttribute('data-t0', t.textContent); t.textContent = txt == null ? h.getAttribute('data-t0') : txt; }
+  function dispo(e) {
+    var secs = qa('.gn-sec'), s1 = secs[0], s2 = secs[1], mb = q('.gn-mb'); if (!s1 || !s2) return;
+    var lPlan = K('plan').parentNode, nivB = q('[data-gn-niv]').parentNode, l2 = K('plan2').parentNode, n2f = q('[data-gn-niv2f]'), i2 = q('[data-gn-info2]'), rg = q('[data-gn-ms="regr"]').parentNode;
+    var sS = q('[data-gn-secs]');
+    if (e && !DSP) {
+      DSP = true;
+      if (!sS) { sS = document.createElement('section'); sS.className = 'gn-sec'; sS.setAttribute('data-gn-secs', ''); sS.innerHTML = '<h3 class="gn-st"><i>3</i>Critère secondaire</h3>'; mb.appendChild(sS); }
+      sS.hidden = false; sS.appendChild(l2); sS.appendChild(n2f); sS.appendChild(i2); s1.appendChild(rg);
+      s1.style.gridColumn = '1 / -1'; s1.style.display = 'grid'; s1.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))'; s1.style.columnGap = '16px';
+      [].forEach.call(s1.children, function (c) { if (c.matches('.gn-st')) c.style.gridColumn = '1 / -1'; else if (c.contains(K('du')) || c.classList.contains('gn-2') || c === rg) c.style.gridColumn = c.contains(K('du')) ? 'span 2' : '1 / -1'; });
+      titreSec(s2, 'Critère principal'); s2.querySelector('.gn-st i').textContent = '2'; sS.querySelector('.gn-st i').textContent = '3';
+      sS.style.alignSelf = s2.style.alignSelf = 'start';
+    } else if (!e && DSP) {
+      DSP = null; if (sS) sS.hidden = true;
+      s2.insertBefore(l2, null); s2.appendChild(n2f); s2.appendChild(i2); s2.appendChild(rg);
+      s1.style.gridColumn = s1.style.display = s1.style.gridTemplateColumns = s1.style.columnGap = ''; [].forEach.call(s1.children, function (c) { c.style.gridColumn = ''; });
+      titreSec(s2, null); sS && (sS.style.alignSelf = ''); s2.style.alignSelf = '';
+    }
+  }
+  function majDispo() {
+    var e = ENT(); dispo(e); qa('[data-gn-e]').forEach(function (x) { x.hidden = !e; }); var d = q('[data-gn-dep]'); if (d) d.style.display = e ? 'none' : '';
+    var l1 = q('[data-gn-l1]'); if (l1) l1.innerHTML = e ? 'Critère principal <b>*</b>' : 'Plan analytique <b>*</b>';
+  }
+  function plansEnt() {
+    var B = window.BAL_ENT, act = (window.PLANS_ACTIFS ? window.PLANS_ACTIFS() : []).filter(function (c) { return /^PLAN\d+$/.test(c); });
+    return ['PC'].concat(act).map(function (c) { return [c, B.nomPlan(c)]; });
+  }
+  function opt2() {
+    var B = window.BAL_ENT, p = K('plan').value, act = plansEnt().map(function (x) { return x[0]; }).filter(function (c) { return c !== 'PC'; }), v = K('plan2').value;
+    var L = p === 'PC' ? act : ['PC']; K('plan2').innerHTML = '<option value="">Aucun (mono-critère)</option>' + L.map(function (c) { return '<option value="' + c + '">' + esc(B.nomPlan(c)) + '</option>'; }).join('');
+    K('plan2').value = L.indexOf(v) >= 0 ? v : '';
+  }
+  function niveauxEnt() {
+    var B = window.BAL_ENT, p = K('plan').value, p2 = K('plan2').value, N = B.cfgPlan(p).niveaux || [], N2 = B.cfgPlan(p2).niveaux || [];
+    var coches = qa('[data-n]').map(function (x) { return x.checked; });
+    q('[data-gn-niv]').innerHTML = (N.length ? N : [{}]).map(function (n, i) { return '<label><input type="' + (p2 ? 'radio' : 'checkbox') + '" name="gn-n1" data-n="' + (i + 1) + '"' + ((p2 ? i === (N.length || 1) - 1 : true) ? ' checked' : '') + '>Niveau ' + (i + 1) + (n.libelle ? '<span class="gn-bd">' + esc(n.libelle) + '</span>' : '') + '</label>'; }).join('');
+    q('[data-gn-niv2f]').hidden = !p2;
+    q('[data-gn-niv2]').innerHTML = p2 ? (N2.length ? N2 : [{}]).map(function (n, i) { return '<label><input type="radio" name="gn-n2" data-n2="' + (i + 1) + '"' + (i === (N2.length || 1) - 1 ? ' checked' : '') + '>Niveau ' + (i + 1) + (n.libelle ? '<span class="gn-bd">' + esc(n.libelle) + '</span>' : '') + '</label>'; }).join('') : '';
+    q('[data-gn-info2]').textContent = p2 ? 'Bicritère : ' + B.nomCourt(p) + ' puis ' + B.nomCourt(p2) + '. Les axes analytiques sont ventilés indépendamment à la saisie : un axe ne peut être croisé qu’avec le plan comptable.' : 'Mono-critère : chaque ligne d’écriture est répartie selon ses pourcentages de ventilation.';
+  }
+  function frd(d) { var p = d.split('-'); return p[2] + p[1] + p[0].slice(2); }
+  function fm(c) { return c ? fmt(c / 100).replace(/[  ]/g, ' ') : ''; }
+  function solde(d, c) { var s = d - c; return s > 0 ? [fm(s), ''] : s < 0 ? ['', fm(-s)] : ['', '']; }
+  function genererEnt() {
+    var B = window.BAL_ENT, c1 = K('plan').value, c2 = K('plan2').value, bi = !!c2, ES = window.ECRITURES_SAISIES, du = K('du').value, au = K('au').value;
+    var vus = qa('[data-n]').map(function (x) { return x.checked; }), n1 = bi ? vus.indexOf(true) + 1 : vus.lastIndexOf(true) + 1, n2 = qa('[data-n2]').map(function (x) { return x.checked; }).indexOf(true) + 1;
+    var jn = MSS.journaux.get(), st = MSS.sites.get(), n1a = c1 !== 'PC' ? B.axeNom(c1) : '', n2a = c2 && c2 !== 'PC' ? B.axeNom(c2) : '';
+    var L = ES ? ES({ du: du, au: au }).filter(function (x) {
+      var cl = String(x.compte).charAt(0), v = x.ventil || {};
+      return (!jn.length || jn.indexOf(x.journal) >= 0) && (!st.length || st.indexOf(x.site) >= 0) && (cl === '6' || cl === '7' || (n1a && (v[n1a] || []).length) || (n2a && (v[n2a] || []).length));
+    }) : [];
+    L.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : a.piece < b.piece ? -1 : 1; });
+    var G = {}, T = { d: 0, c: 0 };
+    L.forEach(function (x) {
+      var D = Math.round((+x.debit || 0) * 100), C = Math.round((+x.credit || 0) * 100); T.d += D; T.c += C;
+      var paires;
+      if (!bi) paires = B.parts(x, c1).map(function (p) { return { g: B.ancetre(c1, p.code, n1), d: '', f: p.f }; });
+      else if (c1 === 'PC') { var g = B.ancetre('PC', x.compte, n1); paires = B.parts(x, c2).map(function (p) { return { g: g, d: B.ancetre(c2, p.code, n2), f: p.f }; }); }
+      else { var d = B.ancetre('PC', x.compte, n2); paires = B.parts(x, c1).map(function (p) { return { g: B.ancetre(c1, p.code, n1), d: d, f: p.f }; }); }
+      var dD = B.repartir(D, paires), dC = B.repartir(C, paires);
+      paires.forEach(function (p, i) { var s = G[p.g] = G[p.g] || {}, a = s[p.d] = s[p.d] || []; a.push({ date: x.date, j: String(x.journal).replace(/^\d+/, '') || x.journal, p: x.piece, lib: x.libelle, D: dD[i], C: dC[i] }); });
+    });
+    // cumuls par section et par regroupement (niveaux cochés)
+    var tot = function (arr) { return arr.reduce(function (r, l) { r.d += l.D; r.c += l.C; return r; }, { d: 0, c: 0 }); }, cumG = {};
+    function ajoute(k, v) { var g = 0; while (k !== undefined && g++ < 12) { var r = cumG[k] = cumG[k] || { d: 0, c: 0 }; r.d += v.d; r.c += v.c; var p = k ? B.parentDe(c1, k) : ''; if (!p) break; k = p; } }
+    Object.keys(G).forEach(function (g) { var v = { d: 0, c: 0 }; Object.keys(G[g]).forEach(function (d) { var t = tot(G[g][d]); v.d += t.d; v.c += t.c; }); ajoute(g, v); });
+    var codes = Object.keys(cumG).filter(function (k) { return k; });
+    function enfants(p) { return codes.filter(function (k) { return B.parentDe(c1, k) === p; }).sort(); }
+    var rows = [], n = 0;
+    function ligne(cl, c1t, lib, d, c, so) { rows.push({ cl: cl, a: c1t, lib: lib, d: d, c: c, so: so }); }
+    function bloc(k) {
+      var lib = B.libelle(c1, k), S = G[k];
+      if (S) {
+        ligne('g', k || '—', lib, null, null, null);
+        Object.keys(S).sort().forEach(function (d) {
+          var lg = S[d], run = 0, td = 0, tc = 0;
+          if (bi) ligne('ga', d || '—', B.libelle(c2, d), null, null, null);
+          lg.forEach(function (l) { run += l.D - l.C; td += l.D; tc += l.C; n++; rows.push({ cl: 'l', date: frd(l.date), j: l.j, p: l.p, lib: l.lib, d: l.D, c: l.C, so: solde(run, 0) }); });
+          if (bi) rows.push({ cl: 'tc', lib: 'Total ' + (c2 === 'PC' ? 'compte ' : '') + (d || '—'), d: td, c: tc, so: solde(td, tc) });
+        });
+        var t = cumG[k]; rows.push({ cl: 'ts', code: 'Total  ' + (k || '—'), lib: lib, d: t.d, c: t.c, so: solde(t.d, t.c) });
+      }
+      if (k) enfants(k).forEach(bloc);
+      var niv = B.niveauDe(c1, k); if (!S && k && vus[niv - 1] && enfants(k).length) { var t2 = cumG[k]; rows.push({ cl: 'ts', code: 'Total  ' + k, lib: '** ' + lib, d: t2.d, c: t2.c, so: solde(t2.d, t2.c) }); }
+    }
+    enfants('').forEach(bloc); if (G['']) bloc('');
+    // soldes cumulés dans la section (mono) : recalcul propre à chaque section
+    var h = rows.map(function (r) {
+      if (r.cl === 'g') return '<tr class="g"><td colspan="2"></td><td class="cd">' + esc(r.a) + '</td><td colspan="5">' + esc(r.lib) + '</td></tr>';
+      if (r.cl === 'ga') return '<tr class="ga"><td></td><td colspan="2" class="cd" style="padding-left:24px">' + esc(r.a) + '</td><td colspan="5">' + esc(r.lib) + '</td></tr>';
+      if (r.cl === 'l') return '<tr><td>' + r.date + '</td><td>' + esc(r.j) + '</td><td>' + esc(r.p) + '</td><td class="lb">' + esc(r.lib) + '</td><td class="r">' + fm(r.d) + '</td><td class="r cr">' + fm(r.c) + '</td><td class="r">' + r.so[0] + '</td><td class="r cr">' + r.so[1] + '</td></tr>';
+      if (r.cl === 'tc') return '<tr class="tc"><td colspan="4" style="padding-left:60px">' + esc(r.lib) + '</td><td class="r">' + fm(r.d) + '</td><td class="r cr">' + fm(r.c) + '</td><td class="r">' + r.so[0] + '</td><td class="r cr">' + r.so[1] + '</td></tr>';
+      return '<tr class="ts"><td colspan="2" style="font-weight:700">' + esc(r.code) + '</td><td colspan="2" style="font-weight:700">' + esc(r.lib) + '</td><td class="r">' + fm(r.d) + '</td><td class="r cr">' + fm(r.c) + '</td><td class="r">' + r.so[0] + '</td><td class="r cr">' + r.so[1] + '</td></tr>';
+    }).join('');
+    var tt = solde(T.d, T.c);
+    if (!rows.length) h = '<tr><td colspan="8" style="padding:24px;text-align:center;color:#5B606D">Aucune écriture ventilée sur la période : saisissez des écritures (Saisie d’écritures › Ventiler) pour alimenter le grand livre analytique.</td></tr>';
+    else h += '<tr class="tg"><td colspan="4" style="text-align:right">Totaux</td><td class="r">' + fm(T.d) + '</td><td class="r cr">' + fm(T.c) + '</td><td class="r">' + tt[0] + '</td><td class="r cr">' + tt[1] + '</td></tr>';
+    var th = q('.gn-tb thead'); if (!th.getAttribute('data-ent')) { THEAD0 = th.innerHTML; th.setAttribute('data-ent', '1'); }
+    th.innerHTML = '<tr><th rowspan="2">Date</th><th rowspan="2">C.j</th><th rowspan="2">N° pièce</th><th rowspan="2">Libellé écriture</th><th colspan="2" style="text-align:center">Mouvements</th><th colspan="2" style="text-align:center">Soldes</th></tr><tr class="th2"><th class="r">Débits</th><th class="r">Crédits</th><th class="r">Débiteurs</th><th class="r">Créditeurs</th></tr>';
+    q('[data-gn-rows]').innerHTML = h;
+    q('[data-gn-ti]').textContent = 'Grand-livre analytique — ' + B.nomCourt(c1) + (bi ? ' puis ' + B.nomCourt(c2) : '') + ' — du ' + dfr(du) + ' au ' + dfr(au);
+    q('[data-gn-vide]').hidden = true; q('[data-gn-res]').hidden = false;
+    DERN = { axe: B.nomCourt(c1) + (bi ? ' puis ' + B.nomCourt(c2) : ''), du: dfr(du), au: dfr(au), rows: rows, T: T };
+  }
+  function restaurer() { var th = q('.gn-tb thead'); if (th && th.getAttribute('data-ent')) { th.innerHTML = THEAD0; th.removeAttribute('data-ent'); } }
+  function imprimerEnt() {
+    if (!DERN) return; var proj = (document.querySelector('.topbar-active-project-name') || {}).textContent || 'COMPTA_ENTREPRISE'; proj = proj.replace(/\(.*\)/, '').trim();
+    var m = new Date(), p2 = function (v) { return String(v).padStart(2, '0'); }, tt = solde(DERN.T.d, DERN.T.c);
+    var lg = DERN.rows.map(function (r) {
+      var nums = '<td class="n">' + fm(r.d) + '</td><td class="n">' + fm(r.c) + '</td><td class="n">' + (r.so ? r.so[0] : '') + '</td><td class="n">' + (r.so ? r.so[1] : '') + '</td>';
+      if (r.cl === 'g') return '<tr class="s"><td colspan="2"></td><td colspan="6"><b>' + esc(r.a) + '&nbsp;&nbsp;&nbsp;&nbsp;' + esc(r.lib) + '</b></td></tr>';
+      if (r.cl === 'ga') return '<tr class="s"><td></td><td colspan="7" style="padding-left:32px"><b>' + esc(r.a) + '&nbsp;&nbsp;&nbsp;&nbsp;' + esc(r.lib) + '</b></td></tr>';
+      if (r.cl === 'l') return '<tr><td>' + r.date + '</td><td>' + esc(r.j) + '</td><td>' + esc(r.p) + '</td><td>' + esc(r.lib) + '</td>' + '<td class="n">' + fm(r.d) + '</td><td class="n">' + fm(r.c) + '</td><td class="n">' + r.so[0] + '</td><td class="n">' + r.so[1] + '</td></tr>';
+      return '<tr class="g"><td colspan="4" style="padding-left:' + (r.cl === 'tc' ? 50 : 20) + 'px">' + esc((r.code ? r.code + '   ' : '') + (r.lib || '')) + '</td>' + nums + '</tr>';
+    }).join('');
+    var h = '<!doctype html><' + 'html lang="fr"><' + 'head><meta charset="utf-8"><title>Grand-livre analytique</title><style>@page{size:A4 portrait;margin:10mm 9mm 12mm;@bottom-right{content:"Page " counter(page);font:9px Arial}}body{font:11px Arial,sans-serif;color:#000;margin:0}' +
+      '.en{border:1px solid #000;display:flex;justify-content:space-between;padding:8px 10px;margin-bottom:6px}.en h1{margin:0;font-size:22px}.en .a{font-size:12px}.en .p{font-size:12px;line-height:1.5}.tir{display:flex;justify-content:space-between;padding:4px 4px 8px;font-size:12px}' +
+      'table{width:100%;border-collapse:collapse}thead th{border:1px solid #000;padding:4px 4px;font-size:12px;text-align:center}tbody td{padding:1.2px 4px;font-size:12px;vertical-align:top}.n{text-align:right;white-space:nowrap}tr.g td,tr.s td{font-weight:700}tfoot td{border:1px solid #000;font-weight:700;padding:6px 4px;font-size:12px}thead{display:table-header-group}tr{page-break-inside:avoid}</style></head><body>' +
+      '<div class="en"><div><b>' + esc(proj) + '</b><div class="a">' + esc(DERN.axe) + '</div></div><h1>Grand-livre analytique</h1><div class="p">Période du ' + DERN.du + '<br>au ' + DERN.au + '<br>Tenue de compte : ' + esc(window.ENTITE_MONNAIES && window.ENTITE_MONNAIES.m1 ? window.ENTITE_MONNAIES.m1 : 'MGA') + '</div></div>' +
+      '<div class="tir"><span>Date de tirage ' + p2(m.getDate()) + '/' + p2(m.getMonth() + 1) + '/' + String(m.getFullYear()).slice(2) + '</span><span>à ' + p2(m.getHours()) + ':' + p2(m.getMinutes()) + ':' + p2(m.getSeconds()) + '</span></div>' +
+      '<table><thead><tr><th rowspan="2" style="width:9%">Date</th><th rowspan="2" style="width:7%">C.j</th><th rowspan="2" style="width:11%">N° pièce</th><th rowspan="2">Libellé écriture</th><th colspan="2">Mouvements</th><th colspan="2">Soldes</th></tr><tr><th>Débits</th><th>Crédits</th><th>Débiteurs</th><th>Créditeurs</th></tr></thead><tbody>' + lg + '</tbody>' +
+      '<tfoot><tr><td colspan="4" style="text-align:right">Totaux</td><td class="n">' + fm(DERN.T.d) + '</td><td class="n">' + fm(DERN.T.c) + '</td><td class="n">' + tt[0] + '</td><td class="n">' + tt[1] + '</td></tr></tfoot></table></' + 'body></' + 'html>';
+    var fr0 = document.createElement('iframe'); fr0.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(fr0);
+    var w = fr0.contentWindow; w.document.open(); w.document.write(h); w.document.close();
+    setTimeout(function () { try { w.focus(); w.print(); } catch (e) { window.alert('Impression impossible : ' + e.message); } setTimeout(function () { fr0.parentNode.removeChild(fr0); }, 60000); }, 350);
+  }
   function generer() {
+    if (ENT()) { genererEnt(); return; }
+    restaurer();
     var plan = K('plan').value, niv = qa('[data-n]:checked').map(function (x) { return +x.getAttribute('data-n'); }), du = K('du').value, au = K('au').value, jn = MSS.journaux.get(), st = MSS.sites.get(), h = '', tot = { d: 0, c: 0 }, nGl = 0;
     var C = comptesGL(plan, niv), ES = window.ECRITURES_SAISIES, NOM = ES ? ES.AXES[+String(plan).replace('PLAN', '') - 1] : '', SA = ES && NOM ? ES({ du: du, au: au }).filter(function (x) { return x.axes[NOM] && (!jn.length || jn.indexOf(x.journal) >= 0) && (!st.length || st.indexOf(x.site) >= 0); }) : [];
     // éléments du plan mouvementés par des écritures saisies
@@ -29128,6 +29269,7 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (!K('du').value || !K('au').value) return 'Renseignez la période (du … au …).';
     if (K('du').value > K('au').value) return 'La date de début doit précéder la date de fin.';
     if (K('du').min && (K('du').value < K('du').min || K('au').value > K('du').max)) return 'La période doit être comprise dans l’exercice.';
+    if (ENT() && K('plan2').value && K('plan').value !== 'PC' && K('plan2').value !== 'PC') return 'Un axe analytique ne peut pas être croisé avec un autre axe : choisissez le plan comptable.';
     if (!K('plan').value) return 'Sélectionnez le plan analytique.';
     if (!qa('[data-n]:checked').length) return 'Cochez au moins un niveau d’analyse.';
     return '';
@@ -29143,10 +29285,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     if (b.hasAttribute('data-gn-crit')) ouvrir(); else if (b.hasAttribute('data-gn-annuler')) fermer(); else if (b.hasAttribute('data-gn-reinit')) defauts();
     else if (b.hasAttribute('data-gn-ok')) { var m = verifier(); er(m); if (!m) { fermer(); generer(); } }
     else if (b.hasAttribute('data-gn-csv') || b.hasAttribute('data-gn-xlsx')) { if (q('[data-gn-res]').hidden) { ouvrir(); return; } csv(); }
-    else if (b.hasAttribute('data-gn-pdf')) { if (q('[data-gn-res]').hidden) { ouvrir(); return; } window.print(); }
+    else if (b.hasAttribute('data-gn-pdf')) { if (q('[data-gn-res]').hidden) { ouvrir(); return; } if (ENT()) imprimerEnt(); else window.print(); }
   });
   root.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !q('[data-gn-ov]').hidden) fermer(); });
-  defauts();
+  defauts(); window.addEventListener('produit-changed', function () { restaurer(); defauts(); });
   ['plans-changed', 'plans-actifs', 'regroupement-changed'].forEach(function (ev) { window.addEventListener(ev, function () { if (q('[data-gn-ov]').hidden) defauts(); }); });
   window.addEventListener('hashchange', function () { if (location.hash === '#glana' && q('[data-gn-res]').hidden) setTimeout(ouvrir, 200); });
 })();
@@ -30877,7 +31019,7 @@ window.PLANS_REF = {"comptes":[["0","Projet PARN",0],["101001","Paiement Direct 
         var d = deb(l.sens), m = +l.montant || 0, opp = L.filter(function (x) { return deb(x.sens) !== d; })[0];
         var x = { id: 'S|' + p.journal + '|' + p.piece + '|' + p.date + '|' + i, piece: p.piece, journal: p.journal, date: p.date, datePiece: p.datePiece || p.date, reference: p.reference || '', facture: p.facture || '', statut: p.statut || '',
           compte: String(l.compte || ''), contrepartie: opp ? String(opp.compte || '') : '', tiers: l.tiers || '', libelle: l.libelle || '', debit: d ? m : 0, credit: d ? 0 : m, d1: +l.montant1 || 0, d2: +l.montant2 || 0,
-          axes: l.axes || {}, regr: l.regr || '', contrat: l.contrat || '', echeance: l.echeance || '', site: p.site || '01' };
+          axes: l.axes || {}, ventil: l.ventil || {}, regr: l.regr || '', contrat: l.contrat || '', echeance: l.echeance || '', site: p.site || '01' };
         var Fl = lignes.filtre || {}, du0 = o.du || Fl.du, au0 = o.au || Fl.au;
         if (du0 && x.date < du0) return; if (au0 && x.date > au0) return;
         var sit = o.sites || Fl.sites, jnl = o.journaux || Fl.journaux;   // filtres centre de saisie / journaux (liste de codes ; vide = tous)
@@ -31897,14 +32039,16 @@ window.ECRITURES_REF = {
   // Liste des lignes de la pièce : seulement Compte, Tiers, Libellé, Débit, Crédit (le détail analytique reste saisi et conservé, non affiché)
   var trEntete = $('.entry-lines-panel thead tr'), thModele = trEntete ? (trEntete.children[1] || trEntete.children[0]) : null, sigEntete = '';
   // Imputations analytiques affichées après le tiers : un axe par plan actif (abréviation du plan en en-tête, codes seuls dans les cellules)
+  function ent() { return document.body.getAttribute('data-variante') === 'entreprise'; }   // version Entreprise : pas d'axes analytiques ni de budget dans la liste
   function axesListe() {
     return $$('.entry-axes-ligne > .entry-field-axe', R).filter(function (w) { return !w.classList.contains('plan-off'); })
       .map(function (w) { return { nom: w.querySelector('[data-axe]').dataset.axe, lib: w.querySelector('label').textContent.trim() }; });
   }
+  function axesListeAff() { return ent() ? [] : axesListe(); }   // colonnes analytiques de la liste : masquées en version Entreprise (les axes restent actifs en saisie)
   function enteteListe(axes) {
-    var sig = axes.map(function (a) { return a.lib; }).join('|') + (regrActif() ? '+R' : '') + '#' + repCols().map(function (c) { return c.code; }).join(','); if (!trEntete || sig === sigEntete) return; sigEntete = sig;
+    var sig = axes.map(function (a) { return a.lib; }).join('|') + (ent() ? '+E' : '') + (regrActif() ? '+R' : '') + '#' + repCols().map(function (c) { return c.code; }).join(','); if (!trEntete || sig === sigEntete) return; sigEntete = sig;
     [].slice.call(trEntete.children).slice(1).forEach(function (t) { trEntete.removeChild(t); });
-    ['Compte', 'Auxiliaire'].concat(axes.map(function (a) { return a.lib; }), ['Budget'], regrActif() ? ['Regroupement'] : [], ['Contrat', 'Libellé', 'Débit', 'Crédit'], [].concat.apply([], repCols().map(function (c, i) { return [repNom(i, 'Débit'), repNom(i, 'Crédit')]; })), ['Échéance']).forEach(function (nom) {
+    ['Compte', 'Auxiliaire'].concat(axes.map(function (a) { return a.lib; }), ent() ? [] : ['Budget'], regrActif() ? ['Regroupement'] : [], (ent() ? [] : ['Contrat']), ['Libellé', 'Débit', 'Crédit'], [].concat.apply([], repCols().map(function (c, i) { return [repNom(i, 'Débit'), repNom(i, 'Crédit')]; })), ['Échéance']).forEach(function (nom) {
       var t = thModele.cloneNode(true); t.textContent = nom;
       if (/^(Débit|Crédit)/.test(nom)) t.style.textAlign = 'right';
       trEntete.appendChild(t);
@@ -31921,7 +32065,7 @@ window.ECRITURES_REF = {
       });
     }
   }
-  enteteListe(axesListe());
+  enteteListe(axesListeAff());
   var pied = $$('.entry-balance-footer td'), trPiedFixe = pied[0].parentNode, tfootFixe = pied[0].closest('tfoot');
   var toolbar = {};
   $$('.entry-crud-toolbar button').forEach(function (b) { toolbar[b.textContent.trim()] = b; });
@@ -32007,9 +32151,10 @@ window.ECRITURES_REF = {
   function td(html, cls) { return '<td class="px-2.5 py-2 border-b border-[#E9EBF0] ' + (cls || 'whitespace-nowrap') + '">' + html + '</td>'; }
   var VIDE = '<span style="color:#747A88">—</span>';
   window.__renderLignes = function () { render(); };
+  window.addEventListener('hashchange', function () { setTimeout(function () { render(); }, 50); });
   function render() {
     if (consult >= 0 && (selection !== consult || edition >= 0)) { var enModif = edition >= 0; sortirConsult(); if (!enModif) ecrireLigne(null); }
-    var axesL = axesListe(); enteteListe(axesL);
+    var axesL = axesListeAff(); enteteListe(axesL);
     tbody.innerHTML = '';
     lignes.forEach(function (l, i) {
       var tr = el('<tr style="cursor:pointer">' +
@@ -32017,9 +32162,9 @@ window.ECRITURES_REF = {
         td('<strong>' + esc(l.compte.code) + '</strong>') +
         td(l.tiers ? esc(l.tiers.code) : VIDE) +
         axesL.map(function (a) { return td(l.axes[a.nom] ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.axes[a.nom]) + '</span>' : VIDE); }).join('') +
-        td(l.budget ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.budget) + '</span>' : VIDE) +
+        (ent() ? '' : td(l.budget ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.budget) + '</span>' : VIDE)) +
         (regrActif() ? td(l.regr ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + esc(l.regr) + '</span>' : VIDE) : '') +
-        td(l.contrat && l.contrat.code ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums" title="' + esc(l.contrat.label || '') + '">' + esc(l.contrat.code) + '</span>' : VIDE) +
+        (ent() ? '' : td(l.contrat && l.contrat.code ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums" title="' + esc(l.contrat.label || '') + '">' + esc(l.contrat.code) + '</span>' : VIDE)) +
         td('<div style="min-width:220px">' + esc(l.libelle) + '</div>', 'whitespace-normal') +
         td(l.sens === 'DEBIT' ? '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + fmt(l.montant) + '</span>' : '', 'text-right whitespace-nowrap') +
         td(l.sens === 'DEBIT' ? '' : '<span style="font-family:var(--font-sans);font-variant-numeric:tabular-nums">' + fmt(l.montant) + '</span>', 'text-right whitespace-nowrap') +
@@ -32051,7 +32196,7 @@ window.ECRITURES_REF = {
     var trPied = trPiedFixe, tdT = 'class="px-2.5 py-2 text-right whitespace-nowrap" style="font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-weight:700;color:#0B1332"';
     tfootFixe.style.display = lignes.length ? '' : 'none';
     trPied.className = ''; trPied.style.background = '#fff'; trPied.style.color = '#0B1332';
-    trPied.innerHTML = '<td colspan="' + (6 + axesL.length + (regrActif() ? 1 : 0)) + '" class="px-2.5 py-2" style="font-weight:700">Total · ' + (ecart || ecart1 ? 'Écart ' + fmt(Math.abs(ecart)) + (ecart1 ? ' / ' + fmt(Math.abs(ecart1)) + ' USD' : '') : 'Équilibré') + '</td>' +
+    trPied.innerHTML = '<td colspan="' + (6 - (ent() ? 2 : 0) + axesL.length + (regrActif() ? 1 : 0)) + '" class="px-2.5 py-2" style="font-weight:700">Total · ' + (ecart || ecart1 ? 'Écart ' + fmt(Math.abs(ecart)) + (ecart1 ? ' / ' + fmt(Math.abs(ecart1)) + ' USD' : '') : 'Équilibré') + '</td>' +
       '<td ' + tdT + '>' + fmt(d) + '</td><td ' + tdT + '>' + fmt(c) + '</td>' + repCols().map(function (rc) { var a = rc.cle === 'montant1' ? d1 : d2, b = rc.cle === 'montant1' ? c1 : c2; return '<td ' + tdT + '>' + fmt(a) + '</td><td ' + tdT + '>' + fmt(b) + '</td>'; }).join('') + '<td></td>';
     $('.entry-crud-toolbar strong').textContent = lignes.length + (lignes.length > 1 ? ' lignes' : ' ligne') + (edition >= 0 ? ' · modification de la ligne ' + (edition + 1) : '');
 
@@ -32155,7 +32300,7 @@ window.ECRITURES_REF = {
       if (modifPiece) { var kk = modifPiece.journal + '|' + modifPiece.piece + '|' + modifPiece.date; window.ECRITURES_PIECES = (window.ECRITURES_PIECES || []).filter(function (x) { return (x.journal + '|' + x.piece + '|' + x.date) !== kk; }); (window.ECRITURES_REMPLACEES = window.ECRITURES_REMPLACEES || []).push(kk); modifPiece = null; }
       // la pièce enregistrée rejoint le registre des pièces (détection des doublons à l'importation)
       (window.ECRITURES_PIECES = window.ECRITURES_PIECES || []).push({ journal: journal.value.code, piece: p, date: dateEcriture.value, datePiece: ctrl('datePiece').value, facture: ctrl('facture').value, reference: ctrl('reference').value, source: 'saisie', statut: statutPiece, createur: uc,
-        site: site.value ? site.value.code : '', lignes: lignes.map(function (l) { return { contrat: l.contrat ? l.contrat.code : '', compte: l.compte && l.compte.code, tiers: l.tiers && l.tiers.code, libelle: l.libelle, sens: l.sens, montant: l.montant, montant1: l.montant1 || 0, montant2: l.montant2 || 0, echeance: l.echeance, regr: l.regr, axes: l.axes, auto: !!l.auto, regle: 0 }; }) });
+        site: site.value ? site.value.code : '', lignes: lignes.map(function (l) { return { contrat: l.contrat ? l.contrat.code : '', compte: l.compte && l.compte.code, tiers: l.tiers && l.tiers.code, libelle: l.libelle, sens: l.sens, montant: l.montant, montant1: l.montant1 || 0, montant2: l.montant2 || 0, echeance: l.echeance, regr: l.regr, axes: l.axes, ventil: l.ventil || {}, auto: !!l.auto, regle: 0 }; }) });
       window.dispatchEvent(new Event('ecritures-pieces-changed'));
       // Les tiers mouvementés deviennent « Utilisés » dans le référentiel
       lignes.forEach(function (l) { if (l.tiers && window.SoftTiers && !PREF) window.SoftTiers.marquerUtilise(l.tiers.code); if (l.tiers && window.TIERS_MARQUER) window.TIERS_MARQUER(l.tiers.collectif, l.tiers.code); });
@@ -32258,7 +32403,7 @@ window.ECRITURES_REF = {
   window.__ecEntete.ajouterLignes = function (L, msg) {
     var vides = $$('[data-info]', corpsInfos).map(function () { return ''; });
     L.forEach(function (x) {
-      lignes.push({ compte: x.compte, tiers: x.tiers || null, contrat: x.contrat || null, libelle: x.libelle, regr: x.regr || '', montant: x.montant, montant1: x.montant1 || 0, montant2: x.montant2 || 0, sens: x.sens, echeance: x.echeance || '', axes: x.axes || {}, budget: x.budget || '', mode: '', infos: vides.slice(), docs: [], apure: x.apure || null });
+      lignes.push({ compte: x.compte, tiers: x.tiers || null, contrat: x.contrat || null, libelle: x.libelle, regr: x.regr || '', montant: x.montant, montant1: x.montant1 || 0, montant2: x.montant2 || 0, sens: x.sens, echeance: x.echeance || '', axes: x.axes || {}, ventil: x.ventil || {}, budget: x.budget || '', mode: '', infos: vides.slice(), docs: [], apure: x.apure || null });
     });
     selection = -1; edition = -1; majContrepartie(); notify(msg || (L.length + ' ligne(s) ajoutée(s) à la pièce depuis la facture.'));
   };
@@ -32283,7 +32428,7 @@ window.ECRITURES_REF = {
         var cp = REF.comptes.filter(function (c) { return c.code === x.compte; })[0] || { code: x.compte, label: '' }, ti = x.tiers ? (window.TIERS_PLAN || []).filter(function (t) { return t.code === x.tiers; })[0] : null, ct = x.contrat ? CT.filter(function (c) { return c.code === x.contrat; })[0] : null, ax = {};
         Object.keys(x.ana || {}).forEach(function (k) { var i = parseInt(String(k).replace(/\D/g, ''), 10); if (i >= 1 && AXE_NOMS[i - 1] && x.ana[k]) ax[AXE_NOMS[i - 1]] = x.ana[k]; });
         var deb = x.sens === 'Débit' || x.sens === 'DEBIT';
-        return { compte: { code: cp.code, label: cp.label }, tiers: ti ? { code: ti.code, label: ti.nom, collectif: ti.compte } : (x.tiers ? { code: x.tiers, label: '' } : null), contrat: ct ? { code: ct.code, label: ct.label } : (x.contrat ? { code: x.contrat, label: '' } : null), libelle: x.libelle, regr: x.regr || '', montant: arr(deb ? x.debit : x.credit), montant1: arr((x.d1 || 0)), montant2: arr((x.d2 || 0)), sens: deb ? 'DEBIT' : 'CREDIT', echeance: x.echeance || '', axes: ax, budget: '' };
+        return { compte: { code: cp.code, label: cp.label }, tiers: ti ? { code: ti.code, label: ti.nom, collectif: ti.compte } : (x.tiers ? { code: x.tiers, label: '' } : null), contrat: ct ? { code: ct.code, label: ct.label } : (x.contrat ? { code: x.contrat, label: '' } : null), libelle: x.libelle, regr: x.regr || '', montant: arr(deb ? x.debit : x.credit), montant1: arr((x.d1 || 0)), montant2: arr((x.d2 || 0)), sens: deb ? 'DEBIT' : 'CREDIT', echeance: x.echeance || '', axes: ax, ventil: x.ventil || {}, budget: '' };
       }), 'Pièce ' + l0.piece + ' chargée pour correction : modifiez les lignes puis cliquez sur « Enregistrer la pièce » (l’ancienne version sera remplacée).');
       tresoMode = ''; modifPiece = { journal: l0.journal, piece: l0.piece, date: l0.date };
       return true;
@@ -33145,6 +33290,70 @@ window.ECRITURES_REF = {
   }
   btn.addEventListener('click', ouvrir);
   window.ECRITURES_VENTILATION = { ouvrir: ouvrir };
+})();
+
+// Données de démonstration — version Entreprise : écritures ventilées par axe analytique (Activité, Poste budgétaire, Financement, Géographique), exercices 2025 et 2026.
+// Chaque axe d'une ligne totalise 100 % (ventilation indépendante par axe, comme à la saisie : bouton « Ventiler »). Alimente la balance analytique, les grands livres et les balances.
+// N'est chargé que dans la version Entreprise (au démarrage ou au changement de produit) ; ne remplace pas des écritures déjà saisies.
+(function () {
+  var fait = false;
+  function V(act, bud, fin, geo) {
+    var m = { ACTIVITE: act, 'POSTE BUDGETAIRE': bud, FINANCEMENT: fin, GEOGRAPHIQUE: geo };
+    var out = {}, axes = {};
+    Object.keys(m).forEach(function (k) {
+      var v = m[k]; if (!v) return;
+      var L = (typeof v === 'string' ? [[v, 100]] : v).map(function (r) { return { code: r[0], pct: r[1] }; });
+      out[k] = L; axes[k] = L.length === 1 ? L[0].code : 'VENTILÉ';
+    });
+    return { ventil: out, axes: axes };
+  }
+  // [date, journal, pièce, compte de charge/produit, montant, libellé, ventilation, contrepartie]
+  var CH = '401100', BQ = '512102';
+  var S = [
+    ['2025-02-12', '01ACHAT', 'A25-001', '601100', 18500000, 'Achat médicaments — dotation 1er trimestre', V([['110101', 60], ['110102', 40]], '23110', 'AFD', [['MSAN001', 50], ['MSAN002', 50]]), CH],
+    ['2025-04-08', '01ACHAT', 'A25-002', '602210', 3200000, 'Tickets carburant — missions de supervision', V('120107', [['23171', 70], ['23172', 30]], 'AFD', 'MSAN001'), CH],
+    ['2025-06-20', '01ACHAT', 'A25-003', '606300', 4750000, 'Petit matériel et fournitures de bureau', V([['111204', 50], ['120107', 50]], '23160', 'CIN', 'MSAN003'), CH],
+    ['2025-09-15', '01ACHAT', 'A25-004', '624400', 2100000, 'Frais de transport et de taxi', V('211401', '23171', 'AFD', [['MSAN001', 70], ['MSAN004', 30]]), CH],
+    ['2025-11-05', '01OD', 'O25-001', '708800', 9600000, 'Ventes de cahiers de charge', V('110101', '23110', 'AFD', 'MSAN001'), BQ],
+    ['2026-01-14', '01ACHAT', 'A26-001', '601100', 24800000, 'Achat médicaments — dotation 1er trimestre 2026', V([['110101', 60], ['110102', 40]], '23110', 'AFD', [['MSAN001', 50], ['MSAN002', 50]]), CH],
+    ['2026-01-28', '01ACHAT', 'A26-002', '602210', 3600000, 'Tickets carburant — janvier', V('120107', [['23171', 70], ['23172', 30]], 'AFD', 'MSAN001'), CH],
+    ['2026-02-09', '01ACHAT', 'A26-003', '602220', 1850000, 'Produits d’entretien des locaux', V([['111204', 100]], '23172', 'CIN', 'MSAN003'), CH],
+    ['2026-02-20', '01ACHAT', 'A26-004', '606300', 5200000, 'Petit matériel et fournitures de bureau', V([['111204', 50], ['120107', 50]], '23160', 'CIN', 'MSAN003'), CH],
+    ['2026-03-05', '01ACHAT', 'A26-005', '620503', 7400000, 'Frais de mission — formation des agents', V([['211401', 40], ['230107', 35], ['240801', 25]], '23110', [['AFD', 70], ['CIN', 30]], [['MSAN001', 40], ['MSAN002', 30], ['MSAN004', 30]]), CH],
+    ['2026-03-18', '01ACHAT', 'A26-006', '623200', 2950000, 'Frais de réception et de séminaire', V('230107', [['23110', 60], ['23120', 40]], 'AFD', 'MSAN002'), CH],
+    ['2026-04-02', '01ACHAT', 'A26-007', '601100', 21300000, 'Achat médicaments — dotation 2e trimestre', V([['110101', 55], ['110102', 45]], '23110', 'AFD', [['MSAN001', 60], ['MSAN003', 40]]), CH],
+    ['2026-04-16', '01ACHAT', 'A26-008', '624400', 2400000, 'Frais de transport et de taxi', V('211401', '23171', 'AFD', [['MSAN001', 70], ['MSAN004', 30]]), CH],
+    ['2026-04-29', '01ACHAT', 'A26-009', '602210', 3900000, 'Tickets carburant — avril', V('120107', [['23171', 70], ['23172', 30]], 'AFD', 'MSAN001'), CH],
+    ['2026-05-12', '01ACHAT', 'A26-010', '622410', 6100000, 'Location de véhicules de supervision', V([['120706', 60], ['240801', 40]], '23172', [['AFD', 50], ['CIN', 50]], [['MSAN002', 50], ['MSAN003', 50]]), CH],
+    ['2026-05-26', '01ACHAT', 'A26-011', '606300', 3300000, 'Petit matériel informatique', V('261105', '23160', 'CIN', 'MSAN004'), CH],
+    ['2026-06-10', '01ACHAT', 'A26-012', '620503', 8900000, 'Frais de mission — suivi-évaluation', V([['240801', 50], ['261105', 50]], [['23160', 80], ['23130', 20]], 'AFD', [['MSAN001', 30], ['MSAN002', 30], ['MSAN003', 40]]), CH],
+    ['2026-06-24', '01ACHAT', 'A26-013', '601100', 19700000, 'Achat médicaments — réapprovisionnement', V([['110101', 70], ['110102', 30]], '23110', 'AFD', 'MSAN002'), CH],
+    ['2026-07-07', '01ACHAT', 'A26-014', '602220', 1700000, 'Produits d’entretien des locaux', V('111204', '23172', 'CIN', 'MSAN003'), CH],
+    ['2026-07-21', '01ACHAT', 'A26-015', '623200', 3550000, 'Frais de réception — atelier régional', V('230107', [['23110', 60], ['23120', 40]], 'AFD', [['MSAN002', 60], ['MSAN004', 40]]), CH],
+    ['2026-08-04', '01ACHAT', 'A26-016', '624400', 2250000, 'Frais de transport et de taxi', V('211401', '23171', 'AFD', 'MSAN001'), CH],
+    ['2026-08-18', '01ACHAT', 'A26-017', '602210', 4100000, 'Tickets carburant — août', V('120107', [['23171', 70], ['23172', 30]], 'AFD', 'MSAN001'), CH],
+    ['2026-09-09', '01ACHAT', 'A26-018', '620503', 9400000, 'Frais de mission — formation des agents', V([['211401', 40], ['230107', 60]], '23110', [['AFD', 60], ['CIN', 40]], [['MSAN001', 50], ['MSAN004', 50]]), CH],
+    ['2026-09-23', '01ACHAT', 'A26-019', '606300', 4300000, 'Petit matériel et fournitures de bureau', V([['111204', 60], ['120107', 40]], '23160', 'CIN', 'MSAN003'), CH],
+    ['2026-10-06', '01OD', 'O26-001', '708800', 12400000, 'Ventes de cahiers de charge', V([['110101', 100]], '23110', 'AFD', 'MSAN001'), BQ],
+    ['2026-10-14', '01OD', 'O26-002', '757100', 3200000, 'Produit exceptionnel sur opération de gestion', V('111204', '23172', 'CIN', 'MSAN003'), BQ],
+    ['2026-10-27', '01OD', 'O26-003', '768100', 1850000, 'Autres produits financiers', V('120107', '23160', 'AFD', 'MSAN001'), BQ]
+  ];
+  function pieces() {
+    return S.map(function (r) {
+      var prod = /^7/.test(r[3]), v = r[6];
+      return { journal: r[1], piece: r[2], date: r[0], datePiece: r[0], facture: '', reference: '', source: 'demo', statut: 'Validé', createur: 'superadmin', site: '01', lignes: [
+        { contrat: '', compte: r[3], tiers: '', libelle: r[5], sens: prod ? 'CREDIT' : 'DEBIT', montant: r[4], montant1: 0, montant2: 0, echeance: '', regr: '', axes: v.axes, ventil: v.ventil, auto: false, regle: 0 },
+        { contrat: '', compte: r[7], tiers: '', libelle: r[5], sens: prod ? 'DEBIT' : 'CREDIT', montant: r[4], montant1: 0, montant2: 0, echeance: '', regr: '', axes: {}, ventil: {}, auto: false, regle: 0 }] };
+    });
+  }
+  function semer() {
+    if (fait || window.PRODUIT !== 'entreprise') return; fait = true;
+    var P = window.ECRITURES_PIECES = window.ECRITURES_PIECES || [];
+    if (P.some(function (p) { return p.source === 'demo'; })) return;
+    pieces().forEach(function (p) { P.push(p); });
+    window.dispatchEvent(new Event('ecritures-pieces-changed'));
+  }
+  window.addEventListener('produit-changed', semer); window.addEventListener('load', function () { setTimeout(semer, 800); }); setTimeout(semer, 1500);
 })();
 
 // Saisie d'écritures › « Modèle d'écriture » : reprise d'un modèle prédéfini. La fenêtre reprend la saisie par modèle classique : modèle, journal (imposé par le modèle),
@@ -34057,7 +34266,7 @@ window.SoftDPFiltre = function (o) {
   erreur.className = 'filters-erreur'; erreur.setAttribute('_ngcontent-ng-c2657484088', ''); erreur.style.display = 'none';
   var footer = q('.modal-footer');
   footer.parentNode.insertBefore(erreur, footer);
-  var ouvrir = function () { erreur.style.display = 'none'; modal.style.display = ''; };
+  var ouvrir = function () { if (ENT()) axes(); erreur.style.display = 'none'; modal.style.display = ''; };
   var fermer = function () { modal.style.display = 'none'; };
 
   function annee() { return exo.value ? exo.options[exo.selectedIndex].textContent.trim() : ''; }
@@ -34078,6 +34287,8 @@ window.SoftDPFiltre = function (o) {
   exo.addEventListener('change', dates);
   // L'axe secondaire ne peut pas être l'axe principal
   function axes() {
+    if (!ENT()) placerEnt(false);
+    if (ENT()) { axesEnt(); return; }
     qa('option', axe2).forEach(function (o) { o.disabled = !!o.value && o.value === plan.value; });
     if (axe2.value && axe2.value === plan.value) axe2.value = '';
     // Critère secondaire activé : un seul niveau d'analyse, au choix, commun aux deux critères (cases à cocher → choix unique) ; sinon plusieurs niveaux possibles
@@ -34104,6 +34315,7 @@ window.SoftDPFiltre = function (o) {
   reinitialiser();
 
   function verifier() {
+    if (ENT()) return verifierEnt();
     var p = periode();
     if (!p) return 'Sélectionnez un exercice ou un devis programme.';
     if (!deb.value || !fin.value) return 'Renseignez la période (du … au …).';
@@ -34196,6 +34408,8 @@ window.SoftDPFiltre = function (o) {
   }
 
   function generer() {
+    if (ENT()) { genererEnt(); return; }
+    enteteEnt(false);
     var comptes = donnees(), vus = niveaux.map(function (c) { return c.checked; });
     var f = (recherche.value || '').trim().toLowerCase();
     var fc = filtresCol ? qa('input', filtresCol).map(function (i) { return i.value.trim().toLowerCase(); }) : ['', ''];
@@ -34244,6 +34458,253 @@ window.SoftDPFiltre = function (o) {
     etat(true);
   }
 
+  // ======================================================================================================================
+  // VERSION ENTREPRISE — la ventilation analytique de la saisie est indépendante par axe : deux restitutions exactes seulement
+  //   • mono-critère : un axe (ou le plan comptable) ; • bicritère : Plan comptable puis axe analytique, ou axe analytique puis Plan comptable.
+  //   Axe analytique × axe analytique : impossible (pas de répartition conjointe), non proposé.
+  // ======================================================================================================================
+  function ENT() { return window.PRODUIT === 'entreprise'; }
+  var ENT_SIG = '';
+  function cfgPlan(c) { return (window.PLANS_CFG || []).filter(function (p) { return p.code === c; })[0] || { niveaux: [] }; }
+  function nomPlan(c) { if (c === 'PC') return 'PC — Plan comptable'; var p = cfgPlan(c); return p.abrev || p.libelle || c; }
+  function nomCourt(c) { if (c === 'PC') return 'PC'; var p = cfgPlan(c); return p.abrev || p.libelle || c; }
+  function axeNom(c) { var n = +String(c).slice(4); return window.ECRITURES_SAISIES && window.ECRITURES_SAISIES.AXES ? window.ECRITURES_SAISIES.AXES[n - 1] : ''; }
+  function nbNiv(c) { return Math.max(1, (cfgPlan(c).niveaux || []).length); }
+  function construireNiveaux(box, c, radio, nom, garde) {
+    var N = cfgPlan(c).niveaux || [], coches = [].slice.call(box.querySelectorAll('input')).map(function (i) { return i.checked; });
+    box.innerHTML = '';
+    for (var i = 0; i < Math.max(1, N.length); i++) {
+      var l = document.createElement('label'); l.className = 'niveau-row';
+      l.innerHTML = '<input type="' + (radio ? 'radio' : 'checkbox') + '"' + (radio ? ' name="' + nom + '"' : '') + '><span>Niveau ' + (i + 1) + '</span><span class="badge-filtre">' + esc((N[i] && N[i].libelle) || '') + '</span>';
+      box.appendChild(l);
+    }
+    var ins = [].slice.call(box.querySelectorAll('input'));
+    ins.forEach(function (x, i) { x.checked = garde && coches.length === ins.length ? coches[i] : !radio; });
+    if (radio && !ins.some(function (x) { return x.checked; })) ins[ins.length - 1].checked = true;
+    return ins;
+  }
+  // disposition : carte « Typologie de dépense » remplacée par « Critère principal » (axe + niveaux) ; la carte de droite ne garde que le critère secondaire
+  var DISP = null;
+  function placerEnt(on) {
+    var cs = qa('.filters-card'), cTd = cs[1], cSt = cs[2]; if (!cTd || !cSt) return;
+    var stack = cSt.querySelector('.filters-stack'), dPlan = plan.parentNode, dNiv = box1.parentNode, dSec = axe2.parentNode, dDep = dep.parentNode;
+    function titre(c, txt) { var h = c.querySelector('.filters-title'); if (!h) return; var t = [].slice.call(h.childNodes).filter(function (n) { return n.nodeType === 3; }).pop(); if (!t) return; if (!h.hasAttribute('data-t0')) h.setAttribute('data-t0', t.textContent); t.textContent = txt == null ? h.getAttribute('data-t0') : ' ' + txt + ' '; }
+    var c0 = cs[0], gr = c0.querySelector('.filters-grid');
+    function large(v) {   // carte « Période & contexte » sur toute la largeur : quatre colonnes
+      c0.style.gridColumn = v ? '1 / -1' : ''; c0.style.gridRow = v ? '1' : '';
+      if (gr) { if (v) gr.style.setProperty('grid-template-columns', 'repeat(4, minmax(0, 1fr))', 'important'); else gr.style.removeProperty('grid-template-columns'); [].forEach.call(gr.children, function (d) { var l = d.querySelector('label'); if (l && /Centre de saisie|Journal/i.test(l.textContent)) d.style.gridColumn = v ? 'span 2' : ''; }); }
+    }
+    if (on && !DISP) {
+      DISP = true; large(true); dDep.style.display = 'none'; cTd.appendChild(dPlan); cTd.appendChild(dNiv); dPlan.style.marginTop = '4px'; dNiv.style.marginTop = '12px';
+      titre(cTd, 'Critère principal'); titre(cSt, 'Critère secondaire');
+      cTd.style.gridRow = '2'; cTd.style.gridColumn = '1'; cSt.style.gridRow = '2'; cSt.style.gridColumn = '2'; cSt.style.alignSelf = 'start';   // critères principal et secondaire côte à côte, sous la période
+    } else if (!on && DISP) {
+      DISP = null; large(false); dDep.style.display = ''; stack.insertBefore(dNiv, dSec); stack.insertBefore(dPlan, dNiv); dPlan.style.marginTop = dNiv.style.marginTop = '';
+      titre(cTd, null); titre(cSt, null);
+      cTd.style.gridRow = cTd.style.gridColumn = cSt.style.gridRow = cSt.style.gridColumn = ''; cSt.style.alignSelf = '';
+    }
+  }
+  function axesEnt() {
+    placerEnt(true);
+    var actifs = (window.PLANS_ACTIFS ? window.PLANS_ACTIFS() : []).filter(function (c) { return /^PLAN\d+$/.test(c); }), cle = actifs.join(',');
+    var cur = plan.value, cur2 = axe2.value, tous = ['PC'].concat(actifs);
+    if (cle !== ENT_SIG || plan.options.length !== tous.length + 1) {
+      ENT_SIG = cle;
+      plan.innerHTML = '<option value="">— Sélectionner —</option>' + tous.map(function (c) { return '<option value="' + c + '">' + esc(nomPlan(c)) + '</option>'; }).join('');
+    }
+    plan.value = tous.indexOf(cur) >= 0 ? cur : (actifs[0] || 'PC');
+    // critère secondaire : plan comptable → un axe analytique ; axe analytique → plan comptable seulement (axe × axe impossible)
+    var op2 = plan.value === 'PC' ? actifs : ['PC'];
+    axe2.innerHTML = '<option value="">Aucun (mono-critère)</option>' + op2.map(function (c) { return '<option value="' + c + '">' + esc(nomPlan(c)) + '</option>'; }).join('');
+    axe2.value = op2.indexOf(cur2) >= 0 ? cur2 : '';
+    var croise = !!axe2.value, prev = box1.getAttribute('data-ent-plan') + '|' + box1.getAttribute('data-ent-croise');
+    var nouv = plan.value + '|' + (croise ? '1' : '0');
+    if (prev !== nouv) { niveaux = construireNiveaux(box1, plan.value, croise, 'bal-niveau', box1.getAttribute('data-ent-plan') === plan.value); box1.setAttribute('data-ent-plan', plan.value); box1.setAttribute('data-ent-croise', croise ? '1' : '0'); }
+    if (croise && box2.getAttribute('data-ent-plan') !== axe2.value) { niveaux2 = construireNiveaux(box2, axe2.value, true, 'bal-niveau2', false); box2.setAttribute('data-ent-plan', axe2.value); }
+    bloc2.style.display = croise ? '' : 'none';
+    lab1.innerHTML = croise ? lab1.getAttribute('data-lab1').replace(/Niveaux d.analyse/i, "Niveaux d'analyse — critère principal") : lab1.getAttribute('data-lab1');
+    box2.classList.add('etf-pastilles');
+    lab2.innerHTML = lab1.getAttribute('data-lab1').replace(/Niveaux d.analyse/i, "Niveaux d'analyse — critère secondaire");
+    info.textContent = croise
+      ? 'Bicritère : ' + nomCourt(plan.value) + ' puis ' + nomCourt(axe2.value) + '. Un niveau au choix pour chaque critère. Les axes analytiques étant ventilés indépendamment à la saisie, un croisement entre deux axes analytiques n’est pas proposé : le critère principal ou le critère secondaire est le Plan comptable.'
+      : 'Mono-critère : la balance est restituée sur ' + (plan.value ? nomCourt(plan.value) : 'l’axe choisi') + ' ; chaque ligne d’écriture est répartie selon ses pourcentages de ventilation. Choisissez un critère secondaire pour obtenir le détail par compte ou par axe.';
+    var l1 = plan.parentNode.querySelector('label'); if (l1) l1.innerHTML = 'Critère principal <span class="req">*</span>';
+    var l2 = axe2.parentNode.querySelector('label'); if (l2) l2.textContent = 'Critère secondaire (facultatif)';
+  }
+  function verifierEnt() {
+    var p = periode();
+    if (!p) return 'Sélectionnez un exercice ou un devis programme.';
+    if (!deb.value || !fin.value) return 'Renseignez la période (du … au …).';
+    if (deb.value > fin.value) return 'La date de début doit précéder la date de fin.';
+    if (deb.value < p.debut || fin.value > p.fin) return 'La période doit être comprise dans ' + p.nom + '.';
+    if (!plan.value) return 'Sélectionnez le critère principal.';
+    if (axe2.value && plan.value !== 'PC' && axe2.value !== 'PC') return 'Un axe analytique ne peut pas être croisé avec un autre axe : choisissez le Plan comptable.';
+    if (!niveaux.some(function (c) { return c.checked; })) return axe2.value ? 'Choisissez le niveau d’analyse du critère principal.' : 'Cochez au moins un niveau d’analyse.';
+    if (axe2.value && niveaux2.filter(function (c) { return c.checked; }).length !== 1) return 'Critère secondaire : choisissez un seul niveau d’analyse.';
+    return '';
+  }
+  // --- arbres des plans (parent / niveau) et libellés ---
+  var LIBS = {};
+  function items(c) {
+    if (c === 'PC') return [];
+    var n = axeNom(c), V = window.__ecEntete && window.__ecEntete.ventilation, A = V ? V.axes() : [];
+    var a = A.filter(function (x) { return x.nom === n; })[0]; return a ? a.items : [];
+  }
+  function arbre(c) {
+    var L = window.PLANS_LIGNES && window.PLANS_LIGNES[c]; if (!L || !L.rows || !L.rows.length) return null;
+    var idx = {}; L.rows.forEach(function (r) { idx[String(r.code)] = r; }); return { rows: L.rows, idx: idx, niveau: function (k) { return L.niveau ? L.niveau(k) : 1; } };
+  }
+  // longueurs cumulées des codes par niveau (ex. activité 1, 2, 4, 6) : un code de longueur exacte appartient au niveau correspondant ; ses ancêtres sont ses préfixes
+  function cumLong(c) { var N = cfgPlan(c).niveaux || [], cum = [], t = 0; N.forEach(function (n) { t += +n.car || 1; cum.push(t); }); return cum; }
+  function rangPrefixe(c, code) { var cum = cumLong(c); return cum.indexOf(String(code).length); }
+  function parentDe2(c, code) {
+    var t = arbre(c); if (t && t.idx[code]) { var p = t.idx[code].parent; return p && t.idx[String(p)] ? String(p) : ''; }
+    var r = rangPrefixe(c, code); return r > 0 ? String(code).slice(0, cumLong(c)[r - 1]) : '';
+  }
+  function niveauDe(c, code) { var t = arbre(c); if (t && t.idx[code]) return t.niveau(code); var r = rangPrefixe(c, code); return r >= 0 ? r + 1 : nbNiv(c); }
+  function libelle(c, code) {
+    if (!code) return 'Non ventilé';
+    var t = arbre(c); if (t && t.idx[code] && t.idx[code].libelle) return t.idx[code].libelle;
+    if (c === 'PC') { var lc = window.ECRITURES_SAISIES.libCompte(code); if (lc) return lc; if (t) for (var p = code.length - 1; p >= 1; p--) { var x = t.idx[code.slice(0, p)]; if (x && x.libelle) return x.libelle; } return 'Compte ' + code; }
+    var it = items(c).filter(function (x) { return String(x.code) === String(code); })[0]; if (it && (it.label || it.libelle)) return it.label || it.libelle;
+    var r = rangPrefixe(c, code), N = cfgPlan(c).niveaux || []; return r >= 0 && N[r] && N[r].libelle ? N[r].libelle + ' ' + code : '';
+  }
+  // élément du niveau n qui contient le code (le code lui-même si son niveau est inférieur ou égal)
+  function ancetre(c, code, n) {
+    if (!code) return ''; var k = code, g = 0;
+    while (niveauDe(c, k) > n && g++ < 12) { var p = parentDe2(c, k); if (!p) break; k = p; }
+    return k;
+  }
+  // ventilation d'une ligne sur un plan : [{ code, f }] (f = fraction) ; plan comptable = le compte à 100 %
+  function parts(x, c) {
+    if (c === 'PC') return [{ code: x.compte, f: 1 }];
+    var n = axeNom(c), v = (x.ventil && x.ventil[n] || []).filter(function (r) { return r.code; });
+    if (v.length) { var t = v.reduce(function (a, r) { return a + (+r.pct || 0); }, 0) || 100; return v.map(function (r) { return { code: String(r.code), f: (+r.pct || 0) / t }; }); }
+    var a = x.axes && x.axes[n]; if (a && a !== 'VENTILÉ') return [{ code: String(a), f: 1 }];
+    return [{ code: '', f: 1 }];
+  }
+  function repartir(v, P) { var o = [], reste = v; P.forEach(function (p, i) { var m = i === P.length - 1 ? reste : Math.round(v * p.f); o.push(m); reste -= m; }); return o; }
+  function jourAvant(iso) { var d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); }
+  function lignesEnt(du, au, c1, c2) {
+    var ES = window.ECRITURES_SAISIES; if (!ES) return []; var n1 = c1 !== 'PC' ? axeNom(c1) : '', n2 = c2 && c2 !== 'PC' ? axeNom(c2) : '';
+    return ES({ du: du, au: au }).filter(function (x) {
+      var cl = String(x.compte).charAt(0), v = x.ventil || {};
+      return cl === '6' || cl === '7' || (n1 && (v[n1] || []).length) || (n2 && (v[n2] || []).length);
+    });
+  }
+  function nouv() { return { mvD: 0, mvC: 0, pD: 0, pC: 0 }; }
+  function fr2(c) { return c ? (c / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(/[  ]/g, ' ') : ''; }
+  function sol(r) { return r.mvD - r.mvC; }
+  var DERN = null, THEAD0 = null, stEnt = null;
+  // en-tête de tableau au gabarit de la balance analytique (Section · Intitulé · Mouvements Débit/Crédit · Soldes · Soldes exercice précédent)
+  function enteteEnt(on, titreCol) {
+    var th = q('thead'); if (!th) return;
+    if (!stEnt) { stEnt = document.createElement('style'); stEnt.textContent = 'app-balance-analytique .ba-sec td{font-weight:700}app-balance-analytique .ba-det td{font-weight:400}app-balance-analytique .ba-tot td{font-weight:700;border-top:1px solid #E3EBFE}app-balance-analytique .ba-grp td{font-weight:700;background:#F4F7FE;border-top:1px solid #D6D9E0}app-balance-analytique .ba-det td:first-child{padding-left:28px}app-balance-analytique .ba-tot td:nth-child(2),app-balance-analytique .ba-grp td:nth-child(2){padding-left:20px}'; document.head.appendChild(stEnt); }
+    if (on) {
+      if (!th.getAttribute('data-ent')) {
+        THEAD0 = th.innerHTML; th.setAttribute('data-ent', '1');
+        th.innerHTML = '<tr' + A + ' class="ba-h1"><th' + A + ' rowspan="2">' + esc(titreCol) + '</th><th' + A + ' rowspan="2">Intitulé</th><th' + A + ' rowspan="2" style="text-align:right">À nouveau</th><th' + A + ' colspan="2" style="text-align:center">Mouvements</th><th' + A + ' rowspan="2" style="text-align:right">Soldes</th></tr><tr' + A + '><th' + A + ' style="text-align:right">Débit</th><th' + A + ' style="text-align:right">Crédit</th></tr>';
+        if (filtresCol) { while (filtresCol.children.length > 6) filtresCol.removeChild(filtresCol.lastChild); th.appendChild(filtresCol); }
+      } else { var h = th.querySelector('.ba-h1 th'); if (h) h.textContent = titreCol; }
+    } else if (th.getAttribute('data-ent')) {
+      th.innerHTML = THEAD0; th.removeAttribute('data-ent');
+      if (filtresCol) { while (filtresCol.children.length < 10) { var t = document.createElement('th'); t.setAttribute('_ngcontent-ng-c2712255655', ''); filtresCol.appendChild(t); } th.appendChild(filtresCol); }
+    }
+  }
+  function cel(r, cl, gras) {
+    var sd = sol(r), pv = r.pD - r.pC;
+    return '<td' + A + ' class="num">' + fr2(pv) + '</td><td' + A + ' class="num">' + fr2(r.mvD) + '</td><td' + A + ' class="num credit">' + fr2(r.mvC) + '</td><td' + A + ' class="num">' + (sd || cl === 'ba-det' ? fr2(sd) : '') + '</td>';
+  }
+  function genererEnt() {
+    var c1 = plan.value, c2 = axe2.value, bi = !!c2;
+    var vus = niveaux.map(function (c) { return c.checked; }), n1 = vus.indexOf(true) + 1, n2 = niveaux2.map(function (c) { return c.checked; }).indexOf(true) + 1;
+    var f = (recherche.value || '').trim().toLowerCase(), fc = filtresCol ? qa('input', filtresCol).map(function (i) { return i.value.trim().toLowerCase(); }) : ['', ''];
+    var garde = function (code, lib) { code = code || ''; lib = lib || ''; return (!f || code.toLowerCase().indexOf(f) >= 0 || lib.toLowerCase().indexOf(f) >= 0) && (!fc[0] || code.toLowerCase().indexOf(fc[0]) === 0) && (!fc[1] || lib.toLowerCase().indexOf(fc[1]) >= 0); };
+    var an = function (iso, d) { return (+iso.slice(0, 4) + d) + iso.slice(4); };
+    var mov = lignesEnt(deb.value, fin.value, c1, c2), prec = lignesEnt(an(deb.value, -1), an(fin.value, -1), c1, c2);
+    var T = nouv(), A1 = {}, A2 = {};
+    function ajoute(o, k, cle, vD, vC) { var r = o[k] = o[k] || nouv(); r[cle + 'D'] += vD; r[cle + 'C'] += vC; }
+    function traite(L, cle) {
+      L.forEach(function (x) {
+        var D = Math.round((+x.debit || 0) * 100), C = Math.round((+x.credit || 0) * 100);
+        T[cle + 'D'] += D; T[cle + 'C'] += C;
+        if (!bi) { var P = parts(x, c1), dD = repartir(D, P), dC = repartir(C, P); P.forEach(function (p, i) { ajoute(A1, p.code, cle, dD[i], dC[i]); }); return; }
+        var paires = c1 === 'PC' ? (function () { var g = ancetre('PC', x.compte, n1), S = parts(x, c2); return S.map(function (p) { return { g: g, d: ancetre(c2, p.code, n2), f: p.f }; }); })()
+          : (function () { var d = ancetre('PC', x.compte, n2), S = parts(x, c1); return S.map(function (p) { return { g: ancetre(c1, p.code, n1), d: d, f: p.f }; }); })();
+        var dD2 = repartir(D, paires), dC2 = repartir(C, paires);
+        paires.forEach(function (p, i) { var G = A2[p.g] = A2[p.g] || {}; ajoute(G, p.d, cle, dD2[i], dC2[i]); });
+      });
+    }
+    traite(mov, 'mv'); traite(prec, 'p');
+    var L = [], n = 0, t = arbre(c1), somme = function (a, b) { ['mvD', 'mvC', 'pD', 'pC'].forEach(function (z) { a[z] += b[z]; }); return a; };
+    function parentDe(k) { return parentDe2(c1, k); }
+    // cumuls par élément (ancêtres compris)
+    var base = bi ? Object.keys(A2).reduce(function (o, g) { o[g] = Object.keys(A2[g]).reduce(function (r, d) { return somme(r, A2[g][d]); }, nouv()); return o; }, {}) : A1, cum = {};
+    Object.keys(base).forEach(function (k) { var cur = k, g = 0; if (!k) { cum[''] = somme(cum[''] || nouv(), base['']); return; } while (cur && g++ < 12) { cum[cur] = somme(cum[cur] || nouv(), base[k]); cur = parentDe(cur); } });
+    var codes = Object.keys(cum).filter(function (k) { return k; });
+    function enfants(p) { return codes.filter(function (k) { return parentDe(k) === p; }).sort(); }
+    function visite(k) {
+      var niv = niveauDe(c1, k), lib = libelle(c1, k), feuille = !enfants(k).length, ok = garde(k, lib);
+      if (bi && base[k]) {   // section : intitulé, lignes de détail, total de la section
+        if (ok || Object.keys(A2[k]).some(function (d) { return garde(d, libelle(c2, d)); })) {
+          L.push({ cls: 'ba-sec', code: k, lib: lib });
+          Object.keys(A2[k]).sort().forEach(function (d) { var ld = libelle(c2, d); if (ok || garde(d, ld)) { L.push({ cls: 'ba-det', code: d, lib: ld, r: A2[k][d] }); n++; } });
+          L.push({ cls: 'ba-tot', code: 'Total  ' + k, lib: lib, r: cum[k] });
+        }
+      } else if (!bi && feuille) {
+        if (vus[niv - 1] !== false && ok) { L.push({ cls: 'ba-det0', code: k, lib: lib, r: cum[k] }); n++; }
+      }
+      enfants(k).forEach(visite);
+      if (!feuille && (bi || vus[niv - 1])) if (ok || bi) L.push({ cls: 'ba-grp', code: 'Total  ' + k, lib: '** ' + lib, r: cum[k] });
+    }
+    enfants('').forEach(visite);
+    if (cum['']) { var libnv = 'Non ventilé'; if (bi) { if (A2['']) { L.push({ cls: 'ba-sec', code: '—', lib: libnv }); Object.keys(A2['']).sort().forEach(function (d) { L.push({ cls: 'ba-det', code: d, lib: libelle(c2, d), r: A2[''][d] }); n++; }); L.push({ cls: 'ba-tot', code: 'Total  —', lib: libnv, r: cum[''] }); } } else if (garde('', libnv)) { L.push({ cls: 'ba-det0', code: '—', lib: libnv, r: cum[''] }); n++; } }
+    var tot = cumul([{ anD: 0, anC: 0, mvD: T.mvD, mvC: T.mvC }]); tot = { mvD: T.mvD, mvC: T.mvC, pD: T.pD, pC: T.pC };
+    var titreCol = c1 === 'PC' ? 'Compte' : 'Section';
+    enteteEnt(true, titreCol);
+    var html = L.map(function (l) {
+      var cl = l.cls === 'ba-det0' ? 'ba-det' : l.cls;
+      if (l.cls === 'ba-sec') return '<tr' + A + ' class="ba-sec"><td' + A + ' class="code-link">' + esc(l.code) + '</td><td' + A + '>' + esc(l.lib) + '</td><td' + A + ' colspan="4"></td></tr>';
+      var det0 = l.cls === 'ba-det0';
+      return '<tr' + A + ' class="' + cl + '"' + (det0 ? ' style=""' : '') + '><td' + A + ' class="code-link"' + (det0 ? ' style="padding-left:10px"' : '') + '>' + esc(l.code) + '</td><td' + A + '>' + esc(l.lib) + '</td>' + cel(l.r, cl) + '</tr>';
+    }).join('');
+    if (!html) html = '<tr' + A + '><td' + A + ' colspan="6" class="empty-state">' + (mov.length ? 'Aucun élément ne correspond à la recherche.' : 'Aucune écriture ventilée sur la période : saisissez des écritures (Saisie d’écritures › Ventiler) pour alimenter la balance analytique.') + '</td></tr>';
+    tbody.innerHTML = html;
+    tfoot.innerHTML = '<tr' + A + ' class="row-total"><td' + A + '></td><td' + A + '> Totaux de la balance </td>' + cel(tot, 'ba-tot') + '</tr>';
+    var per = 'Période du ' + dateFr(deb.value) + ' au ' + dateFr(fin.value) + (dp.valeur() ? ' — Programme ' + dp.valeur().code + ' (' + dp.valeur().libelle + ')' : '') + ' · Tenue de compte : ' + (window.ENTITE_MONNAIES && window.ENTITE_MONNAIES.m1 ? window.ENTITE_MONNAIES.m1 : 'MGA');
+    q('.cartouche-texte').textContent = ' ' + per + ' ';
+    var m = new Date(), p2 = function (v) { return String(v).padStart(2, '0'); };
+    meta.innerHTML = '<span' + A + ' class="badge-mode' + (bi ? ' badge-mode-croise' : '') + '"> ' + (bi ? 'Bicritère' : 'Mono-critère') + ' </span> Lignes : <strong' + A + '>' + n + '</strong> · Générée le : <strong' + A + '>' + p2(m.getDate()) + '/' + p2(m.getMonth() + 1) + '/' + m.getFullYear() + ' ' + p2(m.getHours()) + ':' + p2(m.getMinutes()) + ':' + p2(m.getSeconds()) + '</strong>';
+    q('.result-title').textContent = 'Balance analytique — ' + nomCourt(c1) + (bi ? ' puis ' + nomCourt(c2) : '') + ' · du ' + dateFr(deb.value) + ' au ' + dateFr(fin.value);
+    DERN = { titre: 'Balance analytique', axe: nomCourt(c1) + (bi ? ' puis ' + nomCourt(c2) : ''), periode: dateFr(deb.value) + '|' + dateFr(fin.value), titreCol: titreCol, lignes: L.map(function (l) { return { cls: l.cls, code: l.code, lib: l.lib, r: l.r || null }; }), total: tot };
+    etat(true);
+  }
+  // impression A4 portrait au gabarit de la balance analytique (en-tête encadré, colonnes, totaux)
+  function imprimerEnt() {
+    if (!DERN) return; var proj = (document.querySelector('.topbar-active-project-name') || {}).textContent || 'COMPTA_ENTREPRISE'; proj = proj.replace(/\(.*\)/, '').trim();
+    var pr = DERN.periode.split('|'), m = new Date(), p2 = function (v) { return String(v).padStart(2, '0'); };
+    var ligne = function (l) {
+      if (l.cls === 'ba-sec') return '<tr class="s"><td>' + esc(l.code) + '</td><td colspan="5"><b>' + esc(l.lib) + '</b></td></tr>';
+      var r = l.r, gras = l.cls === 'ba-tot' || l.cls === 'ba-grp', sd = sol(r), pv = r.pD - r.pC;
+      return '<tr class="' + (gras ? 'g' : '') + '"><td>' + esc(l.code) + '</td><td' + (gras ? ' class="t"' : '') + '>' + esc(l.lib) + '</td><td class="n">' + fr2(pv) + '</td><td class="n">' + fr2(r.mvD) + '</td><td class="n">' + fr2(r.mvC) + '</td><td class="n">' + (sd || l.cls === 'ba-det' || l.cls === 'ba-det0' ? fr2(sd) : '') + '</td></tr>';
+    };
+    var tt = DERN.total, h = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Balance analytique</title><style>@page{size:A4 portrait;margin:10mm 9mm 12mm;@bottom-right{content:"Page " counter(page);font:9px Arial}}body{font:11px Arial,sans-serif;color:#000;margin:0}' +
+      '.en{border:1px solid #000;display:flex;justify-content:space-between;padding:8px 10px;margin-bottom:6px}.en h1{margin:0;font-size:22px}.en .a{font-size:12px}.en .p{font-size:12px;line-height:1.5}.tir{display:flex;justify-content:space-between;padding:4px 4px 8px;font-size:12px}' +
+      'table{width:100%;border-collapse:collapse}thead th{border:1px solid #000;padding:6px 4px;font-size:12px;text-align:center}tbody td{padding:1.5px 4px;font-size:12px;vertical-align:top}.n{text-align:right;white-space:nowrap}tr.g td{font-weight:700}tr.g td.t{padding-left:40px}tr.s td{font-weight:700}tfoot td{border:1px solid #000;font-weight:700;padding:6px 4px;font-size:12px}thead{display:table-header-group}tr{page-break-inside:avoid}</style></head><body>' +
+      '<div class="en"><div><b>' + esc(proj) + '</b><div class="a">' + esc(DERN.axe) + '</div></div><h1>' + esc(DERN.titre) + '</h1><div class="p">Période du ' + pr[0] + '<br>au ' + pr[1] + '<br>Tenue de compte : ' + esc(window.ENTITE_MONNAIES && window.ENTITE_MONNAIES.m1 ? window.ENTITE_MONNAIES.m1 : 'MGA') + '</div></div>' +
+      '<div class="tir"><span>Date de tirage ' + p2(m.getDate()) + '/' + p2(m.getMonth() + 1) + '/' + String(m.getFullYear()).slice(2) + '</span><span>à ' + p2(m.getHours()) + ':' + p2(m.getMinutes()) + ':' + p2(m.getSeconds()) + '</span></div>' +
+      '<table><thead><tr><th rowspan="2" style="width:14%">' + esc(DERN.titreCol) + '</th><th rowspan="2" style="width:28%">Intitulé</th><th rowspan="2">À nouveau</th><th colspan="2">Mouvements</th><th rowspan="2">Soldes</th></tr><tr><th>Débit</th><th>Crédit</th></tr></thead><tbody>' + DERN.lignes.map(ligne).join('') + '</tbody>' +
+      '<tfoot><tr><td colspan="2" style="text-align:right">Totaux de la balance</td><td class="n">' + fr2(tt.pD - tt.pC) + '</td><td class="n">' + fr2(tt.mvD) + '</td><td class="n">' + fr2(tt.mvC) + '</td><td class="n">' + fr2(sol(tt)) + '</td></tr></tfoot></table></body></html>';
+    var fr0 = document.createElement('iframe'); fr0.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(fr0);
+    var w = fr0.contentWindow; w.document.open(); w.document.write(h); w.document.close();
+    setTimeout(function () { try { w.focus(); w.print(); } catch (e) { window.alert('Impression impossible : ' + e.message); } setTimeout(function () { fr0.parentNode.removeChild(fr0); }, 60000); }, 350);
+  }
+  window.BAL_ENT = { cfgPlan: cfgPlan, nomPlan: nomPlan, nomCourt: nomCourt, axeNom: axeNom, nbNiv: nbNiv, niveauDe: niveauDe, parentDe: parentDe2, libelle: libelle, ancetre: ancetre, parts: parts, repartir: repartir };
+  ['produit-changed', 'plans-actifs', 'plans-changed'].forEach(function (e) { window.addEventListener(e, function () { if (ENT()) axes(); }); });
+  window.addEventListener('ecritures-pieces-changed', function () { if (ENT() && actif) genererEnt(); });
+  window.addEventListener('hashchange', function () { if (ENT() && location.hash === '#balana') axes(); });
+  if (ENT()) axes();
+
   q('.page-header .toolbar-btn-primary').addEventListener('click', ouvrir);
   recherche.addEventListener('input', function () { if (actif) generer(); });
   // Filtres par colonne (code, libellé) sous l'en-tête du tableau
@@ -34265,7 +34726,7 @@ window.SoftDPFiltre = function (o) {
   filtreBtn.click();   // filtres de colonnes toujours affichés (le bouton est masqué)
   // Exports : CSV (aussi pour EXCEL, séparateur « ; ») et impression
   function csv() {
-    var lignes = qa('thead tr:first-child th').map(function (th) { return th.textContent.trim(); }).join(';');
+    var lignes = ENT() && DERN ? [DERN.titreCol, 'Intitulé', 'À nouveau', 'Mouvements débit', 'Mouvements crédit', 'Soldes'].join(';') : qa('thead tr:first-child th').map(function (th) { return th.textContent.trim(); }).join(';');
     var corps = qa('tbody tr, tfoot tr').map(function (tr) {
       return qa('td', tr).map(function (td) { return '"' + td.textContent.trim().replace(/"/g, '""') + '"'; }).join(';');
     });
@@ -34276,7 +34737,7 @@ window.SoftDPFiltre = function (o) {
   }
   exportBtns[0].addEventListener('click', csv);
   exportBtns[1].addEventListener('click', csv);
-  exportBtns[2].addEventListener('click', function () { window.print(); });
+  exportBtns[2].addEventListener('click', function () { if (ENT()) imprimerEnt(); else window.print(); });
 })();
 
 // Refonte des filtres d'édition des états (styles : ecrans/etats_filtres.css).
@@ -36941,7 +37402,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   var PROFIL = { exclus: ['contrats', 'projets-bailleurs'], nom: 'SoftAccounting Entreprise', desc: 'Comptabilité d’entreprise', cleLS: 'softcompta.produit' };
   var TEXTES = [];   // le nom du produit reste « SoftAccounting » : seule la licence du projet change les menus proposés
   var cssEnt = document.createElement('style');
-  cssEnt.textContent = 'html.prod-entreprise [data-nav="dp"],html.prod-entreprise [data-nav="procfin"],html.prod-entreprise [data-nav="pl_financier"],html.prod-entreprise [data-group-toggle="financiers"],html.prod-entreprise [data-group="financiers"],html.prod-entreprise [data-tab="personnalisation"],html.prod-entreprise [data-proc],html.prod-entreprise .le-l:has(>[data-ms="contrat"]),html.prod-entreprise [data-nav="ecritures"],html:not(.prod-entreprise) [data-nav="ecritures_ent"]{display:none!important}';
+  cssEnt.textContent = 'html.prod-entreprise [data-nav="dp"],html.prod-entreprise [data-nav="procfin"],html.prod-entreprise [data-nav="pl_financier"],html.prod-entreprise [data-group-toggle="financiers"],html.prod-entreprise [data-group="financiers"],html.prod-entreprise .ig-f:has([data-ig-gestiondp]),html.prod-entreprise .ig-sec:has([data-ig-procs]),html.prod-entreprise [data-proc],html.prod-entreprise .le-l:has(>[data-ms="contrat"]),html.prod-entreprise [data-nav="ecritures"],html:not(.prod-entreprise) [data-nav="ecritures_ent"]{display:none!important}';
   document.head.appendChild(cssEnt);
   function textes(ent) {
     var cibles = [document.querySelector('.app-switcher-trigger'), document.querySelector('[data-sidebar-level="root"]') && document.querySelector('[data-sidebar-level="root"]').parentElement && document.querySelector('[data-sidebar-level="root"]').parentElement.parentElement];
@@ -37834,7 +38295,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
    Les lignes de total (attribut data-pg-keep ou classe contenant « tot ») restent toujours visibles. Le filtre / tri de tableaux.js (classe tf-off) est respecté.
    Ne pas nommer de fonction « $$ » (build.cjs). */
 (function () {
-  var EXCLUS = { balance: 1, balaux: 1, glg: 1, glaux: 1, journal: 1, balana: 1, listedit: 1, recapexec: 1, fisctrait: 1, fiscannul: 1, biledit: 1, cred: 1, ered: 1, tfted: 1, designer2: 1, listingdes: 1, designer: 1, modfisc2: 1, situation: 1 };
+  var EXCLUS = { journal: 1, balana: 1, listedit: 1, recapexec: 1, fisctrait: 1, fiscannul: 1, biledit: 1, cred: 1, ered: 1, tfted: 1, designer2: 1, listingdes: 1, designer: 1, modfisc2: 1, situation: 1 };
   var HORS = '[class*="-ov"],[class*="modal"],[role="dialog"],.ba-bar,.ai-pan,.custom-select-dropdown,.cb-pan,.etm-dialog,.pg-bar,[contenteditable]';
   var TAILLES = [10, 25, 50, 100];
   var css = '.pg-off{display:none!important}' +
@@ -37848,7 +38309,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   function filtree(r) { return r.classList.contains('tf-off') || r.hidden || r.style.display === 'none'; }
-  function garde(r) { return r.hasAttribute('data-pg-keep') || /(^|[-_ ])tot(al)?([-_ ]|$)/i.test(r.className.replace(/pg-off|tf-off/g, '')); }
+  function garde(r) { return r.hasAttribute('data-pg-keep') || (/(^|[-_ ])tot(al)?([-_ ]|$)/i.test(r.className.replace(/pg-off|tf-off/g, '')) && !/gl-tot|sous-total/.test(r.className)); }   // gl-tot : totaux par tiers du grand livre auxiliaire (lignes paginées comme les autres)
   function pages(c, n) {
     if (n <= 7) { var a = []; for (var i = 1; i <= n; i++) a.push(i); return a; }
     if (c <= 4) return [1, 2, 3, 4, 5, '…', n];
@@ -38552,8 +39013,9 @@ html.sans-regroupement [data-screen="ecritures"][data-screen="ecritures"][data-s
 body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] app-jour-entry-form::before{content:"VERSION ENTREPRISE";display:block;width:max-content;margin:0 0 8px;padding:2px 10px;border-radius:999px;background:#E3EBFE;color:#243569;font:700 11px var(--font-sans,Inter,sans-serif);letter-spacing:.06em}
 
 /* version Entreprise : pas de contrat, de regroupement ni d'axes analytiques dans la saisie */
-body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-compact-contract,body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-field-regr,body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-axes-ligne{display:none!important}
+body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-compact-contract,body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-axes-ligne{display:none!important}
 body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-field-echeance{grid-row:2!important}
+body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-field-regr{grid-row:2!important;grid-column:2 / 4!important;grid-template-columns:100px minmax(0,300px)!important}
 body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.entry-field-libelle,body[data-variante="entreprise"] [data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"][data-screen="ecritures"] .entry-general-fields>.ec-taxmode{grid-row:3!important}
 
 /* ventilation analytique (version Entreprise) */
