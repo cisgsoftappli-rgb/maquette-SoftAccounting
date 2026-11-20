@@ -13552,8 +13552,18 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
     </div>
     <div data-ga-pane="users" style="display:none" data-gu>
       <div class="ga-tb" style="padding:12px 16px"><div class="ga-q"><i class="ti ti-search"></i><input type="text" placeholder="Rechercher un utilisateur…" data-gu-q></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="ga-btn ok" data-gu-new><i class="ti ti-user-plus"></i> Nouvel utilisateur</button><button type="button" class="ga-btn" data-gu-edit disabled><i class="ti ti-pencil"></i> Modifier</button><button type="button" class="ga-btn" data-gu-del disabled><i class="ti ti-trash"></i> Supprimer</button><button type="button" class="ga-btn" data-gu-print><i class="ti ti-printer"></i> Imprimer</button><button type="button" class="ga-btn" data-gu-pdf><i class="ti ti-file-type-pdf"></i> PDF</button><button type="button" class="ga-btn" data-gu-xlsx><i class="ti ti-file-spreadsheet"></i> Excel (XLSX)</button></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="ga-btn" data-gu-sync><i class="ti ti-refresh"></i> Synchronisation SoftAppli</button><button type="button" class="ga-btn ok" data-gu-new><i class="ti ti-user-plus"></i> Nouvel utilisateur</button><button type="button" class="ga-btn" data-gu-edit disabled><i class="ti ti-pencil"></i> Modifier</button><button type="button" class="ga-btn" data-gu-del disabled><i class="ti ti-trash"></i> Supprimer</button><button type="button" class="ga-btn" data-gu-print><i class="ti ti-printer"></i> Imprimer</button><button type="button" class="ga-btn" data-gu-pdf><i class="ti ti-file-type-pdf"></i> PDF</button><button type="button" class="ga-btn" data-gu-xlsx><i class="ti ti-file-spreadsheet"></i> Excel (XLSX)</button></div></div>
       <div class="ga-sc" style="padding:0 12px 12px"><table class="ga-t ga-tu"><thead><tr><th>Identifiant</th><th>Nom</th><th>Groupe</th><th>Email</th><th>Rôle</th><th>Menu</th><th>Statut</th></tr></thead><tbody data-gu-rows></tbody></table></div>
+      <div class="gu-ov" data-gu-syncov hidden>
+        <div class="gu-md sy-md" role="dialog" aria-label="Synchronisation SoftAppli">
+          <div class="sy-hd"><div><h2>Synchronisation SoftAppli</h2><p>Comparaison des groupes et des utilisateurs entre la base SoftAccounting et la base SoftAppli.</p></div><button type="button" class="ga-btn" data-sy-close aria-label="Fermer"><i class="ti ti-x"></i></button></div>
+          <div class="gu-bd sy-bd" data-sy-body></div>
+          <div class="gu-ft"><span class="sy-msg" data-sy-msg></span><span style="flex:1"></span>
+            <button type="button" class="ga-btn" data-sy-close>Fermer</button>
+            <button type="button" class="ga-btn ok" data-sy-to="appli"><i class="ti ti-arrow-right"></i> Synchroniser vers SoftAppli</button>
+            <button type="button" class="ga-btn ok" data-sy-to="compta"><i class="ti ti-arrow-left"></i> Synchroniser vers SoftAccounting</button></div>
+        </div>
+      </div>
       <div class="gu-ov" data-gu-ov hidden>
         <div class="gu-md" role="dialog" aria-label="Nouvel utilisateur">
           <div class="gu-steps" data-gu-steps></div>
@@ -13794,6 +13804,10 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
 .gu-st i{width:30px;height:30px;border-radius:50%;background:#E9EBF0;color:#5B606D;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-weight:700;flex:none}
 .gu-st.on i,.gu-st.ok i{background:#2E427B;color:#fff}.gu-st.on{color:#0B1332}.gu-ln{flex:1;height:1px;background:#E9EBF0}
 .gu-bd{padding:20px 20px;overflow:auto;flex:1;min-height:320px;font-size:13px}
+.sy-md{width:1280px;max-width:96vw}.sy-md .gu-ft{flex-wrap:wrap}.sy-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.sy-t .sy-tree{display:table-cell}.sy-lead{float:left;display:inline-flex;align-items:center;gap:6px;margin-right:10px;min-height:20px}.sy-ck{width:16px;height:16px;accent-color:#2e427b;cursor:pointer}.sy-ck:disabled{cursor:not-allowed;opacity:.4}.sy-ch{width:20px;height:20px;border:0;background:transparent;color:#5b606d;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center}.sy-t tr.sy-g td{background:#f4f7fe;font-weight:600}.sy-sub{display:block;overflow:hidden;color:#5b606d;font-weight:400;font-size:12px;margin-top:1px}.sy-tree>b{display:inline}.sy-tree{vertical-align:middle}span.sy-ch{display:inline-block}.sy-tree .sy-abs{display:block;overflow:hidden}.sy-t td.sy-sep,.sy-t th.sy-sep{border-left:1px solid #e9ebf0}.sy-t td{font-weight:400}.sy-t tr.sy-g td{font-weight:600}.sy-t tr.sy-u td.sy-tree{border-left:2px solid #e3ebfe}.sy-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 20px 8px}.sy-hd h2{margin:0;font-size:18px;color:#0b1332}.sy-hd p{margin:4px 0 0;font-size:13px;color:#5b606d}
+.sy-sum{display:flex;gap:8px;flex-wrap:wrap;padding:4px 20px 12px}.sy-chip{border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;background:#F4F7FE;color:#474C58}.sy-chip.ok{background:#e1f5ee;color:#0f6e56}.sy-chip.dif{background:#fff4d6;color:#8a6100}.sy-chip.abs{background:#fde8e8;color:#b42318}
+.sy-bd{min-height:0;height:min(60vh,560px);display:flex;flex-direction:column;overflow:hidden}.sy-cols{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:14px}.sy-pane{display:flex;flex-direction:column;min-height:0;min-width:0;border:1px solid #d6d9e0;border-radius:8px;overflow:hidden;background:#fff}.sy-ph{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#18244f;color:#fff;font-size:13px}.sy-ph span{font-size:12px;opacity:.8}.sy-scroll{flex:1;min-height:0;overflow:auto}.sy-scroll .sy-t thead th{position:sticky;top:0;z-index:1}.sy-new{display:inline-block;margin-left:8px;color:#b42318;font-size:12px;font-weight:600;font-style:italic;white-space:nowrap}@media(max-width:900px){.sy-cols{grid-template-columns:1fr;overflow:auto}.sy-pane{min-height:260px}}.sy-sec{margin-bottom:20px}.sy-sec h3{margin:0 0 8px;font-size:14px;color:#2e427b}.sy-t{width:100%;border-collapse:collapse;font-size:12.5px}.sy-t th{background:#2e427b;color:#fff;text-align:left;padding:8px 10px;font-weight:600;font-size:12px}.sy-t th.sy-base{background:#18244f;text-align:center;font-size:12.5px}.sy-t td{padding:8px 10px;border-bottom:1px solid #e9ebf0;vertical-align:middle}.sy-t td.sy-mid{text-align:center;width:150px;border-left:1px solid #e9ebf0;border-right:1px solid #e9ebf0}.sy-t td.sy-l{border-right:0}.sy-t .sy-abs{color:#747A88;font-style:italic}.sy-t .sy-d{background:#fff4d6;border-radius:4px;padding:1px 4px}
+.sy-st{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}.sy-st.same{background:#e1f5ee;color:#0f6e56}.sy-st.diff{background:#fff4d6;color:#8a6100}.sy-st.only{background:#fde8e8;color:#b42318}.sy-msg{font-size:12.5px;color:#0f6e56;font-weight:600}
 .gu-ft{display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid #E9EBF0}.gu-err{color:#b91c1c;font-size:12px}
 .gu-hint{margin:0 0 12px;color:#5B606D}
 .gu-sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
@@ -13974,6 +13988,141 @@ cs.forEach(function(c){c.addEventListener("change",function(){o[c.getAttribute("
       ENTETE.map(function (e) { return '<th>' + xml(e) + '</th>'; }).join('') + '</tr></thead><tbody>' + liste().map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + xml(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>');
     w.document.close(); w.focus(); setTimeout(function () { w.print(); }, 300);
   }
+
+  // ---- Synchronisation SoftAppli : comparaison côte à côte des groupes et des utilisateurs (deux bases simulées) ----
+  var APPLI_G = [['Administrateur', 'Administrateur'], ['ADMINOK', 'Administrateur'], ['COMPTA2', 'Standard'], ['CONSULTATION', 'Lecture seule'], ['TESTADM', 'Administrateur'], ['RH_PAIE', 'Standard'], ['SOFTDOCS', 'Standard']];
+  var APPLI_U = [
+    { id: 'superadmin', nom: 'Administrateur Super', groupe: 'TESTADM', fonction: 'Super administrateur', email: 'superadmin@softappli.mg', actif: true },
+    { id: 'ANDRY', nom: 'ANDRY', groupe: '', fonction: 'Comptable', email: 'andry@gmail.com', actif: true },
+    { id: 'ANDY', nom: 'ANDY', groupe: '', fonction: 'Responsable comptable', email: 'andy@softappli.mg', actif: true },
+    { id: 'ANTHONY', nom: 'ANTHONY ANTHONY', groupe: 'ADMINOK', fonction: 'Contrôleur de gestion', email: 'anthony@gmail.com', actif: true },
+    { id: 'HERY', nom: 'RAKOTO Hery', groupe: 'CONSULTATION', fonction: 'Auditeur interne', email: 'hery@gmail.com', actif: true },
+    { id: 'MARIE', nom: 'RAZAFY Marie', groupe: 'RH_PAIE', fonction: 'Gestionnaire de paie', email: 'marie@softappli.mg', actif: true },
+    { id: 'SOFTDOCS_ADM', nom: 'Administrateur SoftDocs', groupe: 'SOFTDOCS', fonction: 'Administrateur', email: 'docs@softappli.mg', actif: true }
+  ];
+  function nrm(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  function cmpListe(A, B, cle, champs) {
+    var rows = [], vus = {};
+    A.forEach(function (a) { var b = B.filter(function (x) { return nrm(cle(x)) === nrm(cle(a)); })[0]; vus[nrm(cle(a))] = 1;
+      var d = b ? champs.filter(function (c) { return nrm(c.v(a)) !== nrm(c.v(b)); }).map(function (c) { return c.k; }) : [];
+      rows.push({ a: a, b: b || null, st: !b ? 'onlyL' : d.length ? 'diff' : 'same', d: d }); });
+    B.forEach(function (b) { if (!vus[nrm(cle(b))]) rows.push({ a: null, b: b, st: 'onlyR', d: [] }); });
+    return rows;
+  }
+  function cmpG() { return cmpListe(GROUPES, APPLI_G, function (g) { return g[0]; }, [{ k: 'role', v: function (g) { return g[1]; } }]); }
+  function cmpU() { return cmpListe(USERS, APPLI_U, function (u) { return u.id; }, [{ k: 'nom', v: function (u) { return u.nom; } }, { k: 'groupe', v: function (u) { return u.groupe; } }, { k: 'email', v: function (u) { return u.email; } }]); }
+  function cell(txt, d) { return d ? '<span class="sy-d">' + esc(txt) + '</span>' : esc(txt); }
+  var SEL = { a: {}, b: {} }, FERME = {}, syMsg = '';
+  // arbre : groupes (union des deux bases) et, dessous, leurs utilisateurs
+  function arbre() {
+    var G = cmpG(), U = cmpU(), noeuds = [];
+    G.forEach(function (g) { noeuds.push({ nom: (g.a || g.b)[0], row: g, kids: [] }); });
+    var sans = { nom: '', row: null, kids: [] };
+    U.forEach(function (u) {
+      var gn = nrm((u.a || u.b).groupe), n = noeuds.filter(function (x) { return nrm(x.nom) === gn; })[0];
+      (n || sans).kids.push(u);
+    });
+    if (sans.kids.length) noeuds.push(sans);
+    return { noeuds: noeuds, G: G, U: U };
+  }
+  function cle(r, g) { return g ? 'g:' + (r.a || r.b)[0] : 'u:' + (r.a || r.b).id; }
+  function celG(r, side) { var g = r[side]; if (!g) return null; return { a: '<b>' + esc(g[0]) + '</b>', n: '', e: '' }; }
+  function celU(r, side) { var u = r[side]; if (!u) return null; return { a: '<b>' + esc(u.id) + '</b>' + (r.d.indexOf('groupe') >= 0 ? '<span class="sy-sub">groupe ' + cell(u.groupe || '—', true) + '</span>' : ''), n: cell(u.nom, r.d.indexOf('nom') >= 0), e: cell(u.email, r.d.indexOf('email') >= 0) }; }
+  var NOMB = { a: 'SoftAccounting', b: 'SoftAppli' };
+  function ckb(k, side, dis, gk) { return '<input type="checkbox" class="sy-ck" data-sy-' + (gk ? 'gk' : 'ck') + '="' + esc(k) + '" data-sy-side="' + side + '"' + (SEL[side][k] ? ' checked' : '') + (dis ? ' disabled' : '') + ' aria-label="Sélectionner dans la base ' + NOMB[side] + '">'; }
+  // arbre propre à une base : ses groupes et, dessous, ses utilisateurs
+  function arbreS(s) {
+    var G = cmpG(), U = cmpU(), noeuds = [], sans = { row: null, kids: [] };
+    G.forEach(function (r) { if (r[s]) noeuds.push({ row: r, kids: [] }); });
+    U.forEach(function (u) { if (!u[s]) return; var gn = nrm(u[s].groupe), n = noeuds.filter(function (x) { return nrm(x.row[s][0]) === gn; })[0]; (n || sans).kids.push(u); });
+    if (sans.kids.length) noeuds.push(sans);
+    return noeuds;
+  }
+  function ligne(r, s, g, niv, ouvert, aEnfants, k) {
+    var o = s === 'a' ? 'b' : 'a', c = (g ? celG : celU)(r, s), ch = g ? (aEnfants ? '<button type="button" class="sy-ch" data-sy-tg="' + s + '|' + esc(k) + '" aria-label="Déplier / replier"><i class="ti ti-chevron-' + (ouvert ? 'down' : 'right') + '"></i></button>' : '<span class="sy-ch"></span>') : '';
+    var abs = !r[o] ? '<span class="sy-new">absent de ' + NOMB[o] + '</span>' : '';
+    return '<tr class="' + (g ? 'sy-g' : 'sy-u') + '"><td class="sy-tree" style="padding-left:' + (8 + niv * 30) + 'px"><span class="sy-lead">' + ch + ckb(k, s, false) + '</span>' + c.a + abs + '</td><td>' + c.n + '</td><td>' + c.e + '</td></tr>';
+  }
+  function panneau(s) {
+    var N = arbreS(s), h = '';
+    N.forEach(function (n) {
+      var kg = n.row ? cle(n.row, true) : 'g:', ouvert = !FERME[s + '|' + kg];
+      if (n.row) h += ligne(n.row, s, true, 0, ouvert, n.kids.length > 0, kg);
+      else h += '<tr class="sy-g"><td class="sy-tree" colspan="3" style="padding-left:8px"><span class="sy-lead"><button type="button" class="sy-ch" data-sy-tg="' + s + '|g:" aria-label="Déplier / replier"><i class="ti ti-chevron-' + (ouvert ? 'down' : 'right') + '"></i></button><input type="checkbox" class="sy-ck" data-sy-gk="g:" data-sy-side="' + s + '" aria-label="Sélectionner"></span><b>Sans groupe</b></td></tr>';
+      if (ouvert) n.kids.forEach(function (u) { h += ligne(u, s, false, 1, false, false, cle(u, false)); });
+    });
+    var nb = Object.keys(SEL[s]).length;
+    return '<section class="sy-pane" data-sy-pane="' + s + '"><header class="sy-ph"><b>Base ' + NOMB[s] + '</b><span>' + nb + ' sélectionné' + (nb > 1 ? 's' : '') + '</span></header><div class="sy-scroll"><table class="sy-t"><thead><tr><th>Groupe / Identifiant</th><th>Nom</th><th>Email</th></tr></thead><tbody>' + (h || '<tr><td colspan="3" class="sy-abs" style="padding:14px">Aucun élément.</td></tr>') + '</tbody></table></div></section>';
+  }
+  function drawSync() {
+    var sv = {}; host.querySelectorAll('.sy-scroll').forEach(function (e) { sv[e.parentNode.dataset.syPane] = e.scrollTop; });
+    q('[data-sy-body]').innerHTML = '<div class="sy-tools"><button type="button" class="ga-btn" data-sy-all="none"><i class="ti ti-square"></i> Tout décocher</button><button type="button" class="ga-btn" data-sy-all="open"><i class="ti ti-chevrons-down"></i> Tout déplier</button><button type="button" class="ga-btn" data-sy-all="close"><i class="ti ti-chevrons-up"></i> Tout replier</button></div><div class="sy-cols">' + panneau('a') + panneau('b') + '</div>';
+    host.querySelectorAll('.sy-scroll').forEach(function (e) { e.scrollTop = sv[e.parentNode.dataset.syPane] || 0; });
+    // cases de groupe : coché / partiel d'après le groupe et ses utilisateurs, base par base
+    ['a', 'b'].forEach(function (s) {
+      arbreS(s).forEach(function (n) {
+        var kg = n.row ? cle(n.row, true) : 'g:', pn = q('[data-sy-pane="' + s + '"]'), el = pn.querySelector('[data-sy-ck="' + kg + '"]') || pn.querySelector('[data-sy-gk="' + kg + '"]');
+        if (!el) return;
+        var its = (n.row ? [kg] : []).concat(n.kids.map(function (u) { return cle(u, false); })), cur = its.filter(function (k) { return SEL[s][k]; }).length;
+        el.checked = its.length > 0 && cur === its.length; el.indeterminate = cur > 0 && cur < its.length;
+      });
+    });
+    var nA = Object.keys(SEL.a).length, nC = Object.keys(SEL.b).length, bA = q('[data-sy-to="appli"]'), bC = q('[data-sy-to="compta"]');
+    bA.innerHTML = '<i class="ti ti-arrow-right"></i> Synchroniser vers SoftAppli (' + nA + ')'; bC.innerHTML = '<i class="ti ti-arrow-left"></i> Synchroniser vers SoftAccounting (' + nC + ')';
+    bA.disabled = !nA; bC.disabled = !nC;
+    q('[data-sy-msg]').textContent = syMsg;
+  }
+  function ouvrirSync() { syMsg = ''; SEL = { a: {}, b: {} }; FERME = {}; q('[data-gu-syncov]').hidden = false; drawSync(); }
+  // la synchronisation écrase toujours la fiche existante dans la base cible (ex. : mot de passe modifié), ou la crée si elle est absente
+  function lancerSync(sens) {
+    var s = sens === 'appli' ? 'a' : 'b', o = s === 'a' ? 'b' : 'a', A = arbre(), cre = 0, maj = 0;
+    var srcG = s === 'a' ? GROUPES : APPLI_G, dstG = s === 'a' ? APPLI_G : GROUPES;
+    function groupeAssure(nom) { // le groupe d'un utilisateur doit exister dans la base cible
+      if (!nom || dstG.filter(function (g) { return nrm(g[0]) === nrm(nom); })[0]) return;
+      var x = srcG.filter(function (g) { return nrm(g[0]) === nrm(nom); })[0]; if (x) dstG.push(x.slice());
+    }
+    A.G.forEach(function (r) { var k = cle(r, true); if (!SEL[s][k] || !r[s]) return;
+      if (r[o]) { r[o][1] = r[s][1]; maj++; } else { dstG.push(r[s].slice()); cre++; }
+      delete SEL[s][k]; });
+    A.U.forEach(function (r) { var k = cle(r, false); if (!SEL[s][k] || !r[s]) return;
+      groupeAssure(r[s].groupe);
+      if (r[o]) { var id = r[o].id; Object.assign(r[o], r[s]); r[o].id = id; maj++; }
+      else { (s === 'a' ? APPLI_U : USERS).push(Object.assign({ fonction: '', actif: true }, r[s])); cre++; }
+      delete SEL[s][k]; });
+    if (sens === 'compta') { draw(); window.dispatchEvent(new Event('ga-users-changed')); }
+    syMsg = (cre + maj) + ' élément' + (cre + maj > 1 ? 's' : '') + ' synchronisé' + (cre + maj > 1 ? 's' : '') + ' vers ' + (sens === 'appli' ? 'SoftAppli' : 'SoftAccounting') + ' (' + cre + ' créé' + (cre > 1 ? 's' : '') + ', ' + maj + ' écrasé' + (maj > 1 ? 's' : '') + ').';
+    drawSync(); toast(syMsg);
+  }
+  function cocheGroupe(kg, on, s) { // coche le groupe et TOUS les utilisateurs de son arbre dans cette base
+    var n = arbreS(s).filter(function (x) { return (x.row ? cle(x.row, true) : 'g:') === kg; })[0];
+    if (!n) return;
+    function mise(k) { if (on) SEL[s][k] = 1; else delete SEL[s][k]; }
+    if (n.row) mise(kg);
+    n.kids.forEach(function (u) { mise(cle(u, false)); });
+  }
+  host.addEventListener('click', function (e) {
+    var t = e.target, b;
+    if (t.closest('[data-gu-sync]')) ouvrirSync();
+    else if (t.closest('[data-sy-close]')) q('[data-gu-syncov]').hidden = true;
+    else if ((b = t.closest('[data-sy-to]'))) { if (!b.disabled) lancerSync(b.dataset.syTo); }
+    else if ((b = t.closest('[data-sy-tg]'))) { FERME[b.dataset.syTg] = !FERME[b.dataset.syTg]; drawSync(); }
+    else if ((b = t.closest('[data-sy-all]'))) {
+      var m = b.dataset.syAll;
+      if (m === 'none') SEL = { a: {}, b: {} };
+      else if (m === 'open') FERME = {};
+      else ['a', 'b'].forEach(function (s) { arbreS(s).forEach(function (n) { FERME[s + '|' + (n.row ? cle(n.row, true) : 'g:')] = 1; }); });
+      drawSync();
+    }
+  });
+  host.addEventListener('change', function (e) {
+    var c = e.target;
+    if (!c.classList || !c.classList.contains('sy-ck')) return;
+    var k = c.dataset.syCk, gk = c.dataset.syGk, s = c.dataset.sySide;
+    if (gk != null) cocheGroupe(gk, c.checked, s);
+    else if (k.indexOf('g:') === 0) cocheGroupe(k, c.checked, s);
+    else { if (c.checked) SEL[s][k] = 1; else delete SEL[s][k]; }
+    drawSync();
+  });
   host.addEventListener('click', function (e) {
     var t = e.target, b;
     if (t.closest('[data-gu-new]')) open();
@@ -35885,7 +36034,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
     coursapplique: { plat: 1, txt: /^(lancer le contrôle|pdf|excel \(xlsx\))$/i },
     rapprochement: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, situation: { txt: /^(détail.*|fiche( 2)?|exporter)$/i }, pointage: { txt: /^(liste des relevés|proposer automatiquement|générer les écritures|valider le rapprochement)$/i },
     devise: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, banques: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\)|récupération soft e-payment)$/i }, signataires: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, modereglement: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i }, lieuaffect: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|import|imprimer|pdf|excel \(xlsx\))$/i }, nettoyages: { plat: 1, txt: /^lancer la purge/i }, jtraces: { plat: 1, txt: /^(réinitialiser|dictionnaire|pdf|pdf avec détails|excel \(xlsx\)|excel \(xlsx\) avec détails)$/i }, cloture: { txt: /^(annuler|enregistrer)$/i }, lettparam: { txt: /^(annuler|enregistrer)$/i }, prelettrage: { plat: 1, txt: /^(tout désélectionner|annuler le prélettrage|prélettrer)$/i }, designer: { plat: 1, txt: /^(retour|enregistrer)$/i }, collabresp: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|import|imprimer|pdf|excel \(xlsx\))$/i }, famimmo: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|import|imprimer|pdf|excel \(xlsx\))$/i }, immolist: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer|enregistrer|annuler|générer écriture|calculer les dotations|imprimer|pdf|excel \(xlsx\))$/i },
-    etatinv: { plat: 1, txt: /^(filtre|imprimer|pdf|excel \(xlsx\))$/i }, reassign: { plat: 1, txt: /^(nouvelle réassignation|supprimer|enregistrer|annuler|historique|imprimer|pdf|excel \(xlsx\))$/i }, caissegen: { plat: 1, txt: /^proposer schéma comptable$/i }, caissesaisie: { plat: 1, txt: /^(ajouter|fermer le lot|ouvrir le lot|supprimer|ajouter des opérations|imprimer la pièce de caisse|enregistrer|annuler)$/i }, caissetypes: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, conversion: { plat: 1, txt: /^(historique|réinitialiser|lancer la conversion)$/i }, cours: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer|enregistrer|annuler)$/i }, releves: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer les lignes|importer par ocr|enregistrer|annuler|pointage)$/i }, lettmanuel: { plat: 1, txt: /^(lettrage automatique|tout désélectionner|délettrer|écart de règlement|lettrer)$/i }, clotper: { plat: 1, txt: /^(clôturer la période|annuler la clôture)$/i }, clotmens: { plat: 1, txt: /^(clôturer la période|rouvrir la période)$/i }, anouvanalytique: { plat: 1, txt: /^(saisie manuelle|importer|supprimer les à nouveaux analytiques|pdf|excel \(xlsx\))$/i }, anouveaux: { plat: 1, txt: /^(générer les à nouveaux provisoires|saisie manuelle|importer|supprimer les à nouveaux|pdf|excel \(xlsx\))$/i }, clotannuelle: { plat: 1, txt: /^(clôturer l'exercice)$/i }, traces: { txt: /^(annuler|enregistrer)$/i }, acces: { txt: /^(réinitialiser|enregistrer|nouvel utilisateur|modifier|supprimer|imprimer|pdf|excel \(xlsx\))$/i }, entite: { txt: /^(annuler|enregistrer)$/i },
+    etatinv: { plat: 1, txt: /^(filtre|imprimer|pdf|excel \(xlsx\))$/i }, reassign: { plat: 1, txt: /^(nouvelle réassignation|supprimer|enregistrer|annuler|historique|imprimer|pdf|excel \(xlsx\))$/i }, caissegen: { plat: 1, txt: /^proposer schéma comptable$/i }, caissesaisie: { plat: 1, txt: /^(ajouter|fermer le lot|ouvrir le lot|supprimer|ajouter des opérations|imprimer la pièce de caisse|enregistrer|annuler)$/i }, caissetypes: { plat: 1, txt: /^(ajouter|modifier|supprimer|enregistrer|annuler)$/i }, conversion: { plat: 1, txt: /^(historique|réinitialiser|lancer la conversion)$/i }, cours: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer|enregistrer|annuler)$/i }, releves: { plat: 1, txt: /^(ajouter|modifier|supprimer|importer les lignes|importer par ocr|enregistrer|annuler|pointage)$/i }, lettmanuel: { plat: 1, txt: /^(lettrage automatique|tout désélectionner|délettrer|écart de règlement|lettrer)$/i }, clotper: { plat: 1, txt: /^(clôturer la période|annuler la clôture)$/i }, clotmens: { plat: 1, txt: /^(clôturer la période|rouvrir la période)$/i }, anouvanalytique: { plat: 1, txt: /^(saisie manuelle|importer|supprimer les à nouveaux analytiques|pdf|excel \(xlsx\))$/i }, anouveaux: { plat: 1, txt: /^(générer les à nouveaux provisoires|saisie manuelle|importer|supprimer les à nouveaux|pdf|excel \(xlsx\))$/i }, clotannuelle: { plat: 1, txt: /^(clôturer l'exercice)$/i }, traces: { txt: /^(annuler|enregistrer)$/i }, acces: { txt: /^(réinitialiser|enregistrer|synchronisation softappli|nouvel utilisateur|modifier|supprimer|imprimer|pdf|excel \(xlsx\))$/i }, entite: { txt: /^(annuler|enregistrer)$/i },
     menuperso: { txt: /^(enregistrer|annuler|dupliquer|importer|télécharger|supprimer)$/i },
     circparam: { txt: /^(ajouter|modifier|supprimer|enregistrer|annuler|imprimer|pdf|excel \(xlsx\))$/i },
     ecritures: { txt: /^(importer des écritures|mod[èe]le d.[ée]criture|facture softdocs|facture ocr|infos libres|annuler|enregistrer la pièce)/i },
@@ -35935,6 +36084,7 @@ if (window.DEMO_COH) window.DEMO_COH.glg();
     if (/^imprimer le pv/.test(n)) ic = 'printer';
     if (/^imprimer la pièce/.test(n)) ic = 'printer';
     if (/^nouveau modèle/.test(n)) ic = 'file-plus';
+    if (/^synchronisation softappli/.test(n)) ic = 'refresh';
     if (/^importer word/.test(n)) ic = 'file-import';
     if (/^exporter en (word|rtf)/.test(n)) ic = 'file-export';
     if (/^dupliquer/.test(n)) ic = 'copy';
