@@ -32031,7 +32031,7 @@ window.ECRITURES_REF = {
     lignes.forEach(function (l) { if (l.sens === 'DEBIT') d1 += l.montant1 || 0; else c1 += l.montant1 || 0; });
     var ecart1 = Math.round((d1 - c1) * 100) / 100;
     var d2 = 0, c2 = 0; lignes.forEach(function (l) { if (l.sens === 'DEBIT') d2 += l.montant2 || 0; else c2 += l.montant2 || 0; });
-    window.__ecTotaux = { d: d, c: c, d1: d1, c1: c1, d2: d2, c2: c2 }; window.__ecRegr = ecartsRegr(); window.__ecContrat = ecartsContrat(); window.dispatchEvent(new Event('ecritures-totaux'));
+    window.__ecTotaux = { d: d, c: c, d1: d1, c1: c1, d2: d2, c2: c2 }; window.__ecRegr = ecartsRegr(); window.__ecContratEcarts = ecartsContrat(); window.dispatchEvent(new Event('ecritures-totaux'));
     var trPied = trPiedFixe, tdT = 'class="px-2.5 py-2 text-right whitespace-nowrap" style="font-family:var(--font-sans);font-variant-numeric:tabular-nums;font-weight:700;color:#0B1332"';
     tfootFixe.style.display = lignes.length ? '' : 'none';
     trPied.className = ''; trPied.style.background = '#fff'; trPied.style.color = '#0B1332';
@@ -32380,7 +32380,7 @@ window.ECRITURES_REF = {
       tbd.appendChild(tr);
     });
     [].forEach.call(tbd.querySelectorAll('tr[data-ct]'), function (r) { r.remove(); });
-    (window.__ecContrat || []).forEach(function (x) {
+    (window.__ecContratEcarts || []).forEach(function (x) {
       var tr = document.createElement('tr'); tr.setAttribute('data-ct', x.code); tr.title = 'Équilibre du contrat ' + x.code;
       tr.innerHTML = '<th>Contrat ' + x.code + '</th><td>' + fmt(x.d) + '</td><td>' + fmt(x.c) + '</td><td' + (x.s ? ' class="ec-ko"' : '') + '>' + fmt(x.s) + '</td>';
       tbd.appendChild(tr);
