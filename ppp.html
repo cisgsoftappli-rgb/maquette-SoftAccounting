@@ -45044,7 +45044,7 @@ window.ECRITURES_REF = {
     var r0 = (window.PLAN_COMPTABLE || []).filter(function (x) { return x.code === code; })[0], ro = (window.RACINES || []).filter(function (x) { return x.code === racineDe(code); })[0], act = window.PLANS_ACTIFS ? window.PLANS_ACTIFS() : [];
     if (!ro || (r0 && (r0.comp || []).indexOf('sans') >= 0)) return [];
     // Comportement par défaut de la racine C4 (tiers) : jamais d'analytique dans un journal d'opérations diverses (achat, vente, OD) ; possible en trésorerie (banque, caisse) et hybride (avance)
-    if (ro.code === 'C4') { var pjA = journal && journal.value ? paramJournal(journal.value.code) : null; if (pjA && pjA.type === 'Opérations diverses') return []; }
+    if (ro.code === 'C4') { var pjA = journal && journal.value ? paramJournal(journal.value.code) : null; if (pjA && pjA.type === 'Opérations diverses') return []; var oC4 = act.filter(function (p) { return /^PLAN[0-9]+$/.test(p); }); return r0 && r0.ana && r0.ana.length ? oC4.filter(function (p) { return r0.ana.indexOf(p) >= 0; }) : oC4; }   // trésorerie / hybride : tous les axes actifs, indépendamment de la racine
     var o = act.filter(function (p) { return ro.plans && ro.plans[p]; }); if (r0 && r0.ana && r0.ana.length) o = o.filter(function (p) { return r0.ana.indexOf(p) >= 0; });
     return o;
   }
@@ -46886,6 +46886,16 @@ window.ECRITURES_REF = {
   document.head.appendChild(css);
 
   /* ---------- factures non payées ---------- */
+  // imputations analytiques d'une facture de démonstration (premiers codes des axes disponibles, décalés d'une facture à l'autre)
+  function axesDemo(n) { var AX = window.ECRITURES_AXES || {}, o = {}; ['ACTIVITE', 'FINANCEMENT', 'GEOGRAPHIQUE'].forEach(function (k) { var l = AX[k]; if (l && l.length) o[k] = l[(n - 1) % Math.min(l.length, 3)].code; }); return o; }
+  // Paiement d'un tiers : la ligne de classe 4 reprend les imputations analytiques des lignes de charge (classe 2 ou 6) de la prise en charge, au prorata du montant payé
+  function imput(x, m) {
+    var p = pieces().filter(function (q) { return q.journal === x.journal && q.piece === x.piece; })[0], ch = p ? p.lignes.filter(function (l) { return !l.auto && /^[26]/.test(String(l.compte && l.compte.code || l.compte)) && l.axes && Object.keys(l.axes).some(function (k) { return l.axes[k]; }); }) : [];
+    if (!ch.length) return [{ m: m, axes: {} }];
+    var tot = ch.reduce(function (a, l) { return a + (l.montant || 0); }, 0), reste = m, out = [];
+    ch.forEach(function (l, i) { var mm = i === ch.length - 1 ? reste : Math.round(m * (tot > 0 ? (l.montant || 0) / tot : 1 / ch.length) * 100) / 100; reste = Math.round((reste - mm) * 100) / 100; if (mm > 0) out.push({ m: mm, axes: Object.assign({}, l.axes) }); });
+    return out.length ? out : [{ m: m, axes: {} }];
+  }
   function seedDemo() {
     if (pieces().some(function (p) { return p.source === 'demo'; })) return;
     var Rf = REF(), colls = Rf.comptes.filter(function (x) { return x.collectif; }), jr = (Rf.journaux[0] || {}).code || '01ACHAT';
@@ -46897,7 +46907,7 @@ window.ECRITURES_REF = {
           var mt = [1250000, 860000, 430000][(k + j) % 3] * (j ? 1.5 : 1), d = '2026-0' + (8 + j) + '-1' + (k + 2), ref = 'FA-' + (2000 + (++n));
           pieces().push({ journal: jr, piece: 'DEMO' + ('000' + n).slice(-4), date: d, datePiece: d, facture: ref, reference: '', source: 'demo', lignes: [
             { compte: cc.code, tiers: t.code, libelle: 'Facture ' + ref + ' ' + t.label, sens: cfg[1], montant: mt, montant1: 0, montant2: 0, echeance: '', regle: 0 },
-            { compte: cfg[2], tiers: '', libelle: 'Facture ' + ref + ' ' + t.label, sens: cfg[1] === 'CREDIT' ? 'DEBIT' : 'CREDIT', montant: mt, montant1: 0, montant2: 0, echeance: '' }] });
+            { compte: cfg[2], tiers: '', libelle: 'Facture ' + ref + ' ' + t.label, sens: cfg[1] === 'CREDIT' ? 'DEBIT' : 'CREDIT', montant: mt, montant1: 0, montant2: 0, echeance: '', axes: axesDemo(n) }] });
         });
       });
     });
@@ -46974,7 +46984,7 @@ window.ECRITURES_REF = {
     var k1 = nombre(c('cours1') && c('cours1').value), k2 = nombre(c('cours2') && c('cours2').value), L = [];
     function conv(m) { return { montant1: k1 > 0 ? Math.round(m / k1 * 100) / 100 : 0, montant2: k2 > 0 ? Math.round(m / k2 * 100) / 100 : 0 }; }
     (pay._L || []).forEach(function (x) { var s = st.sel[x.k]; if (!s) return; var m = montantDe(x, s.pct); if (!(m > 0)) return;
-      L.push(Object.assign({ compte: { code: coll.code, label: coll.label, collectif: true }, tiers: tiers ? { code: tiers.code, label: tiers.label, collectif: tiers.collectif } : null, libelle: 'Règlement ' + (x.facture ? 'facture ' + x.facture : 'pièce ' + x.piece) + (tiers ? ' ' + tiers.label : ''), montant: m, sens: sensFacture(st.coll) === 'CREDIT' ? 'DEBIT' : 'CREDIT', echeance: '', apure: { journal: x.journal, piece: x.piece, i: x.i } }, conv(m))); });
+      imput(x, m).forEach(function (pt) { var mm = pt.m; L.push(Object.assign({ axes: pt.axes, compte: { code: coll.code, label: coll.label, collectif: true }, tiers: tiers ? { code: tiers.code, label: tiers.label, collectif: tiers.collectif } : null, libelle: 'Règlement ' + (x.facture ? 'facture ' + x.facture : 'pièce ' + x.piece) + (tiers ? ' ' + tiers.label : ''), montant: mm, sens: sensFacture(st.coll) === 'CREDIT' ? 'DEBIT' : 'CREDIT', echeance: '', apure: { journal: x.journal, piece: x.piece, i: x.i } }, conv(mm))); }); });
     if (!L.length) return;
     A().ajouterLignes(L); st.sel = {};
     pay.hidden = true; if (blocGen) blocGen.style.display = '';   // retour à la saisie normale ; « Changer » rouvre la recherche des factures
