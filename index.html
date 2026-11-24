@@ -44932,6 +44932,10 @@ window.ECRITURES_REF = {
     });
     liste.sort(function (a, b) { return a.code < b.code ? -1 : 1; });
     var pere = {}; (window.PLAN_COMPTABLE || []).forEach(function (x) { if (x.parent) pere[x.parent] = 1; });
+    // dernier niveau du plan comptable (Configuration des plans) uniquement : ni classes, ni comptes intermédiaires, même sans sous-compte
+    var cfgPC = (window.PLANS_CFG || []).filter(function (x) { return x.code === 'PC'; })[0], NIV = cfgPC && cfgPC.niveaux ? cfgPC.niveaux.length : 0, rowPC = {}, prof = function (c) { var d = 0, g = 0; while (c && rowPC[c] && g++ < 30) { d++; c = rowPC[c].parent; } return d; };
+    PCL.forEach(function (x) { rowPC[x.code] = x; });
+    if (NIV && PCL.length) liste = liste.filter(function (c) { return rowPC[c.code] && prof(c.code) === NIV; });
     return liste.filter(function (c, i) { var n = liste[i + 1]; return !pere[c.code] && !(n && n.code !== c.code && String(n.code).indexOf(String(c.code)) === 0); });   // dernier niveau : le compte suivant (ordre des codes) n'est pas son sous-compte
   }
   // Tiers : exemples + tiers actifs du référentiel, chacun rattaché à un compte collectif
@@ -45294,6 +45298,8 @@ window.ECRITURES_REF = {
     invalide(libelle, !l.libelle); if (!l.libelle) manque.push('libellé');
     invalide(montant, !l.montant); if (!l.montant) manque.push('montant en devise locale');
     if (regrActif()) { var cr = ctrl('regroupement'); if (cr) { invalide(cr, !l.regr); if (cr.__cbBox) invalide(cr.__cbBox, !l.regr); } if (!l.regr) manque.push('plan de regroupement'); }
+    // imputations analytiques obligatoires : tous les axes ouverts pour le compte (classes 2 et 6 ; classe 4 en journal de trésorerie ou hybride) doivent être renseignés
+    majAxesCompte(); $$('[data-axe]', R).forEach(function (sl) { if (sl.disabled) return; var vide = !sl.value; invalide(sl, vide); if (vide) { var lb = sl.parentNode && sl.parentNode.querySelector('label'); manque.push('axe ' + (lb ? lb.textContent.replace(/\s+/g, ' ').trim() : sl.dataset.axe)); } });
     if (l.sdoc && !lienOk(l.sdoc)) { notify('Le lien SoftDocs doit commencer par http:// ou https://.', true); return false; }
     if (l.montant < 0) { invalide(montant, true); notify('Le montant doit être positif : utilisez le sens Débit / Crédit.', true); return false; }
     if (manque.length) { notify('Complétez : ' + manque.join(', ') + '.', true); return false; }
